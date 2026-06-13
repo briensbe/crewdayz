@@ -1,0 +1,185 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-text">
+      <h1>Collaborateurs</h1>
+      <p class="subtitle">Liste centralisée des collaborateurs travaillant dans la société</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <lucide-icon [img]="Plus" size="18"></lucide-icon>
+      Ajouter un collaborateur
+    </button>
+  </div>
+
+  <!-- Filters component -->
+  <app-filters
+    [services]="services()"
+    [teams]="teams()"
+    [workSites]="workSites()"
+    (filterChange)="handleFilterChange($event)"
+  ></app-filters>
+
+  <!-- Table list -->
+  <div class="table-container animate-fade-in">
+    @if (employeeService.loading() && filteredEmployees().length === 0) {
+      <div class="loading-state">
+        <span class="spinner"></span>
+        <p>Chargement des collaborateurs...</p>
+      </div>
+    } @else if (filteredEmployees().length === 0) {
+      <div class="empty-state">
+        <lucide-icon [img]="Users" size="48" class="empty-icon"></lucide-icon>
+        <h3>Aucun collaborateur trouvé</h3>
+        <p>Essayez de modifier vos filtres ou ajoutez un nouveau collaborateur.</p>
+      </div>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Nom complet</th>
+            <th>Type / Société</th>
+            <th>Profil</th>
+            <th>Service</th>
+            <th>Équipe (Ilot)</th>
+            <th>Site de travail</th>
+            <th class="text-center">Solde CP Initial</th>
+            <th class="text-center">Solde RTT Initial</th>
+            <th class="text-center">Exceptionnel Initial</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let emp of filteredEmployees()">
+            <td>
+              <div class="name-cell">
+                <span class="avatar-sm">{{ emp.first_name.charAt(0) }}{{ emp.last_name.charAt(0) }}</span>
+                <div class="name-details">
+                  <span class="full-name">{{ emp.first_name }} {{ emp.last_name }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="contract-badge" [class.interne]="emp.contract_type === 'Interne'" [class.externe]="emp.contract_type === 'Externe'">
+                {{ emp.contract_type }}
+                @if (emp.contract_type === 'Externe' && emp.company_name) {
+                  <span class="company-name">({{ emp.company_name }})</span>
+                }
+              </div>
+            </td>
+            <td><span class="profile-text">{{ emp.profile }}</span></td>
+            <td><span class="subtle-text">{{ emp.service }}</span></td>
+            <td><span class="team-badge">{{ emp.team }}</span></td>
+            <td><span class="subtle-text">{{ emp.work_site }}</span></td>
+            <td class="text-center font-semibold">{{ emp.initial_cp }} j</td>
+            <td class="text-center font-semibold">{{ emp.initial_rtt }} j</td>
+            <td class="text-center font-semibold text-muted">{{ emp.initial_exceptional }} j</td>
+            <td class="text-right">
+              <div class="action-buttons">
+                <button class="action-btn edit-btn" (click)="openEditModal(emp)" title="Modifier">
+                  <lucide-icon [img]="Edit" size="16"></lucide-icon>
+                </button>
+                <button class="action-btn delete-btn" (click)="deleteEmployee(emp)" title="Supprimer">
+                  <lucide-icon [img]="Trash2" size="16"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    }
+  </div>
+</div>
+
+<!-- Modal Dialog for Add / Edit -->
+<div class="modal-overlay animate-fade-in" *ngIf="showModal()" (click)="showModal.set(false)">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ isEditMode() ? 'Modifier le collaborateur' : 'Ajouter un collaborateur' }}</h2>
+      <button class="close-btn" (click)="showModal.set(false)">
+        <lucide-icon [img]="Plus" style="transform: rotate(45deg);" size="20"></lucide-icon>
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="alert alert-danger animate-fade-in">
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <form (ngSubmit)="saveEmployee()" class="employee-form">
+      <div class="form-grid">
+        <!-- Identity -->
+        <div class="form-group">
+          <label for="firstName">Prénom *</label>
+          <input id="firstName" type="text" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" name="firstName" required placeholder="Jean" />
+        </div>
+        <div class="form-group">
+          <label for="lastName">Nom *</label>
+          <input id="lastName" type="text" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" name="lastName" required placeholder="Dupont" />
+        </div>
+
+        <!-- Assignment -->
+        <div class="form-group">
+          <label for="service">Service *</label>
+          <input id="service" type="text" [ngModel]="service()" (ngModelChange)="service.set($event)" name="service" required placeholder="DSI, RH, Marketing..." />
+        </div>
+        <div class="form-group">
+          <label for="team">Équipe / Ilot *</label>
+          <input id="team" type="text" [ngModel]="team()" (ngModelChange)="team.set($event)" name="team" required placeholder="Équipe Web, Ilot A..." />
+        </div>
+
+        <div class="form-group">
+          <label for="workSite">Site de travail *</label>
+          <input id="workSite" type="text" [ngModel]="workSite()" (ngModelChange)="workSite.set($event)" name="workSite" required placeholder="Paris, Lyon, Télétravail..." />
+        </div>
+        <div class="form-group">
+          <label for="profile">Profil métier *</label>
+          <select id="profile" [ngModel]="profile()" (ngModelChange)="profile.set($event)" name="profile" required>
+            <option value="Développeur">Développeur</option>
+            <option value="Business Analyst">Business Analyst</option>
+          </select>
+        </div>
+
+        <!-- Contract & Company -->
+        <div class="form-group">
+          <label for="contractType">Type de contrat *</label>
+          <select id="contractType" [ngModel]="contractType()" (ngModelChange)="contractType.set($event)" name="contractType" required>
+            <option value="Interne">Interne (Salarié de la société)</option>
+            <option value="Externe">Externe (Prestataire ESN)</option>
+          </select>
+        </div>
+        <div class="form-group" [style.visibility]="contractType() === 'Externe' ? 'visible' : 'hidden'">
+          <label for="companyName">Nom de l'ESN *</label>
+          <input id="companyName" type="text" [ngModel]="companyName()" (ngModelChange)="companyName.set($event)" name="companyName" placeholder="Ex: Capgemini, Sopra Steria..." />
+        </div>
+      </div>
+
+      <!-- Vacation Balances -->
+      <h3 class="section-title">Soldes de congés prévus au 1er Janvier</h3>
+      <div class="balances-grid">
+        <div class="form-group">
+          <label for="initialCP">Congés Payés (CP) *</label>
+          <input id="initialCP" type="number" step="0.5" min="0" [ngModel]="initialCP()" (ngModelChange)="initialCP.set($event)" name="initialCP" required />
+        </div>
+        <div class="form-group">
+          <label for="initialRTT">RTT *</label>
+          <input id="initialRTT" type="number" step="0.5" min="0" [ngModel]="initialRTT()" (ngModelChange)="initialRTT.set($event)" name="initialRTT" required />
+        </div>
+        <div class="form-group">
+          <label for="initialExceptional">Exceptionnel *</label>
+          <input id="initialExceptional" type="number" step="0.5" min="0" [ngModel]="initialExceptional()" (ngModelChange)="initialExceptional.set($event)" name="initialExceptional" required />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" (click)="showModal.set(false)">Annuler</button>
+        <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+          @if (submitting()) {
+            <span class="spinner"></span> Enregistrement...
+          } @else {
+            Enregistrer
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

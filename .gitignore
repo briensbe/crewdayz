@@ -42,3 +42,89 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+#fichiers temporaires
+*.copy
+
+#vibe
+.bolt
+
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Node
+/node_modules
+npm-debug.log
+yarn-error.log
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.prettierrc
+
+# Visual Studio Code
+.vscode
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# Miscellaneous
+.angular
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Supabase
+supabase/.temp/
+supabase/.functions-pnpm/
+supabase/.storage/
+
+#env
+/environments
+environment.ts
+environment*
+.env
+
+# perso 
+private-docs/
+
+# Claude Code
+.claude/
+
+# Alternative recommandée : versionner la config partagée de l'équipe
+# et n'exclure que les fichiers locaux/personnels.
+# Pour adopter cette approche, commenter la ligne `.claude/` ci-dessus
+# et décommenter les lignes ci-dessous :
+#
+# .claude/settings.local.json
+# .claude/cache/
+# CLAUDE.local.md
+#
+# Fichiers typiquement à garder versionnés dans ce cas :
+#   - CLAUDE.md (instructions partagées du projet, à la racine)
+#   - .claude/settings.json (config partagée : permissions, hooks)
+#   - .claude/commands/ (slash commands custom partagés)

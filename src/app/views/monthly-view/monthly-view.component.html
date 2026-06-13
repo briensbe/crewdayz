@@ -1,0 +1,137 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-text">
+      <h1>Vue Mensuelle</h1>
+      <p class="subtitle">Planification des absences et calcul des jours travaillés</p>
+    </div>
+    
+    <!-- Month Navigation -->
+    <div class="month-navigator">
+      <button class="nav-arrow-btn" (click)="prevMonth()" title="Mois précédent">
+        <lucide-icon [img]="ChevronLeft" size="18"></lucide-icon>
+      </button>
+      <span class="month-year-title">{{ months[month()] }} {{ year() }}</span>
+      <button class="nav-arrow-btn" (click)="nextMonth()" title="Mois suivant">
+        <lucide-icon [img]="ChevronRight" size="18"></lucide-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Reusable filters -->
+  <app-filters
+    [services]="services()"
+    [teams]="teams()"
+    [workSites]="workSites()"
+    (filterChange)="handleFilterChange($event)"
+  ></app-filters>
+
+  <!-- Legend -->
+  <div class="legend-card">
+    <span class="legend-title">Légende :</span>
+    <div class="legend-items">
+      <div class="legend-item"><span class="legend-badge abs-cp">1 / 0.5</span> Congés Payés (CP)</div>
+      <div class="legend-item"><span class="legend-badge abs-rtt">1 / 0.5</span> RTT</div>
+      <div class="legend-item"><span class="legend-badge abs-maladie">1 / 0.5</span> Maladie</div>
+      <div class="legend-item"><span class="legend-badge abs-maternite">1 / 0.5</span> Maternité</div>
+      <div class="legend-item"><span class="legend-badge abs-exceptionnel">1 / 0.5</span> Exceptionnel</div>
+      <div class="legend-item"><span class="legend-badge abs-formation">F</span> Formation (Absence = 0)</div>
+      <div class="legend-item"><span class="legend-badge abs-other">1 / 0.5</span> Autre</div>
+    </div>
+  </div>
+
+  <!-- Main Calendar Grid Table -->
+  <div class="table-container calendar-table-container animate-fade-in">
+    @if (employeeService.loading() && filteredEmployees().length === 0) {
+      <div class="loading-state">
+        <span class="spinner"></span>
+        <p>Chargement du calendrier...</p>
+      </div>
+    } @else if (filteredEmployees().length === 0) {
+      <div class="empty-state">
+        <lucide-icon [img]="Info" size="48" class="empty-icon"></lucide-icon>
+        <h3>Aucun collaborateur à afficher</h3>
+        <p>Ajustez vos filtres pour voir les données du mois.</p>
+      </div>
+    } @else {
+      <table class="calendar-table">
+        <thead>
+          <tr>
+            <th class="sticky-col name-col">Collaborateur</th>
+            <th class="sticky-col service-col">Service</th>
+            <th class="sticky-col team-col">Ilot</th>
+            <th class="sticky-col site-col">Site</th>
+            <th class="sticky-col type-col">Type</th>
+            <th class="balance-col text-center" title="Solde de congés (CP + RTT) restant au début de ce mois">Solde Début</th>
+            
+            <!-- Calendar headers -->
+            <th *ngFor="let day of daysInMonth()" 
+                [class.col-weekend]="day.isWeekend" 
+                class="day-col text-center">
+              <span class="day-number">{{ day.dayNum }}</span>
+            </th>
+
+            <th class="balance-col text-center" title="Solde de congés (CP + RTT) restant à la fin de ce mois">Solde Fin</th>
+            <th class="worked-col text-center" title="Jours réellement travaillés dans le mois">Jours Trav.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let emp of filteredEmployees()">
+            <td class="sticky-col name-col font-semibold">{{ emp.first_name }} {{ emp.last_name }}</td>
+            <td class="sticky-col service-col subtle-text">{{ emp.service }}</td>
+            <td class="sticky-col team-col"><span class="team-badge">{{ emp.team }}</span></td>
+            <td class="sticky-col site-col subtle-text">{{ emp.work_site }}</td>
+            <td class="sticky-col type-col">
+              <span class="type-text" [class.type-interne]="emp.contract_type === 'Interne'" [class.type-externe]="emp.contract_type === 'Externe'">
+                {{ emp.contract_type }}
+              </span>
+            </td>
+            
+            <!-- Beginning Balance -->
+            <td class="balance-col text-center balance-value">{{ getBeginningBalance(emp) }} j</td>
+
+            <!-- Daily Calendar Grid Cells -->
+            <td *ngFor="let day of daysInMonth()"
+                [class.cell-weekend]="day.isWeekend"
+                [class.selected-cell]="isCellSelected(emp.id!, day.dateStr)"
+                (mousedown)="!day.isWeekend && onCellMouseDown(emp.id!, day.dateStr, $event)"
+                (mouseenter)="onCellMouseEnter(emp.id!, day.dateStr)"
+                class="day-cell text-center select-none">
+              
+              <!-- Display absence badge if registered -->
+              @let cell = getCellVal(emp.id!, day.dateStr);
+              @if (cell) {
+                <span class="absence-indicator" 
+                      [class]="cell.class"
+                      [title]="cell.comment || (cell.val === 'F' ? 'Formation' : 'Absence')">
+                  {{ cell.val }}
+                  @if (cell.comment) {
+                    <lucide-icon [img]="MessageSquare" class="comment-icon-cell" size="9"></lucide-icon>
+                  }
+                </span>
+              }
+            </td>
+
+            <!-- Ending Balance -->
+            <td class="balance-col text-center balance-value font-bold">{{ getEndingBalance(emp) }} j</td>
+            
+            <!-- Worked Days -->
+            <td class="worked-col text-center worked-value font-bold">{{ getWorkedDays(emp) }} j</td>
+          </tr>
+        </tbody>
+      </table>
+    }
+  </div>
+</div>
+
+<!-- Absence Declaration Modal Component -->
+@if (showModal()) {
+  <app-absence-modal
+    [employeeId]="modalEmployeeId()"
+    [initialDate]="modalInitialDate()"
+    [initialEndDate]="modalInitialEndDate()"
+    [existingAbsence]="modalExistingAbsence()"
+    (close)="showModal.set(false)"
+    (save)="onModalSave($event)"
+    (delete)="onModalDelete($event)"
+  ></app-absence-modal>
+}

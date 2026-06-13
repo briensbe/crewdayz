@@ -1,0 +1,45 @@
+<div class="profile-page-container">
+  <div class="page-header">
+    <h1>Mon Profil</h1>
+    <p class="subtitle">Gérez vos informations de compte et votre session</p>
+  </div>
+
+  <div class="profile-card">
+    <div class="profile-avatar">
+      <span>{{ supabaseService.user()?.user_metadata?.['displayName']?.charAt(0) || 'U' }}</span>
+    </div>
+    
+    <div class="profile-info-grid">
+      <div class="info-row">
+        <lucide-icon [img]="User" class="info-icon" size="20"></lucide-icon>
+        <div class="info-details">
+          <span class="info-label">Nom d'affichage</span>
+          <span class="info-value">{{ supabaseService.user()?.user_metadata?.['displayName'] || 'Non défini' }}</span>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <lucide-icon [img]="Mail" class="info-icon" size="20"></lucide-icon>
+        <div class="info-details">
+          <span class="info-label">Adresse Email</span>
+          <span class="info-value">{{ supabaseService.user()?.email || 'Non défini' }}</span>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <lucide-icon [img]="Shield" class="info-icon" size="20"></lucide-icon>
+        <div class="info-details">
+          <span class="info-label">Rôle de sécurité</span>
+          <span class="info-value">Gestionnaire RH</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-actions">
+      <button class="btn btn-outline btn-logout" (click)="logout()">
+        <lucide-icon [img]="LogOut" size="18"></lucide-icon>
+        Se déconnecter
+      </button>
+    </div>
+  </div>
+</div>

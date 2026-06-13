@@ -1,0 +1,255 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.15rem;
+}
+
+.page-header .subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* Year Navigator */
+.year-navigator {
+  display: flex;
+  align-items: center;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.4rem 0.5rem;
+  box-shadow: var(--shadow-sm);
+  gap: 0.5rem;
+}
+
+.nav-arrow-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.nav-arrow-btn:hover {
+  background-color: var(--background);
+  color: var(--text-main);
+}
+
+.year-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0 1rem;
+  min-width: 140px;
+  text-align: center;
+  color: var(--text-main);
+}
+
+/* Summary Stats Card */
+.summary-stats-card {
+  display: flex;
+  gap: 2rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.stat-unit {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Table styling additions */
+.annual-table-container {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.annual-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.annual-table th, .annual-table td {
+  padding: 0.875rem 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Sticky Columns */
+.sticky-col {
+  position: sticky;
+  z-index: 10;
+  background-color: var(--surface);
+  box-shadow: 2px 0 5px -2px rgba(0,0,0,0.05);
+}
+
+tr:hover .sticky-col {
+  background-color: var(--background);
+}
+
+.name-col {
+  left: 0;
+  min-width: 150px;
+  border-right: 1px solid var(--border-light);
+}
+
+.service-col {
+  left: 150px;
+  min-width: 100px;
+}
+
+.team-col {
+  left: 250px;
+  min-width: 80px;
+}
+
+.site-col {
+  left: 330px;
+  min-width: 90px;
+}
+
+.type-col {
+  left: 420px;
+  min-width: 80px;
+  border-right: 2px solid var(--border);
+}
+
+/* Header sticky alignment */
+.annual-table thead th.sticky-col {
+  background-color: var(--background);
+  z-index: 20;
+}
+
+.annual-table thead th.type-col {
+  border-right: 2px solid var(--border);
+}
+
+/* Month columns */
+.month-col {
+  min-width: 65px;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-extrabold {
+  font-weight: 800;
+}
+
+/* Total Columns */
+.total-col {
+  min-width: 110px;
+}
+
+.value-total {
+  background-color: var(--background);
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.annual-table thead th.total-col {
+  background-color: var(--background);
+}
+
+/* Footer totals styling */
+.totals-row td {
+  background-color: var(--border-light) !important;
+  color: var(--text-main);
+  border-top: 2px solid var(--border);
+  border-bottom: 2px solid var(--border) !important;
+}
+
+.totals-row td.sticky-col {
+  background-color: var(--border-light) !important;
+  z-index: 20;
+}
+
+.footer-sum {
+  color: var(--text-main);
+}
+
+.grand-total-value {
+  background-color: var(--primary-light) !important;
+  color: var(--primary-dark) !important;
+  font-size: 0.95rem;
+}
+
+.type-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.type-text.type-interne {
+  color: var(--primary);
+}
+
+.type-text.type-externe {
+  color: var(--warning);
+}
+
+.team-badge {
+  background-color: hsl(262, 83%, 95%);
+  color: var(--abs-rtt);
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  border: 1px solid hsl(262, 83%, 90%);
+}
+
+.subtle-text {
+  color: var(--text-muted);
+}

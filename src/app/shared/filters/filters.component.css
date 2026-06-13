@@ -1,0 +1,70 @@
+.filters-card {
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Make search item wider if space permits */
+.filters-grid .search-item {
+  grid-column: span 1;
+}
+
+@media (min-width: 1200px) {
+  .filters-grid {
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+  }
+}
+
+.filter-item {
+  position: relative;
+  display: flex;
+}
+
+.filter-item select {
+  cursor: pointer;
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.clear-search-btn:hover {
+  color: var(--text-muted);
+  background-color: var(--background);
+}
+
+.btn-reset {
+  padding: 0.65rem 1rem;
+  font-size: 0.875rem;
+  width: 100%;
+  color: var(--danger);
+  border-color: var(--danger-light);
+  background-color: var(--surface);
+}
+
+.btn-reset:hover {
+  background-color: var(--danger-light);
+  color: var(--danger);
+  border-color: var(--danger);
+}

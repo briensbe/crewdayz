@@ -1,0 +1,323 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.15rem;
+}
+
+.page-header .subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* Month Navigator */
+.month-navigator {
+  display: flex;
+  align-items: center;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.4rem 0.5rem;
+  box-shadow: var(--shadow-sm);
+  gap: 0.5rem;
+}
+
+.nav-arrow-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.nav-arrow-btn:hover {
+  background-color: var(--background);
+  color: var(--text-main);
+}
+
+.month-year-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0 1rem;
+  min-width: 180px;
+  text-align: center;
+  color: var(--text-main);
+}
+
+/* Legend Card */
+.legend-card {
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+}
+
+.legend-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.legend-items {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.legend-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+/* Calendar Table styling */
+.calendar-table-container {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.calendar-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.calendar-table th, .calendar-table td {
+  padding: 0.875rem 0.5rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Sticky Columns */
+.sticky-col {
+  position: sticky;
+  z-index: 10;
+  background-color: var(--surface);
+  box-shadow: 2px 0 5px -2px rgba(0,0,0,0.05);
+}
+
+tr:hover .sticky-col {
+  background-color: var(--background);
+}
+
+.name-col {
+  left: 0;
+  min-width: 150px;
+  border-right: 1px solid var(--border-light);
+}
+
+.service-col {
+  left: 150px;
+  min-width: 100px;
+}
+
+.team-col {
+  left: 250px;
+  min-width: 80px;
+}
+
+.site-col {
+  left: 330px;
+  min-width: 90px;
+}
+
+.type-col {
+  left: 420px;
+  min-width: 80px;
+  border-right: 2px solid var(--border);
+}
+
+/* Make header matching sticky backgrounds */
+.calendar-table thead th.sticky-col {
+  background-color: var(--background);
+  z-index: 20;
+}
+
+.calendar-table thead th.type-col {
+  border-right: 2px solid var(--border);
+}
+
+/* Balance and Worked columns styling */
+.balance-col {
+  min-width: 85px;
+  font-weight: 600;
+}
+
+.worked-col {
+  min-width: 85px;
+  font-weight: 700;
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.worked-value {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.balance-value {
+  color: var(--text-muted);
+}
+
+/* Daily Columns */
+.day-col {
+  min-width: 38px;
+  width: 38px;
+}
+
+.day-number {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.col-weekend {
+  background-color: hsl(210, 20%, 95%) !important;
+  color: var(--text-light);
+}
+
+/* Cells styling */
+.day-cell {
+  min-width: 38px;
+  cursor: cell;
+  position: relative;
+  transition: background-color 0.1s ease;
+  user-select: none;
+}
+
+.day-cell:hover:not(.cell-weekend) {
+  background-color: var(--primary-light);
+}
+
+.cell-weekend {
+  background-color: hsl(210, 20%, 96%);
+  cursor: not-allowed;
+}
+
+/* Selected cells during drag */
+.selected-cell {
+  background-color: hsl(217, 91%, 90%) !important;
+  outline: 1.5px dashed var(--primary);
+  outline-offset: -1.5px;
+}
+
+/* Absence indicators */
+.absence-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  height: 24px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.comment-icon-cell {
+  opacity: 0.7;
+}
+
+/* Absence Styles based on category variables */
+.abs-cp {
+  background-color: var(--abs-cp-bg);
+  color: var(--abs-cp);
+}
+.abs-rtt {
+  background-color: var(--abs-rtt-bg);
+  color: var(--abs-rtt);
+}
+.abs-maladie {
+  background-color: var(--abs-maladie-bg);
+  color: var(--abs-maladie);
+}
+.abs-maternite {
+  background-color: var(--abs-maternite-bg);
+  color: var(--abs-maternite);
+}
+.abs-exceptionnel {
+  background-color: var(--abs-exceptionnel-bg);
+  color: var(--abs-exceptionnel);
+}
+.abs-formation {
+  background-color: var(--abs-formation-bg);
+  color: var(--abs-formation);
+}
+.abs-other {
+  background-color: var(--abs-autre-bg);
+  color: var(--abs-autre);
+}
+
+/* Text elements */
+.font-bold {
+  font-weight: 700;
+}
+
+.type-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.type-text.type-interne {
+  color: var(--primary);
+}
+
+.type-text.type-externe {
+  color: var(--warning);
+}
+
+.team-badge {
+  background-color: hsl(262, 83%, 95%);
+  color: var(--abs-rtt);
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  border: 1px solid hsl(262, 83%, 90%);
+}
+
+.select-none {
+  user-select: none;
+  -webkit-user-select: none;
+}

@@ -1,0 +1,130 @@
+<div class="modal-overlay animate-fade-in" (click)="onClose()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ existingAbsence() ? 'Modifier l\'absence' : 'Déclarer une absence' }}</h2>
+      <button class="close-btn" (click)="onClose()">
+        <lucide-icon [img]="XIcon" size="20"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Subtitle with employee name -->
+    <div class="employee-badge-container">
+      <span class="employee-label">Collaborateur :</span>
+      <span class="employee-name">{{ employeeName() }}</span>
+    </div>
+
+    <!-- Error message alert -->
+    @if (errorMessage()) {
+      <div class="alert alert-danger animate-fade-in">
+        <lucide-icon [img]="InfoIcon" size="18"></lucide-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <form (ngSubmit)="onSubmit()" class="modal-form">
+      <div class="dates-grid">
+        <!-- Start Date & Period -->
+        <div class="form-group">
+          <label for="startDate">Date de début</label>
+          <div class="input-icon-wrapper">
+            <lucide-icon [img]="CalendarIcon" class="input-icon" size="18"></lucide-icon>
+            <input
+              id="startDate"
+              type="date"
+              [ngModel]="startDate()"
+              (ngModelChange)="startDate.set($event)"
+              name="startDate"
+              required
+            />
+          </div>
+          <div class="period-toggle-group">
+            <label class="radio-label">
+              <input type="radio" name="startPeriod" value="morning" [ngModel]="startPeriod()" (ngModelChange)="startPeriod.set($event)" />
+              Matin
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="startPeriod" value="afternoon" [ngModel]="startPeriod()" (ngModelChange)="startPeriod.set($event)" />
+              Après-midi
+            </label>
+          </div>
+        </div>
+
+        <!-- End Date & Period -->
+        <div class="form-group">
+          <label for="endDate">Date de fin</label>
+          <div class="input-icon-wrapper">
+            <lucide-icon [img]="CalendarIcon" class="input-icon" size="18"></lucide-icon>
+            <input
+              id="endDate"
+              type="date"
+              [ngModel]="endDate()"
+              (ngModelChange)="endDate.set($event)"
+              name="endDate"
+              required
+            />
+          </div>
+          <div class="period-toggle-group">
+            <label class="radio-label">
+              <input type="radio" name="endPeriod" value="morning" [ngModel]="endPeriod()" (ngModelChange)="endPeriod.set($event)" />
+              Matin
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="endPeriod" value="afternoon" [ngModel]="endPeriod()" (ngModelChange)="endPeriod.set($event)" />
+              Après-midi
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Selector -->
+      <div class="form-group">
+        <label for="category">Catégorie d'absence</label>
+        <select
+          id="category"
+          [ngModel]="category()"
+          (ngModelChange)="category.set($event)"
+          name="category"
+          required
+        >
+          <option value="CP">Congé Payé (CP)</option>
+          <option value="RTT">Réduction du Temps de Travail (RTT)</option>
+          <option value="Maladie">Absence pour Maladie</option>
+          <option value="Congé maternité">Congé Maternité / Paternité</option>
+          <option value="Exceptionnel">Congé Exceptionnel</option>
+          <option value="Formation">Formation (compte pour 0 en absence)</option>
+          <option value="Autre">Autre absence</option>
+        </select>
+      </div>
+
+      <!-- Comment Section -->
+      <div class="form-group">
+        <label for="comment">Commentaire (facultatif)</label>
+        <div class="textarea-wrapper">
+          <textarea
+            id="comment"
+            [ngModel]="comment()"
+            (ngModelChange)="comment.set($event)"
+            name="comment"
+            rows="3"
+            placeholder="Ex : Rendez-vous médical, Formation Angular, etc."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <!-- Delete Button for existing absences -->
+        @if (existingAbsence()) {
+          <button type="button" class="btn btn-outline btn-delete" (click)="onDelete()">
+            <lucide-icon [img]="TrashIcon" size="18"></lucide-icon>
+            Supprimer
+          </button>
+        }
+        
+        <div class="right-actions">
+          <button type="button" class="btn btn-outline" (click)="onClose()">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

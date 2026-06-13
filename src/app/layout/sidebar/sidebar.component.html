@@ -1,0 +1,32 @@
+<nav class="sidebar" [class.collapsed]="sidebarService.collapsed()">
+  <div class="sidebar-header">
+    <div class="logo-container">
+      <div class="logo-icon">📅</div>
+      <span class="logo-text" *ngIf="!sidebarService.collapsed()">CrewDayz</span>
+    </div>
+    <button class="toggle-btn" (click)="toggleSidebar()" [title]="sidebarService.collapsed() ? 'Agrandir le menu' : 'Réduire le menu'">
+      <lucide-icon [img]="sidebarService.collapsed() ? ChevronRight : ChevronLeft" size="18"></lucide-icon>
+    </button>
+  </div>
+
+  <div class="nav-items">
+    <a *ngFor="let item of navigationItems" 
+       class="nav-item"
+       [routerLink]="item.route"
+       routerLinkActive="active"
+       [routerLinkActiveOptions]="{exact: true}"
+       [title]="sidebarService.collapsed() ? item.label : ''">
+      <div class="nav-item-icon">
+        <lucide-icon [img]="item.icon" size="20"></lucide-icon>
+      </div>
+      <span class="nav-item-label" *ngIf="!sidebarService.collapsed()">{{ item.label }}</span>
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="logout-btn" (click)="logout()" [title]="sidebarService.collapsed() ? 'Se déconnecter' : ''">
+      <lucide-icon [img]="LogOut" size="20"></lucide-icon>
+      <span class="logout-label" *ngIf="!sidebarService.collapsed()">Déconnexion</span>
+    </button>
+  </div>
+</nav>

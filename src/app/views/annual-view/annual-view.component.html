@@ -1,0 +1,110 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-text">
+      <h1>Vue Globale Annuelle</h1>
+      <p class="subtitle">Synthèse annuelle des jours travaillés par ressource</p>
+    </div>
+
+    <!-- Year Navigation -->
+    <div class="year-navigator">
+      <button class="nav-arrow-btn" (click)="prevYear()" title="Année précédente">
+        <lucide-icon [img]="ChevronLeft" size="18"></lucide-icon>
+      </button>
+      <span class="year-title">Année {{ year() }}</span>
+      <button class="nav-arrow-btn" (click)="nextYear()" title="Année suivante">
+        <lucide-icon [img]="ChevronRight" size="18"></lucide-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Reusable filters component -->
+  <app-filters
+    [services]="services()"
+    [teams]="teams()"
+    [workSites]="workSites()"
+    (filterChange)="handleFilterChange($event)"
+  ></app-filters>
+
+  <!-- Summary Card with Grand Total -->
+  <div class="summary-stats-card animate-fade-in" *ngIf="employeesAnnualRows().length > 0">
+    <div class="stat-item">
+      <span class="stat-label">Jours travaillés (Total des ressources filtrées)</span>
+      <span class="stat-value">{{ totals().grand }} <span class="stat-unit">jours</span></span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Ressources filtrées</span>
+      <span class="stat-value">{{ employeesAnnualRows().length }} <span class="stat-unit">actifs</span></span>
+    </div>
+  </div>
+
+  <!-- Annual Worked Days Table -->
+  <div class="table-container annual-table-container animate-fade-in">
+    @if (employeeService.loading() && employeesAnnualRows().length === 0) {
+      <div class="loading-state">
+        <span class="spinner"></span>
+        <p>Chargement du récapitulatif annuel...</p>
+      </div>
+    } @else if (employeesAnnualRows().length === 0) {
+      <div class="empty-state">
+        <lucide-icon [img]="Info" size="48" class="empty-icon"></lucide-icon>
+        <h3>Aucune donnée à afficher</h3>
+        <p>Ajustez vos filtres ou ajoutez des collaborateurs et des absences.</p>
+      </div>
+    } @else {
+      <table class="annual-table">
+        <thead>
+          <tr>
+            <th class="sticky-col name-col">Collaborateur</th>
+            <th class="sticky-col service-col">Service</th>
+            <th class="sticky-col team-col">Ilot</th>
+            <th class="sticky-col site-col">Site</th>
+            <th class="sticky-col type-col">Type</th>
+            
+            <!-- 12 Months -->
+            <th *ngFor="let m of months" class="month-col text-center">{{ m }}</th>
+            
+            <th class="total-col text-center">Total Annuel</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of employeesAnnualRows()">
+            <td class="sticky-col name-col font-semibold">{{ row.employee.first_name }} {{ row.employee.last_name }}</td>
+            <td class="sticky-col service-col subtle-text">{{ row.employee.service }}</td>
+            <td class="sticky-col team-col"><span class="team-badge">{{ row.employee.team }}</span></td>
+            <td class="sticky-col site-col subtle-text">{{ row.employee.work_site }}</td>
+            <td class="sticky-col type-col">
+              <span class="type-text" [class.type-interne]="row.employee.contract_type === 'Interne'" [class.type-externe]="row.employee.contract_type === 'Externe'">
+                {{ row.employee.contract_type }}
+              </span>
+            </td>
+
+            <!-- Monthly worked days values -->
+            <td *ngFor="let workedVal of row.monthlyWorked" class="text-center font-medium">
+              {{ workedVal }} j
+            </td>
+
+            <td class="total-col text-center font-bold value-total">{{ row.annualTotal }} j</td>
+          </tr>
+        </tbody>
+        
+        <!-- Totals Footer Row -->
+        <tfoot>
+          <tr class="totals-row">
+            <td class="sticky-col name-col font-bold">TOTAL CUMULÉ</td>
+            <td class="sticky-col service-col"></td>
+            <td class="sticky-col team-col"></td>
+            <td class="sticky-col site-col"></td>
+            <td class="sticky-col type-col"></td>
+            
+            <!-- Column monthly sums -->
+            <td *ngFor="let mSum of totals().monthly" class="text-center font-bold footer-sum">
+              {{ mSum }} j
+            </td>
+
+            <td class="total-col text-center font-extrabold grand-total-value">{{ totals().grand }} j</td>
+          </tr>
+        </tfoot>
+      </table>
+    }
+  </div>
+</div>
