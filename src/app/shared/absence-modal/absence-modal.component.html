@@ -13,6 +13,26 @@
       <span class="employee-name">{{ employeeName() }}</span>
     </div>
 
+    <!-- Existing absences in selected period -->
+    @if (existingAbsencesInPeriod().length > 0) {
+      <div class="existing-absences-container animate-fade-in">
+        <div class="existing-absence-title">Événement(s) planifié(s) sur la période :</div>
+        <div class="existing-absences-list">
+          @for (item of existingAbsencesInPeriod(); track item.dateText + item.category) {
+            <div class="existing-absence-item">
+              <span class="absence-badge" [ngClass]="item.class">{{ item.category }}</span>
+              <span class="existing-absence-text">
+                <span class="existing-absence-date">{{ item.dateText }}</span>
+                @if (item.commentText) {
+                  <span class="existing-absence-comment">{{ item.commentText }}</span>
+                }
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
     <!-- Error message alert -->
     @if (errorMessage()) {
       <div class="alert alert-danger animate-fade-in">

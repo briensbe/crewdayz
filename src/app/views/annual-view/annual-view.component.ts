@@ -22,7 +22,7 @@ interface EmployeeAnnualRow {
   styleUrl: './annual-view.component.css'
 })
 export class AnnualViewComponent implements OnInit {
-  // Services
+  // Services and dependencies
   protected readonly employeeService = inject(EmployeeService);
   protected readonly absenceService = inject(AbsenceService);
 

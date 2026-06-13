@@ -18,12 +18,12 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
-  padding: 2rem;
+  padding: 1.25rem;
   width: 100%;
   max-width: 580px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem;
   animation: modalEntry 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -43,11 +43,11 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border-light);
-  padding-bottom: 0.875rem;
+  padding-bottom: 0.6rem;
 }
 
 .modal-header h2 {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
 }
 
@@ -74,19 +74,19 @@
   align-items: center;
   gap: 0.5rem;
   background-color: var(--primary-light);
-  padding: 0.75rem 1rem;
+  padding: 0.4rem 0.75rem;
   border-radius: var(--radius-md);
   border: 1px solid hsl(217, 91%, 90%);
 }
 
 .employee-label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--primary-dark);
 }
 
 .employee-name {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--primary-dark);
 }
@@ -94,7 +94,18 @@
 .modal-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
+}
+
+.modal-form .form-group {
+  margin-bottom: 0;
+}
+
+.modal-form input,
+.modal-form select,
+.modal-form textarea {
+  padding: 0.6rem 0.8rem;
+  font-size: 0.9rem;
 }
 
 .dates-grid {
@@ -141,9 +152,13 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-top: 1rem;
   border-top: 1px solid var(--border-light);
-  padding-top: 1.25rem;
+  padding-top: 1rem;
+}
+
+.modal-actions .btn {
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
 }
 
 .right-actions {
@@ -220,4 +235,106 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Existing Absences Styles */
+.existing-absences-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  background-color: var(--background);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
+}
+
+.existing-absence-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.existing-absences-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.existing-absence-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.absence-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 32px;
+  text-align: center;
+}
+
+.existing-absence-text {
+  font-size: 0.825rem;
+  color: var(--text-main);
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.existing-absence-date {
+  font-weight: 600;
+}
+
+.existing-absence-comment {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Badge specific styling using root absence CSS variables */
+.badge-cp {
+  background-color: var(--abs-cp-bg);
+  color: var(--abs-cp);
+  border: 1px solid hsl(199, 89%, 90%);
+}
+
+.badge-rtt {
+  background-color: var(--abs-rtt-bg);
+  color: var(--abs-rtt);
+  border: 1px solid hsl(262, 83%, 90%);
+}
+
+.badge-maladie {
+  background-color: var(--abs-maladie-bg);
+  color: var(--abs-maladie);
+  border: 1px solid hsl(0, 84%, 92%);
+}
+
+.badge-maternite {
+  background-color: var(--abs-maternite-bg);
+  color: var(--abs-maternite);
+  border: 1px solid hsl(322, 81%, 92%);
+}
+
+.badge-exceptionnel {
+  background-color: var(--abs-exceptionnel-bg);
+  color: var(--abs-exceptionnel);
+  border: 1px solid hsl(36, 100%, 90%);
+}
+
+.badge-formation {
+  background-color: var(--abs-formation-bg);
+  color: var(--abs-formation);
+  border: 1px solid hsl(142, 71%, 90%);
+}
+
+.badge-other {
+  background-color: var(--abs-autre-bg);
+  color: var(--abs-autre);
+  border: 1px solid hsl(215, 16%, 90%);
 }
