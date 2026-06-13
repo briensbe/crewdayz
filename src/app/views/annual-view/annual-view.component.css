@@ -159,7 +159,6 @@ tr:hover .sticky-col {
 .type-col {
   left: 420px;
   min-width: 80px;
-  border-right: 2px solid var(--border);
 }
 
 /* Header sticky alignment */
@@ -168,8 +167,39 @@ tr:hover .sticky-col {
   z-index: 20;
 }
 
-.annual-table thead th.type-col {
-  border-right: 2px solid var(--border);
+/* Dynamic Last Sticky Column Border */
+.last-sticky {
+  border-right: 2px solid var(--border) !important;
+}
+
+/* Table Header Toggle Controls */
+.name-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.collapse-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  padding: 0;
+}
+
+.collapse-toggle-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--primary-light);
 }
 
 /* Month columns */

@@ -54,11 +54,18 @@
       <table class="annual-table">
         <thead>
           <tr>
-            <th class="sticky-col name-col">Collaborateur</th>
-            <th class="sticky-col service-col">Service</th>
-            <th class="sticky-col team-col">Équipe</th>
-            <th class="sticky-col site-col">Site</th>
-            <th class="sticky-col type-col">Type</th>
+            <th class="sticky-col name-col" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
+              <div class="name-header-content">
+                <span>Collaborateur</span>
+                <button type="button" class="collapse-toggle-btn" (click)="toggleColumns()" [title]="showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'">
+                  <lucide-icon [img]="showColumns() ? ChevronLeft : ChevronRight" size="14"></lucide-icon>
+                </button>
+              </div>
+            </th>
+            <th *ngIf="showServiceCol()" class="sticky-col service-col" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">Service</th>
+            <th *ngIf="showTeamCol()" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()">Équipe</th>
+            <th *ngIf="showSiteCol()" class="sticky-col site-col" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">Site</th>
+            <th *ngIf="showTypeCol()" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">Type</th>
             
             <!-- 12 Months -->
             <th *ngFor="let m of months" class="month-col text-center">{{ m }}</th>
@@ -68,21 +75,21 @@
         </thead>
         <tbody>
           <tr *ngFor="let row of employeesAnnualRows()">
-            <td class="sticky-col name-col font-semibold">{{ row.employee.first_name }} {{ row.employee.last_name }}</td>
-            <td class="sticky-col service-col subtle-text">{{ row.employee.service }}</td>
-            <td class="sticky-col team-col"><span class="team-badge">{{ row.employee.team }}</span></td>
-            <td class="sticky-col site-col subtle-text">{{ row.employee.work_site }}</td>
-            <td class="sticky-col type-col">
+            <td class="sticky-col name-col font-semibold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">{{ row.employee.first_name }} {{ row.employee.last_name }}</td>
+            <td *ngIf="showServiceCol()" class="sticky-col service-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">{{ row.employee.service }}</td>
+            <td *ngIf="showTeamCol()" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()"><span class="team-badge">{{ row.employee.team }}</span></td>
+            <td *ngIf="showSiteCol()" class="sticky-col site-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">{{ row.employee.work_site }}</td>
+            <td *ngIf="showTypeCol()" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">
               <span class="type-text" [class.type-interne]="row.employee.contract_type === 'Interne'" [class.type-externe]="row.employee.contract_type === 'Externe'">
                 {{ row.employee.contract_type }}
               </span>
             </td>
-
+ 
             <!-- Monthly worked days values -->
             <td *ngFor="let workedVal of row.monthlyWorked" class="text-center font-medium">
               {{ workedVal }} j
             </td>
-
+ 
             <td class="total-col text-center font-bold value-total">{{ row.annualTotal }} j</td>
           </tr>
         </tbody>
@@ -90,17 +97,17 @@
         <!-- Totals Footer Row -->
         <tfoot>
           <tr class="totals-row">
-            <td class="sticky-col name-col font-bold">TOTAL CUMULÉ</td>
-            <td class="sticky-col service-col"></td>
-            <td class="sticky-col team-col"></td>
-            <td class="sticky-col site-col"></td>
-            <td class="sticky-col type-col"></td>
+            <td class="sticky-col name-col font-bold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">TOTAL CUMULÉ</td>
+            <td *ngIf="showServiceCol()" class="sticky-col service-col" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'"></td>
+            <td *ngIf="showTeamCol()" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()"></td>
+            <td *ngIf="showSiteCol()" class="sticky-col site-col" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()"></td>
+            <td *ngIf="showTypeCol()" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()"></td>
             
             <!-- Column monthly sums -->
             <td *ngFor="let mSum of totals().monthly" class="text-center font-bold footer-sum">
               {{ mSum }} j
             </td>
-
+ 
             <td class="total-col text-center font-extrabold grand-total-value">{{ totals().grand }} j</td>
           </tr>
         </tfoot>

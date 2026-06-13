@@ -6,6 +6,7 @@ import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
 import { Employee } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
+import { storageSignal } from '../../../utils/storage-signal';
 
 interface EmployeeAnnualRow {
   employee: Employee;
@@ -29,6 +30,47 @@ export class AnnualViewComponent implements OnInit {
   readonly ChevronLeft = ChevronLeft;
   readonly ChevronRight = ChevronRight;
   readonly Info = Info;
+
+  // Column Visibility State
+  showColumns = storageSignal<boolean>('crewdayz_annual_show_columns', true);
+  showServiceCol = computed(() => this.showColumns());
+  showTeamCol = computed(() => this.showColumns());
+  showSiteCol = computed(() => this.showColumns());
+  showTypeCol = computed(() => this.showColumns());
+
+  toggleColumns() {
+    this.showColumns.set(!this.showColumns());
+  }
+
+  // Column positions for sticky columns
+  teamColLeft = computed(() => {
+    let pos = 150;
+    if (this.showServiceCol()) pos += 100;
+    return `${pos}px`;
+  });
+
+  siteColLeft = computed(() => {
+    let pos = 150;
+    if (this.showServiceCol()) pos += 100;
+    if (this.showTeamCol()) pos += 80;
+    return `${pos}px`;
+  });
+
+  typeColLeft = computed(() => {
+    let pos = 150;
+    if (this.showServiceCol()) pos += 100;
+    if (this.showTeamCol()) pos += 80;
+    if (this.showSiteCol()) pos += 90;
+    return `${pos}px`;
+  });
+
+  lastVisibleStickyCol = computed(() => {
+    if (this.showTypeCol()) return 'type';
+    if (this.showSiteCol()) return 'site';
+    if (this.showTeamCol()) return 'team';
+    if (this.showServiceCol()) return 'service';
+    return 'name';
+  });
 
   // State
   year = signal<number>(new Date().getFullYear());
