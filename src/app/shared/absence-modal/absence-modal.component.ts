@@ -1,7 +1,7 @@
 import { Component, input, output, signal, effect, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Calendar, X, Trash2, MessageSquare, Info } from 'lucide-angular';
+import { LucideAngularModule, Calendar, X, Trash2, MessageSquare, Info, Plus, Minus } from 'lucide-angular';
 import { Employee, Absence } from '../../models/types';
 import { EmployeeService } from '../../services/employee.service';
 
@@ -55,6 +55,7 @@ export class AbsenceModalComponent {
   endPeriod = signal<'morning' | 'afternoon'>('afternoon');
   category = signal<'CP' | 'RTT' | 'Maladie' | 'Congé maternité' | 'Exceptionnel' | 'Formation' | 'Autre'>('CP');
   comment = signal('');
+  showCommentInput = signal(false);
   errorMessage = signal<string | null>(null);
 
   // Expose icons
@@ -63,6 +64,12 @@ export class AbsenceModalComponent {
   readonly TrashIcon = Trash2;
   readonly MessageIcon = MessageSquare;
   readonly InfoIcon = Info;
+  readonly PlusIcon = Plus;
+  readonly MinusIcon = Minus;
+
+  toggleCommentInput() {
+    this.showCommentInput.set(!this.showCommentInput());
+  }
 
   constructor() {
     // Watch inputs and fill form
@@ -87,6 +94,7 @@ export class AbsenceModalComponent {
         this.endDate.set(exist.date);
         this.category.set(exist.category);
         this.comment.set(exist.comment || '');
+        this.showCommentInput.set(!!exist.comment);
         if (exist.period === 'morning') {
           this.startPeriod.set('morning');
           this.endPeriod.set('morning');
@@ -103,6 +111,7 @@ export class AbsenceModalComponent {
         this.endDate.set(initEndDate || initDate);
         this.category.set('CP');
         this.comment.set('');
+        this.showCommentInput.set(false);
         this.startPeriod.set('morning');
         this.endPeriod.set('afternoon');
       }

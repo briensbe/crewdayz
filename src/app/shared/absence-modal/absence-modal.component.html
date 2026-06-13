@@ -96,17 +96,24 @@
 
       <!-- Comment Section -->
       <div class="form-group">
-        <label for="comment">Commentaire (facultatif)</label>
-        <div class="textarea-wrapper">
-          <textarea
-            id="comment"
-            [ngModel]="comment()"
-            (ngModelChange)="comment.set($event)"
-            name="comment"
-            rows="3"
-            placeholder="Ex : Rendez-vous médical, Formation Angular, etc."
-          ></textarea>
+        <div class="comment-label-container">
+          <label for="comment">Commentaire (facultatif)</label>
+          <button type="button" class="btn-toggle-comment" (click)="toggleCommentInput()" [title]="showCommentInput() ? 'Masquer le commentaire' : 'Ajouter un commentaire'">
+            <lucide-icon [img]="showCommentInput() ? MinusIcon : PlusIcon" size="14"></lucide-icon>
+          </button>
         </div>
+        @if (showCommentInput()) {
+          <div class="textarea-wrapper animate-fade-in">
+            <textarea
+              id="comment"
+              [ngModel]="comment()"
+              (ngModelChange)="comment.set($event)"
+              name="comment"
+              rows="3"
+              placeholder="Ex : Rendez-vous médical, Formation Angular, etc."
+            ></textarea>
+          </div>
+        }
       </div>
 
       <div class="modal-actions">
