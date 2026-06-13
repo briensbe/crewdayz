@@ -28,6 +28,9 @@ export class AbsenceModalComponent {
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
       event.preventDefault();
       this.onSubmit();
+    } else if (event.key === 'Escape' || event.key === 'Esc') {
+      event.preventDefault();
+      this.onClose();
     }
   }
   // Inputs from parent component

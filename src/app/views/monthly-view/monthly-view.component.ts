@@ -362,13 +362,6 @@ export class MonthlyViewComponent implements OnInit {
   onCellMouseDown(employeeId: string, dateStr: string, event: MouseEvent) {
     if (event.button !== 0) return; // Only left click
     
-    // Check if cell already has an absence. If so, open edit modal instead of starting selection drag
-    const existing = this.getAbsenceForCell(employeeId, dateStr);
-    if (existing) {
-      this.openEditAbsenceModal(employeeId, existing);
-      return;
-    }
-
     this.isSelecting.set(true);
     this.selectionEmployeeId.set(employeeId);
     this.selectionStartDayStr.set(dateStr);
@@ -393,15 +386,24 @@ export class MonthlyViewComponent implements OnInit {
     this.isSelecting.set(false);
 
     if (empId && startStr && endStr) {
-      // Open modal to declare absences for the selected dates
-      // Sort dates
-      const start = new Date(startStr);
-      const end = new Date(endStr);
-      
-      const actualStartStr = start < end ? startStr : endStr;
-      const actualEndStr = start < end ? endStr : startStr;
+      if (startStr === endStr) {
+        // Single cell clicked: if it already has an absence, open edit modal; otherwise, open add modal
+        const existing = this.getAbsenceForCell(empId, startStr);
+        if (existing) {
+          this.openEditAbsenceModal(empId, existing);
+        } else {
+          this.openAddAbsenceModal(empId, startStr, startStr);
+        }
+      } else {
+        // Multi-cell selection: open add modal for the whole range to overwrite/declare absences
+        const start = new Date(startStr);
+        const end = new Date(endStr);
+        
+        const actualStartStr = start < end ? startStr : endStr;
+        const actualEndStr = start < end ? endStr : startStr;
 
-      this.openAddAbsenceModal(empId, actualStartStr, actualEndStr);
+        this.openAddAbsenceModal(empId, actualStartStr, actualEndStr);
+      }
     }
     
     this.selectionEmployeeId.set(null);
