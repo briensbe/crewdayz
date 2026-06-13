@@ -141,6 +141,7 @@ a:hover {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .input-icon {
@@ -148,6 +149,11 @@ a:hover {
   left: 0.875rem;
   color: var(--text-light);
   pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 input, select, textarea {

@@ -2,16 +2,17 @@
   <div class="filters-grid">
     <!-- Search Input -->
     <div class="filter-item search-item">
-      <div class="input-icon-wrapper">
-        <lucide-icon [img]="Search" class="input-icon" size="18"></lucide-icon>
+      <div class="header-search-bar">
+        <lucide-icon [img]="Search" class="search-icon" size="16"></lucide-icon>
         <input
           type="text"
+          class="header-search-input"
           [ngModel]="search()"
           (ngModelChange)="search.set($event); onFilterChange()"
           placeholder="Rechercher par nom ou prénom..."
         />
         @if (search()) {
-          <button class="clear-search-btn" (click)="search.set(''); onFilterChange()" type="button">
+          <button class="search-clear-btn" (click)="search.set(''); onFilterChange()" type="button">
             <lucide-icon [img]="X" size="14"></lucide-icon>
           </button>
         }
@@ -29,7 +30,7 @@
     <!-- Team (Ilot) Dropdown -->
     <div class="filter-item">
       <select [ngModel]="selectedTeam()" (ngModelChange)="selectedTeam.set($event); onFilterChange()">
-        <option value="">Toutes les équipes (Ilot)</option>
+        <option value="">Toutes les équipes</option>
         <option *ngFor="let t of teams()" [value]="t">{{ t }}</option>
       </select>
     </div>
