@@ -82,7 +82,9 @@
             
             <!-- Calendar headers -->
             <th *ngFor="let day of daysInMonth()" 
-                [class.col-weekend]="day.isWeekend" 
+                [class.col-weekend]="day.isWeekend || day.isHoliday" 
+                [class.col-holiday]="day.isHoliday"
+                [attr.title]="day.holidayName"
                 class="day-col text-center">
               <span class="day-number">{{ day.dayNum }}</span>
             </th>
@@ -108,9 +110,9 @@
 
             <!-- Daily Calendar Grid Cells -->
             <td *ngFor="let day of daysInMonth()"
-                [class.cell-weekend]="day.isWeekend"
+                [class.cell-weekend]="day.isWeekend || day.isHoliday"
                 [class.selected-cell]="isCellSelected(emp.id!, day.dateStr)"
-                (mousedown)="!day.isWeekend && onCellMouseDown(emp.id!, day.dateStr, $event)"
+                (mousedown)="!(day.isWeekend || day.isHoliday) && onCellMouseDown(emp.id!, day.dateStr, $event)"
                 (mouseenter)="onCellMouseEnter(emp.id!, day.dateStr)"
                 class="day-cell text-center select-none">
               

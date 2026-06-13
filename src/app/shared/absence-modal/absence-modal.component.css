@@ -338,3 +338,43 @@
   color: var(--abs-autre);
   border: 1px solid hsl(215, 16%, 90%);
 }
+
+/* Confirm Delete Overlay & Card */
+.confirm-overlay {
+  background-color: rgba(15, 23, 42, 0.6);
+  z-index: 1100;
+}
+
+.confirm-card {
+  max-width: 450px;
+  border: 1px solid var(--danger-light);
+}
+
+.confirm-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.confirm-body p {
+  font-size: 0.9rem;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.btn-delete-confirm {
+  background-color: var(--danger) !important;
+  border-color: var(--danger) !important;
+  color: white !important;
+}
+
+.btn-delete-confirm:hover {
+  background-color: hsl(350, 89%, 52%) !important;
+  border-color: hsl(350, 89%, 52%) !important;
+}

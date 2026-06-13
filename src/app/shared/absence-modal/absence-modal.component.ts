@@ -43,7 +43,7 @@ export class AbsenceModalComponent {
   // Outputs
   close = output<void>();
   save = output<AbsenceSavePayload>();
-  delete = output<{ employeeId: string; date: string; period: 'full' | 'morning' | 'afternoon' }>();
+  delete = output<{ employeeId: string; dates: { date: string; period: 'full' | 'morning' | 'afternoon' }[] }>();
 
   // Services
   private readonly employeeService = inject(EmployeeService);
@@ -185,6 +185,7 @@ export class AbsenceModalComponent {
   comment = signal('');
   showCommentInput = signal(false);
   errorMessage = signal<string | null>(null);
+  showConfirmDelete = signal(false);
 
   // Expose icons
   readonly CalendarIcon = Calendar;
@@ -279,15 +280,46 @@ export class AbsenceModalComponent {
     });
   }
 
+  getExistingAbsencesList() {
+    const empId = this.employeeId();
+    const start = this.startDate();
+    const end = this.endDate();
+    if (!empId || !start || !end) return [];
+
+    return this.absenceService.absences().filter(a =>
+      a.employee_id === empId && a.date >= start && a.date <= end
+    );
+  }
+
   onDelete() {
+    this.showConfirmDelete.set(true);
+  }
+
+  confirmDelete() {
+    this.showConfirmDelete.set(false);
+    const empId = this.employeeId();
+    if (!empId) return;
+
     const exist = this.existingAbsence();
-    if (exist && exist.employee_id) {
+    if (exist) {
       this.delete.emit({
-        employeeId: exist.employee_id,
-        date: exist.date,
-        period: exist.period
+        employeeId: empId,
+        dates: [{ date: exist.date, period: exist.period }]
+      });
+    } else {
+      const list = this.getExistingAbsencesList().map(a => ({
+        date: a.date,
+        period: a.period
+      }));
+      this.delete.emit({
+        employeeId: empId,
+        dates: list
       });
     }
+  }
+
+  cancelDelete() {
+    this.showConfirmDelete.set(false);
   }
 
   onClose() {

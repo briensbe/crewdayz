@@ -318,6 +318,11 @@ tr:hover .sticky-col {
   color: var(--text-light);
 }
 
+.col-holiday {
+  background-color: hsl(350, 40%, 96%) !important;
+  color: var(--danger) !important;
+}
+
 /* Cells styling */
 .day-cell {
   min-width: 38px;

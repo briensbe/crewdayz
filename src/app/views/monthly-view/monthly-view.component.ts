@@ -8,12 +8,15 @@ import { Employee, Absence } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { AbsenceModalComponent, AbsenceSavePayload } from '../../shared/absence-modal/absence-modal.component';
 import { storageSignal } from '../../../utils/storage-signal';
+import { isFrenchPublicHoliday, getFrenchPublicHolidayName } from '../../../utils/holidays';
 
 interface DayColumn {
   date: Date;
   dateStr: string; // YYYY-MM-DD
   dayNum: number;
   isWeekend: boolean;
+  isHoliday: boolean;
+  holidayName?: string;
 }
 
 @Component({
@@ -152,7 +155,9 @@ export class MonthlyViewComponent implements OnInit {
         date,
         dateStr,
         dayNum: d,
-        isWeekend: dayOfWeek === 0 || dayOfWeek === 6
+        isWeekend: dayOfWeek === 0 || dayOfWeek === 6,
+        isHoliday: isFrenchPublicHoliday(date),
+        holidayName: getFrenchPublicHolidayName(date) || undefined
       });
     }
     return list;
@@ -479,6 +484,17 @@ export class MonthlyViewComponent implements OnInit {
       const mm = String(temp.getMonth() + 1).padStart(2, '0');
       const dd = String(temp.getDate()).padStart(2, '0');
       const dateStr = `${y}-${mm}-${dd}`;
+
+      const dayOfWeek = temp.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isHoliday = isFrenchPublicHoliday(temp);
+      const isMultiSelect = payload.startDate !== payload.endDate;
+
+      if (isMultiSelect && (isWeekend || isHoliday)) {
+        temp.setDate(temp.getDate() + 1);
+        continue;
+      }
+
       datesToDelete.push(dateStr);
 
       // Determine period for this date
@@ -526,12 +542,12 @@ export class MonthlyViewComponent implements OnInit {
     }
   }
 
-  async onModalDelete(payload: { employeeId: string; date: string; period: 'full' | 'morning' | 'afternoon' }) {
+  async onModalDelete(payload: { employeeId: string; dates: { date: string; period: 'full' | 'morning' | 'afternoon' }[] }) {
     this.showModal.set(false);
     try {
       await this.absenceService.deleteEmployeeAbsencesForDates(
         payload.employeeId,
-        [{ date: payload.date, period: payload.period }],
+        payload.dates,
         this.year()
       );
     } catch (err: any) {
