@@ -1,4 +1,4 @@
-import { Component, input, output, signal, effect, inject } from '@angular/core';
+import { Component, input, output, signal, effect, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Calendar, X, Trash2, MessageSquare, Info } from 'lucide-angular';
@@ -23,6 +23,13 @@ export interface AbsenceSavePayload {
   styleUrl: './absence-modal.component.css'
 })
 export class AbsenceModalComponent {
+  @HostListener('window:keydown', ['$event'])
+  handleKeyDown(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      event.preventDefault();
+      this.onSubmit();
+    }
+  }
   // Inputs from parent component
   employeeId = input<string>('');
   initialDate = input<string>(''); // YYYY-MM-DD

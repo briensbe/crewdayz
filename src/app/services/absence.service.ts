@@ -61,6 +61,45 @@ export class AbsenceService {
   }
 
   /**
+   * Replace absences for an employee on a set of dates
+   */
+  async replaceEmployeeAbsences(
+    employeeId: string,
+    datesToDelete: string[],
+    newAbsences: Absence[],
+    yearToRefresh: number
+  ): Promise<Absence[]> {
+    try {
+      if (datesToDelete.length > 0) {
+        const { error: deleteError } = await this.supabase.client
+          .from("cd_absences")
+          .delete()
+          .eq("employee_id", employeeId)
+          .in("date", datesToDelete);
+        
+        if (deleteError) throw deleteError;
+      }
+
+      let data: Absence[] = [];
+      if (newAbsences.length > 0) {
+        const { data: upsertData, error: upsertError } = await this.supabase.client
+          .from("cd_absences")
+          .upsert(newAbsences, { onConflict: "employee_id,date,period" })
+          .select();
+
+        if (upsertError) throw upsertError;
+        data = upsertData || [];
+      }
+
+      await this.fetchAbsencesForYear(yearToRefresh);
+      return data;
+    } catch (err) {
+      console.error("Error replacing employee absences:", err);
+      throw err;
+    }
+  }
+
+  /**
    * Delete specific absence records
    */
   async deleteAbsences(ids: string[], yearToRefresh: number): Promise<void> {

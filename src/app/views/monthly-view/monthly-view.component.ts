@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, ChevronLeft, ChevronRight, MessageSquare, Info, Filter, Eye, EyeOff } from 'lucide-angular';
+import { LucideAngularModule, ChevronLeft, ChevronRight, MessageSquare, Info, Filter, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
 import { Employee, Absence } from '../../models/types';
@@ -35,6 +35,15 @@ export class MonthlyViewComponent implements OnInit {
   readonly Info = Info;
   readonly Eye = Eye;
   readonly EyeOff = EyeOff;
+  readonly ChevronDown = ChevronDown;
+  readonly ChevronUp = ChevronUp;
+
+  // Legend State
+  showLegend = signal<boolean>(false);
+
+  toggleLegend() {
+    this.showLegend.set(!this.showLegend());
+  }
 
   // Column Visibility State
   showColumns = storageSignal<boolean>('crewdayz_monthly_show_columns', true);
@@ -460,6 +469,7 @@ export class MonthlyViewComponent implements OnInit {
     const end = new Date(payload.endDate);
     
     const absencesToUpsert: Absence[] = [];
+    const datesToDelete: string[] = [];
     const temp = new Date(start);
 
     while (temp <= end) {
@@ -467,6 +477,7 @@ export class MonthlyViewComponent implements OnInit {
       const mm = String(temp.getMonth() + 1).padStart(2, '0');
       const dd = String(temp.getDate()).padStart(2, '0');
       const dateStr = `${y}-${mm}-${dd}`;
+      datesToDelete.push(dateStr);
 
       // Determine period for this date
       // If single day: use startPeriod and endPeriod
@@ -502,7 +513,12 @@ export class MonthlyViewComponent implements OnInit {
     }
 
     try {
-      await this.absenceService.upsertAbsences(absencesToUpsert, this.year());
+      await this.absenceService.replaceEmployeeAbsences(
+        payload.employee_id,
+        datesToDelete,
+        absencesToUpsert,
+        this.year()
+      );
     } catch (err: any) {
       alert("Erreur lors de la sauvegarde de l'absence : " + err.message);
     }

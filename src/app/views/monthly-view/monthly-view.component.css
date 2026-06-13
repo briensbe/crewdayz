@@ -65,23 +65,123 @@
   color: var(--text-main);
 }
 
-/* Legend Card */
+/* Legend Horizontal Slide Section */
+.legend-card-container {
+  display: flex;
+  width: 100%;
+}
+
 .legend-card {
+  display: flex;
+  align-items: center;
   background-color: var(--surface);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  padding: 0.85rem 1.25rem;
+  padding: 0.45rem 0.85rem;
+  box-shadow: var(--shadow-sm);
+  width: fit-content;
+  max-width: 100%;
+  gap: 0.25rem;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.legend-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  box-shadow: var(--shadow-sm);
-  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.legend-header:hover {
+  background-color: var(--background);
 }
 
 .legend-title {
+  font-family: 'Outfit', sans-serif;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-muted);
+  transition: color 0.25s ease;
+}
+
+.legend-header.active .legend-title {
+  color: var(--primary);
+}
+
+.chevron-icon {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s ease;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+}
+
+.legend-header.active .chevron-icon {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+
+.legend-items-wrapper {
+  display: grid;
+  grid-template-columns: 0fr;
+  transition: grid-template-columns 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease-out;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.legend-items-wrapper.expanded {
+  grid-template-columns: 1fr;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.legend-items-inner {
+  overflow: hidden;
+}
+
+.legend-items {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.25rem 0.5rem 0.25rem 1rem;
+  border-left: 1px solid var(--border);
+  margin-left: 0.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.legend-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+@media (max-width: 1024px) {
+  .legend-items-wrapper.expanded {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* Dynamic Last Sticky Column Border */
@@ -117,33 +217,6 @@
   border-color: var(--primary);
   color: var(--primary);
   background-color: var(--primary-light);
-}
-
-.legend-items {
-  display: flex;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-muted);
-}
-
-.legend-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 20px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border-radius: 4px;
-  padding: 0 4px;
 }
 
 /* Calendar Table styling */

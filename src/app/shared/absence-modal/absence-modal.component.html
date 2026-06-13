@@ -120,7 +120,10 @@
         
         <div class="right-actions">
           <button type="button" class="btn btn-outline" (click)="onClose()">Annuler</button>
-          <button type="submit" class="btn btn-primary">Enregistrer</button>
+          <div class="submit-container">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <span class="submit-hint" title="Valider avec la combinaison Ctrl + Entrée">Ctrl + Entrée</span>
+          </div>
         </div>
       </div>
     </form>
