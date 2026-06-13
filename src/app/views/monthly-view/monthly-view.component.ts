@@ -1,12 +1,13 @@
 import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, ChevronLeft, ChevronRight, MessageSquare, Info, Filter } from 'lucide-angular';
+import { LucideAngularModule, ChevronLeft, ChevronRight, MessageSquare, Info, Filter, Eye, EyeOff } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
 import { Employee, Absence } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { AbsenceModalComponent, AbsenceSavePayload } from '../../shared/absence-modal/absence-modal.component';
+import { storageSignal } from '../../../utils/storage-signal';
 
 interface DayColumn {
   date: Date;
@@ -32,6 +33,49 @@ export class MonthlyViewComponent implements OnInit {
   readonly ChevronRight = ChevronRight;
   readonly MessageSquare = MessageSquare;
   readonly Info = Info;
+  readonly Eye = Eye;
+  readonly EyeOff = EyeOff;
+
+  // Column Visibility State
+  showColumns = storageSignal<boolean>('crewdayz_monthly_show_columns', true);
+  showServiceCol = computed(() => this.showColumns());
+  showTeamCol = computed(() => this.showColumns());
+  showSiteCol = computed(() => this.showColumns());
+  showTypeCol = computed(() => this.showColumns());
+
+  toggleColumns() {
+    this.showColumns.set(!this.showColumns());
+  }
+
+  // Column positions for sticky columns
+  teamColLeft = computed(() => {
+    let pos = 150;
+    if (this.showServiceCol()) pos += 100;
+    return `${pos}px`;
+  });
+
+  siteColLeft = computed(() => {
+    let pos = 150;
+    if (this.showServiceCol()) pos += 100;
+    if (this.showTeamCol()) pos += 80;
+    return `${pos}px`;
+  });
+
+  typeColLeft = computed(() => {
+    let pos = 150;
+    if (this.showServiceCol()) pos += 100;
+    if (this.showTeamCol()) pos += 80;
+    if (this.showSiteCol()) pos += 90;
+    return `${pos}px`;
+  });
+
+  lastVisibleStickyCol = computed(() => {
+    if (this.showTypeCol()) return 'type';
+    if (this.showSiteCol()) return 'site';
+    if (this.showTeamCol()) return 'team';
+    if (this.showServiceCol()) return 'service';
+    return 'name';
+  });
 
   // Calendar State
   currentDate = signal<Date>(new Date());

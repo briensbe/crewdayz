@@ -84,6 +84,41 @@
   color: var(--text-muted);
 }
 
+/* Dynamic Last Sticky Column Border */
+.last-sticky {
+  border-right: 2px solid var(--border) !important;
+}
+
+/* Table Header Toggle Controls */
+.name-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.collapse-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  padding: 0;
+}
+
+.collapse-toggle-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--primary-light);
+}
+
 .legend-items {
   display: flex;
   gap: 1.25rem;
@@ -164,17 +199,12 @@ tr:hover .sticky-col {
 .type-col {
   left: 420px;
   min-width: 80px;
-  border-right: 2px solid var(--border);
 }
 
 /* Make header matching sticky backgrounds */
 .calendar-table thead th.sticky-col {
   background-color: var(--background);
   z-index: 20;
-}
-
-.calendar-table thead th.type-col {
-  border-right: 2px solid var(--border);
 }
 
 /* Balance and Worked columns styling */
