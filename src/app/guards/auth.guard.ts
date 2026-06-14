@@ -1,7 +1,7 @@
 import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 import { SupabaseService } from "../services/supabase.service";
-import { environment } from "../../environments/environment.prod";
+import { environment } from "../../environments/environment";
 
 export const AuthGuard: CanActivateFn = async (route, state) => {
   // If authentication is disabled for development, allow access

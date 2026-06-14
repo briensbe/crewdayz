@@ -2,7 +2,7 @@ import { Injectable, signal } from "@angular/core";
 import { AuthTokenResponse, createClient, SupabaseClient, UserResponse, User } from "@supabase/supabase-js";
 import { BehaviorSubject } from "rxjs";
 import { LoginPayload, SignupPayload } from "../models/types";
-import { environment } from "../../environments/environment.prod";
+import { environment } from "../../environments/environment";
 
 const sessionStorageUserKey = "crewdayzUser";
 

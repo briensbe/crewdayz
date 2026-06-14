@@ -28,5 +28,8 @@
       <lucide-icon [img]="LogOut" size="20"></lucide-icon>
       <span class="logout-label" *ngIf="!sidebarService.collapsed()">Déconnexion</span>
     </button>
+    <div class="sidebar-version" [class.collapsed]="sidebarService.collapsed()">
+      v{{ version }}
+    </div>
   </div>
 </nav>

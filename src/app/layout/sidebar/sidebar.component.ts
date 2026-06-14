@@ -13,6 +13,7 @@ import {
 } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { environment } from '../../../environments/environment';
 
 interface NavigationItem {
   label: string;
@@ -36,6 +37,7 @@ export class SidebarComponent {
   readonly ChevronLeft = ChevronLeft;
   readonly ChevronRight = ChevronRight;
   readonly LogOut = LogOut;
+  readonly version = environment.version;
 
   navigationItems: NavigationItem[] = [
     { label: 'Collaborateurs', icon: Users, route: '/collaborateurs' },
