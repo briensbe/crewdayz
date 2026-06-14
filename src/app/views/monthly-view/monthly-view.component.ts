@@ -54,6 +54,7 @@ export class MonthlyViewComponent implements OnInit {
   showTeamCol = computed(() => this.showColumns());
   showSiteCol = computed(() => this.showColumns());
   showTypeCol = computed(() => this.showColumns());
+  showBalanceStartCol = computed(() => this.showColumns());
 
   toggleColumns() {
     this.showColumns.set(!this.showColumns());
@@ -81,7 +82,17 @@ export class MonthlyViewComponent implements OnInit {
     return `${pos}px`;
   });
 
+  balanceStartColLeft = computed(() => {
+    let pos = 150;
+    if (this.showServiceCol()) pos += 100;
+    if (this.showTeamCol()) pos += 80;
+    if (this.showSiteCol()) pos += 90;
+    if (this.showTypeCol()) pos += 80;
+    return `${pos}px`;
+  });
+
   lastVisibleStickyCol = computed(() => {
+    if (this.showBalanceStartCol()) return 'balanceStart';
     if (this.showTypeCol()) return 'type';
     if (this.showSiteCol()) return 'site';
     if (this.showTeamCol()) return 'team';

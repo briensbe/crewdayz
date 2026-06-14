@@ -78,7 +78,7 @@
             <th *ngIf="showTeamCol()" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()">Équipe</th>
             <th *ngIf="showSiteCol()" class="sticky-col site-col" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">Site</th>
             <th *ngIf="showTypeCol()" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">Type</th>
-            <th class="balance-col text-center" title="Solde de congés (CP + RTT) restant au début de ce mois">Solde Début</th>
+            <th *ngIf="showBalanceStartCol()" class="sticky-col balance-col text-center" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()" title="Solde de congés (CP + RTT) restant au début de ce mois">Solde Début</th>
             
             <!-- Calendar headers -->
             <th *ngFor="let day of daysInMonth()" 
@@ -106,7 +106,7 @@
             </td>
             
             <!-- Beginning Balance -->
-            <td class="balance-col text-center balance-value">{{ getBeginningBalance(emp) }} j</td>
+            <td *ngIf="showBalanceStartCol()" class="sticky-col balance-col text-center balance-value" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()">{{ getBeginningBalance(emp) }} j</td>
 
             <!-- Daily Calendar Grid Cells -->
             <td *ngFor="let day of daysInMonth()"
