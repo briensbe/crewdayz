@@ -70,6 +70,7 @@
             <!-- 12 Months -->
             <th *ngFor="let m of months" class="month-col text-center">{{ m }}</th>
             
+            <th class="balance-col text-center">Solde Déc.</th>
             <th class="total-col text-center">Total Annuel</th>
           </tr>
         </thead>
@@ -90,6 +91,7 @@
               {{ workedVal }} j
             </td>
  
+            <td class="balance-col text-center font-medium balance-value">{{ row.decemberBalance }} j</td>
             <td class="total-col text-center font-bold value-total">{{ row.annualTotal }} j</td>
           </tr>
         </tbody>
@@ -108,6 +110,7 @@
               {{ mSum }} j
             </td>
  
+            <td class="balance-col text-center font-bold footer-sum">{{ totals().balance }} j</td>
             <td class="total-col text-center font-extrabold grand-total-value">{{ totals().grand }} j</td>
           </tr>
         </tfoot>

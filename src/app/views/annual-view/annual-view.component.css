@@ -283,3 +283,11 @@ tr:hover .sticky-col {
 .subtle-text {
   color: var(--text-muted);
 }
+
+.balance-col {
+  min-width: 95px;
+}
+
+.balance-value {
+  color: var(--text-muted);
+}

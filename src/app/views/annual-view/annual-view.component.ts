@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, ChevronLeft, ChevronRight, BarChart3, Info } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
-import { Employee } from '../../models/types';
+import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { storageSignal } from '../../../utils/storage-signal';
 
 interface EmployeeAnnualRow {
   employee: Employee;
   monthlyWorked: number[];
+  decemberBalance: number;
   annualTotal: number;
 }
 
@@ -128,7 +129,7 @@ export class AnnualViewComponent implements OnInit {
 
     return emps.map(emp => {
       const monthlyWorked: number[] = [];
-      let annualTotal = 0;
+      let workedDaysSum = 0;
 
       for (let m = 0; m < 12; m++) {
         // Calculate total days in month
@@ -169,12 +170,35 @@ export class AnnualViewComponent implements OnInit {
 
         const worked = Math.max(businessDaysCount - totalAbsenceDays, 0);
         monthlyWorked.push(worked);
-        annualTotal += worked;
+        workedDaysSum += worked;
       }
+
+      // Calculate December balance (solde restant à fin Décembre)
+      const balance = emp.cd_employee_balances?.find(b => b.year === y);
+      const defaults = emp.contract_type === 'Interne'
+        ? CONTRACT_DEFAULT_BALANCES.Interne
+        : CONTRACT_DEFAULT_BALANCES.Externe;
+
+      const initialCp = balance ? balance.initial_cp : defaults.initial_cp;
+      const initialRtt = balance ? balance.initial_rtt : defaults.initial_rtt;
+      const initial = initialCp + initialRtt;
+
+      const usedInYear = abs.filter(a => {
+        if (a.employee_id !== emp.id) return false;
+        if (a.category !== 'CP' && a.category !== 'RTT') return false;
+        const absDate = new Date(a.date);
+        return absDate.getFullYear() === y;
+      }).reduce((sum, a) => {
+        return sum + (a.period === 'full' ? 1.0 : 0.5);
+      }, 0);
+
+      const decemberBalance = initial - usedInYear;
+      const annualTotal = workedDaysSum - decemberBalance;
 
       return {
         employee: emp,
         monthlyWorked,
+        decemberBalance,
         annualTotal
       };
     });
@@ -185,17 +209,20 @@ export class AnnualViewComponent implements OnInit {
     const rows = this.employeesAnnualRows();
     const monthlySum = Array(12).fill(0);
     let grandSum = 0;
+    let balanceSum = 0;
 
     rows.forEach(r => {
       for (let m = 0; m < 12; m++) {
         monthlySum[m] += r.monthlyWorked[m];
       }
       grandSum += r.annualTotal;
+      balanceSum += r.decemberBalance;
     });
 
     return {
       monthly: monthlySum,
-      grand: grandSum
+      grand: grandSum,
+      balance: balanceSum
     };
   });
 

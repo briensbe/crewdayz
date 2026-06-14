@@ -14,7 +14,7 @@ import { FiltersComponent, FilterState } from '../../shared/filters/filters.comp
   styleUrl: './employee-list.component.css'
   })
 export class EmployeeListComponent implements OnInit {
-  // Services
+  // Services and dependencies
   protected readonly employeeService = inject(EmployeeService);
 
   // Expose icons
