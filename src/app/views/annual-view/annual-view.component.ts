@@ -7,6 +7,7 @@ import { AbsenceService } from '../../services/absence.service';
 import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { storageSignal } from '../../../utils/storage-signal';
+import { isFrenchPublicHoliday } from '../../../utils/holidays';
 
 interface EmployeeAnnualRow {
   employee: Employee;
@@ -136,16 +137,16 @@ export class AnnualViewComponent implements OnInit {
         const daysInMonth = new Date(y, m + 1, 0).getDate();
         let businessDaysCount = 0;
 
-        // Count Mon-Fri business days
+        // Count Mon-Fri business days (excluding holidays)
         for (let d = 1; d <= daysInMonth; d++) {
           const date = new Date(y, m, d);
           const dayOfWeek = date.getDay();
-          if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+          if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(date)) {
             businessDaysCount++;
           }
         }
 
-        // Count absences that reduce working days (exclude Formation, filter active year/month, ensure business days)
+        // Count absences that reduce working days (exclude Formation, filter active year/month, ensure business days and not holiday)
         const absencesInMonth = abs.filter(a => {
           if (a.employee_id !== emp.id) return false;
           if (a.category === 'Formation') return false; // Formation doesn't reduce worked days
@@ -153,7 +154,7 @@ export class AnnualViewComponent implements OnInit {
           if (absDate.getFullYear() !== y || absDate.getMonth() !== m) return false;
           
           const dayOfWeek = absDate.getDay();
-          return dayOfWeek !== 0 && dayOfWeek !== 6;
+          return dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(absDate);
         });
 
         // Sum absences per day to avoid double counting if multiple half-days exist on same day

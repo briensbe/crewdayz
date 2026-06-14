@@ -330,24 +330,24 @@ export class MonthlyViewComponent implements OnInit {
     const totalDays = new Date(y, m + 1, 0).getDate();
     let businessDaysCount = 0;
 
-    // Count standard Mon-Fri business days in this month
+    // Count standard Mon-Fri business days in this month (excluding holidays)
     for (let d = 1; d <= totalDays; d++) {
       const date = new Date(y, m, d);
       const dayOfWeek = date.getDay();
-      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(date)) {
         businessDaysCount++;
       }
     }
 
-    // Count absences that reduce working days (i.e. everything except Formation, on business days)
+    // Count absences that reduce working days (i.e. everything except Formation, on business days and not holidays)
     const absencesInMonth = this.absenceService.absences().filter(a => {
       if (a.employee_id !== emp.id) return false;
       if (a.category === 'Formation') return false; // Formation counts as 0 absence (so worked day)
       const absDate = new Date(a.date);
       if (absDate.getFullYear() !== y || absDate.getMonth() !== m) return false;
-      // Ensure the absence is on a business day
+      // Ensure the absence is on a business day and not a public holiday
       const dayOfWeek = absDate.getDay();
-      return dayOfWeek !== 0 && dayOfWeek !== 6;
+      return dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(absDate);
     });
 
     // Sum absence values
