@@ -331,3 +331,51 @@
   box-shadow: 0 0 0 2px var(--primary-glow);
 }
 
+/* Consolidated Balances Column */
+.balances-badges {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.balance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.balance-badge .badge-label {
+  opacity: 0.75;
+  font-weight: 500;
+  font-size: 0.7rem;
+}
+
+.balance-badge .badge-value {
+  font-weight: 700;
+}
+
+.balance-badge.cp {
+  background-color: var(--abs-cp-bg);
+  color: var(--abs-cp);
+  border-color: hsl(199, 89%, 90%);
+}
+
+.balance-badge.rtt {
+  background-color: var(--abs-rtt-bg);
+  color: var(--abs-rtt);
+  border-color: hsl(262, 83%, 90%);
+}
+
+.balance-badge.exceptional {
+  background-color: var(--abs-exceptionnel-bg);
+  color: var(--abs-exceptionnel);
+  border-color: hsl(36, 100%, 90%);
+}
+
+

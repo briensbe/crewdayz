@@ -49,9 +49,7 @@
             <th>Service</th>
             <th>Équipe</th>
             <th>Site de travail</th>
-            <th class="text-center">Solde CP Initial</th>
-            <th class="text-center">Solde RTT Initial</th>
-            <th class="text-center">Exceptionnel Initial</th>
+            <th class="text-center">Soldes Initiaux</th>
             <th class="text-right">Actions</th>
           </tr>
         </thead>
@@ -77,9 +75,22 @@
             <td><span class="subtle-text">{{ emp.service }}</span></td>
             <td><span class="team-badge">{{ emp.team }}</span></td>
             <td><span class="subtle-text">{{ emp.work_site }}</span></td>
-            <td class="text-center font-semibold">{{ emp.initial_cp !== undefined && emp.initial_cp !== null ? emp.initial_cp + ' j' : '-' }}</td>
-            <td class="text-center font-semibold">{{ emp.initial_rtt !== undefined && emp.initial_rtt !== null ? emp.initial_rtt + ' j' : '-' }}</td>
-            <td class="text-center font-semibold text-muted">{{ emp.initial_exceptional !== undefined && emp.initial_exceptional !== null ? emp.initial_exceptional + ' j' : '-' }}</td>
+            <td>
+              <div class="balances-badges">
+                <span class="balance-badge cp" title="Solde CP Initial">
+                  <span class="badge-label">CP</span>
+                  <span class="badge-value">{{ emp.initial_cp !== undefined && emp.initial_cp !== null ? emp.initial_cp + 'j' : '-' }}</span>
+                </span>
+                <span class="balance-badge rtt" title="Solde RTT Initial">
+                  <span class="badge-label">RTT</span>
+                  <span class="badge-value">{{ emp.initial_rtt !== undefined && emp.initial_rtt !== null ? emp.initial_rtt + 'j' : '-' }}</span>
+                </span>
+                <span class="balance-badge exceptional" title="Solde Exceptionnel Initial">
+                  <span class="badge-label">Exc.</span>
+                  <span class="badge-value">{{ emp.initial_exceptional !== undefined && emp.initial_exceptional !== null ? emp.initial_exceptional + 'j' : '-' }}</span>
+                </span>
+              </div>
+            </td>
             <td class="text-right">
               <div class="action-buttons">
                 <button class="action-btn edit-btn" (click)="openEditModal(emp)" title="Modifier">
