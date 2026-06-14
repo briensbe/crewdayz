@@ -283,11 +283,15 @@ tr:hover .sticky-col {
 /* Balance and Worked columns styling */
 .balance-col {
   min-width: 85px;
+  max-width: 85px;
+  width: 85px;
   font-weight: 600;
 }
 
 .worked-col {
   min-width: 85px;
+  max-width: 85px;
+  width: 85px;
   font-weight: 700;
   background-color: var(--primary-light);
   color: var(--primary-dark);
@@ -300,6 +304,55 @@ tr:hover .sticky-col {
 
 .balance-value {
   color: var(--text-muted);
+}
+
+/* Sticky Right Columns */
+.sticky-right-2 {
+  position: sticky;
+  right: 85px;
+  z-index: 10;
+  background-color: var(--surface);
+  box-shadow: -2px 0 5px -2px rgba(0,0,0,0.08);
+  border-left: 1px solid var(--border-light);
+}
+
+.sticky-right-1 {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  background-color: var(--surface);
+}
+
+/* Header sticky-right background matching */
+.calendar-table thead th.sticky-right-2 {
+  background-color: var(--background);
+  z-index: 20;
+  border-left: 1px solid var(--border-light);
+}
+
+.calendar-table thead th.sticky-right-1 {
+  background-color: var(--background);
+  z-index: 20;
+}
+
+/* Hover effects for sticky-right */
+tr:hover .sticky-right-2 {
+  background-color: var(--background);
+}
+
+tr:hover .sticky-right-1 {
+  background-color: var(--background);
+}
+
+.sticky-right-1.worked-col,
+.sticky-right-1.worked-value {
+  background-color: var(--primary-light) !important;
+  color: var(--primary-dark);
+}
+
+tr:hover .sticky-right-1.worked-col,
+tr:hover .sticky-right-1.worked-value {
+  background-color: hsl(217, 91%, 95%) !important;
 }
 
 /* Daily Columns */

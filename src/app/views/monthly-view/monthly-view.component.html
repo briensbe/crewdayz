@@ -89,8 +89,8 @@
               <span class="day-number">{{ day.dayNum }}</span>
             </th>
 
-            <th class="balance-col text-center" title="Solde de congés (CP + RTT) restant à la fin de ce mois">Solde Fin</th>
-            <th class="worked-col text-center" title="Jours réellement travaillés dans le mois">Jours Trav.</th>
+            <th class="balance-col text-center sticky-right-2" title="Solde de congés (CP + RTT) restant à la fin de ce mois">Solde Fin</th>
+            <th class="worked-col text-center sticky-right-1" title="Jours réellement travaillés dans le mois">Jours Trav.</th>
           </tr>
         </thead>
         <tbody>
@@ -131,10 +131,10 @@
             </td>
 
             <!-- Ending Balance -->
-            <td class="balance-col text-center balance-value font-bold">{{ getEndingBalance(emp) }} j</td>
+            <td class="balance-col text-center balance-value font-bold sticky-right-2">{{ getEndingBalance(emp) }} j</td>
             
             <!-- Worked Days -->
-            <td class="worked-col text-center worked-value font-bold">{{ getWorkedDays(emp) }} j</td>
+            <td class="worked-col text-center worked-value font-bold sticky-right-1">{{ getWorkedDays(emp) }} j</td>
           </tr>
         </tbody>
       </table>
