@@ -54,7 +54,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let emp of filteredEmployees()">
+          <tr *ngFor="let emp of filteredEmployees()" (click)="openEditModal(emp)" class="clickable-row">
             <td>
               <div class="name-cell">
                 <span class="avatar-sm">{{ emp.first_name.charAt(0) }}{{ emp.last_name.charAt(0) }}</span>
@@ -93,10 +93,10 @@
             </td>
             <td class="text-right">
               <div class="action-buttons">
-                <button class="action-btn edit-btn" (click)="openEditModal(emp)" title="Modifier">
+                <button class="action-btn edit-btn" (click)="openEditModal(emp); $event.stopPropagation()" title="Modifier">
                   <lucide-icon [img]="Edit" size="16"></lucide-icon>
                 </button>
-                <button class="action-btn delete-btn" (click)="deleteEmployee(emp)" title="Supprimer">
+                <button class="action-btn delete-btn" (click)="deleteEmployee(emp); $event.stopPropagation()" title="Supprimer">
                   <lucide-icon [img]="Trash2" size="16"></lucide-icon>
                 </button>
               </div>
@@ -191,13 +191,16 @@
 
       <div class="form-actions">
         <button type="button" class="btn btn-outline" (click)="showModal.set(false)">Annuler</button>
-        <button type="submit" class="btn btn-primary" [disabled]="submitting()">
-          @if (submitting()) {
-            <span class="spinner"></span> Enregistrement...
-          } @else {
-            Enregistrer
-          }
-        </button>
+        <div class="submit-container">
+          <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+            @if (submitting()) {
+              <span class="spinner"></span> Enregistrement...
+            } @else {
+              Enregistrer
+            }
+          </button>
+          <span class="submit-hint" title="Valider avec la combinaison Ctrl + Entrée">Ctrl + Entrée</span>
+        </div>
       </div>
     </form>
   </div>

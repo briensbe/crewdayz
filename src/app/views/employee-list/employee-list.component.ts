@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Plus, Edit, Trash2, Users, Building2, MapPin, Briefcase, DollarSign, Calendar } from 'lucide-angular';
@@ -14,6 +14,19 @@ import { FiltersComponent, FilterState } from '../../shared/filters/filters.comp
   styleUrl: './employee-list.component.css'
   })
 export class EmployeeListComponent implements OnInit {
+  @HostListener('window:keydown', ['$event'])
+  handleKeyDown(event: KeyboardEvent) {
+    if (!this.showModal()) return;
+
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      event.preventDefault();
+      this.saveEmployee();
+    } else if (event.key === 'Escape' || event.key === 'Esc') {
+      event.preventDefault();
+      this.showModal.set(false);
+    }
+  }
+
   // Services and dependencies
   protected readonly employeeService = inject(EmployeeService);
 

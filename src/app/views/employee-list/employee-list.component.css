@@ -285,10 +285,27 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  align-items: flex-start;
   gap: 0.75rem;
   border-top: 1px solid var(--border-light);
   padding-top: 1.25rem;
   margin-top: 0.5rem;
+}
+
+.submit-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.submit-hint {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  opacity: 0.75;
+  font-family: var(--font-sans);
+  pointer-events: none;
+  user-select: none;
 }
 
 .header-actions {
@@ -377,5 +394,11 @@
   color: var(--abs-exceptionnel);
   border-color: hsl(36, 100%, 90%);
 }
+
+.clickable-row {
+  cursor: pointer;
+  transition: var(--transition);
+}
+
 
 
