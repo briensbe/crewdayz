@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Plus, Edit, Trash2, Users, Building2, MapPin, Briefcase, DollarSign, Calendar } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
-import { Employee } from '../../models/types';
+import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 
 @Component({
@@ -12,7 +12,7 @@ import { FiltersComponent, FilterState } from '../../shared/filters/filters.comp
   imports: [CommonModule, FormsModule, LucideAngularModule, FiltersComponent],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.css'
-})
+  })
 export class EmployeeListComponent implements OnInit {
   // Services
   protected readonly employeeService = inject(EmployeeService);
@@ -22,6 +22,10 @@ export class EmployeeListComponent implements OnInit {
   readonly Edit = Edit;
   readonly Trash2 = Trash2;
   readonly Users = Users;
+
+  // Active Year State
+  selectedYear = signal<number>(new Date().getFullYear());
+  yearsList = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
 
   // Filter State
   activeFilters = signal<FilterState>({
@@ -48,9 +52,11 @@ export class EmployeeListComponent implements OnInit {
     return Array.from(new Set(list)).filter(Boolean).sort();
   });
 
-  // Filtered employees list
+  // Filtered employees list mapped with active year balances (returns undefined if not in DB)
   filteredEmployees = computed(() => {
     const filters = this.activeFilters();
+    const activeYear = Number(this.selectedYear());
+
     return this.employeeService.employees().filter(emp => {
       // Search filter (first name, last name, or ESN name)
       if (filters.search) {
@@ -67,6 +73,16 @@ export class EmployeeListComponent implements OnInit {
       if (filters.contract_type && emp.contract_type !== filters.contract_type) return false;
 
       return true;
+    }).map(emp => {
+      // Find balance for the selected year
+      const balance = emp.cd_employee_balances?.find(b => b.year === activeYear);
+
+      return {
+        ...emp,
+        initial_cp: balance?.initial_cp,
+        initial_rtt: balance?.initial_rtt,
+        initial_exceptional: balance?.initial_exceptional
+      };
     });
   });
 
@@ -120,9 +136,17 @@ export class EmployeeListComponent implements OnInit {
     this.contractType.set(emp.contract_type);
     this.companyName.set(emp.company_name || '');
     this.profile.set(emp.profile);
-    this.initialCP.set(emp.initial_cp);
-    this.initialRTT.set(emp.initial_rtt);
-    this.initialExceptional.set(emp.initial_exceptional);
+    
+    // Fill balances for selected year
+    const activeYear = this.selectedYear();
+    const balance = emp.cd_employee_balances?.find(b => b.year === activeYear);
+    const defaults = emp.contract_type === 'Interne'
+      ? CONTRACT_DEFAULT_BALANCES.Interne
+      : CONTRACT_DEFAULT_BALANCES.Externe;
+
+    this.initialCP.set(balance ? balance.initial_cp : defaults.initial_cp);
+    this.initialRTT.set(balance ? balance.initial_rtt : defaults.initial_rtt);
+    this.initialExceptional.set(balance ? balance.initial_exceptional : defaults.initial_exceptional);
 
     this.errorMessage.set(null);
     this.showModal.set(true);
@@ -137,10 +161,27 @@ export class EmployeeListComponent implements OnInit {
     this.contractType.set('Interne');
     this.companyName.set('');
     this.profile.set('Développeur');
-    this.initialCP.set(25.0);
-    this.initialRTT.set(10.0);
-    this.initialExceptional.set(0.0);
+    
+    const defaults = CONTRACT_DEFAULT_BALANCES.Interne;
+    this.initialCP.set(defaults.initial_cp);
+    this.initialRTT.set(defaults.initial_rtt);
+    this.initialExceptional.set(defaults.initial_exceptional);
     this.errorMessage.set(null);
+  }
+
+  onContractTypeChange(type: 'Interne' | 'Externe') {
+    this.contractType.set(type);
+    // Auto-update defaults only in Add mode (let users modify edit balances manually)
+    if (!this.isEditMode()) {
+      const defaults = CONTRACT_DEFAULT_BALANCES[type];
+      this.initialCP.set(defaults.initial_cp);
+      this.initialRTT.set(defaults.initial_rtt);
+      this.initialExceptional.set(defaults.initial_exceptional);
+    }
+  }
+
+  onYearChange(yearVal: any) {
+    this.selectedYear.set(Number(yearVal));
   }
 
   async saveEmployee() {
@@ -173,13 +214,14 @@ export class EmployeeListComponent implements OnInit {
 
     this.submitting.set(true);
     try {
+      const activeYear = this.selectedYear();
       if (this.isEditMode()) {
         const id = this.currentEmployeeId();
         if (id) {
-          await this.employeeService.updateEmployee(id, payload);
+          await this.employeeService.updateEmployee(id, payload, activeYear);
         }
       } else {
-        await this.employeeService.createEmployee(payload);
+        await this.employeeService.createEmployee(payload, activeYear);
       }
       this.showModal.set(false);
     } catch (err: any) {

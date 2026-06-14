@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, ChevronLeft, ChevronRight, MessageSquare, Info, Filter, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
-import { Employee, Absence } from '../../models/types';
+import { Employee, Absence, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { AbsenceModalComponent, AbsenceSavePayload } from '../../shared/absence-modal/absence-modal.component';
 import { storageSignal } from '../../../utils/storage-signal';
@@ -277,8 +277,15 @@ export class MonthlyViewComponent implements OnInit {
 
   // Calculate beginning of month balance (Initial - used in active year before this month)
   getBeginningBalance(emp: Employee): number {
-    const initial = emp.initial_cp + emp.initial_rtt;
     const y = this.year();
+    const balance = emp.cd_employee_balances?.find(b => b.year === y);
+    const defaults = emp.contract_type === 'Interne'
+      ? CONTRACT_DEFAULT_BALANCES.Interne
+      : CONTRACT_DEFAULT_BALANCES.Externe;
+
+    const initialCp = balance ? balance.initial_cp : defaults.initial_cp;
+    const initialRtt = balance ? balance.initial_rtt : defaults.initial_rtt;
+    const initial = initialCp + initialRtt;
     const m = this.month();
     
     // Start of current month date limit

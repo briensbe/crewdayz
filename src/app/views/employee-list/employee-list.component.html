@@ -4,10 +4,18 @@
       <h1>Collaborateurs</h1>
       <p class="subtitle">Liste centralisée des collaborateurs travaillant dans la société</p>
     </div>
-    <button class="btn btn-primary" (click)="openAddModal()">
-      <lucide-icon [img]="Plus" size="18"></lucide-icon>
-      Ajouter un collaborateur
-    </button>
+    <div class="header-actions">
+      <div class="year-selector">
+        <label for="listYear" class="year-label">Soldes pour l'année :</label>
+        <select id="listYear" [ngModel]="selectedYear()" (ngModelChange)="onYearChange($event)" class="year-select">
+          <option *ngFor="let y of yearsList" [value]="y">{{ y }}</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" (click)="openAddModal()">
+        <lucide-icon [img]="Plus" size="18"></lucide-icon>
+        Ajouter un collaborateur
+      </button>
+    </div>
   </div>
 
   <!-- Filters component -->
@@ -69,9 +77,9 @@
             <td><span class="subtle-text">{{ emp.service }}</span></td>
             <td><span class="team-badge">{{ emp.team }}</span></td>
             <td><span class="subtle-text">{{ emp.work_site }}</span></td>
-            <td class="text-center font-semibold">{{ emp.initial_cp }} j</td>
-            <td class="text-center font-semibold">{{ emp.initial_rtt }} j</td>
-            <td class="text-center font-semibold text-muted">{{ emp.initial_exceptional }} j</td>
+            <td class="text-center font-semibold">{{ emp.initial_cp !== undefined && emp.initial_cp !== null ? emp.initial_cp + ' j' : '-' }}</td>
+            <td class="text-center font-semibold">{{ emp.initial_rtt !== undefined && emp.initial_rtt !== null ? emp.initial_rtt + ' j' : '-' }}</td>
+            <td class="text-center font-semibold text-muted">{{ emp.initial_exceptional !== undefined && emp.initial_exceptional !== null ? emp.initial_exceptional + ' j' : '-' }}</td>
             <td class="text-right">
               <div class="action-buttons">
                 <button class="action-btn edit-btn" (click)="openEditModal(emp)" title="Modifier">
@@ -142,7 +150,7 @@
         <!-- Contract & Company -->
         <div class="form-group">
           <label for="contractType">Type de contrat *</label>
-          <select id="contractType" [ngModel]="contractType()" (ngModelChange)="contractType.set($event)" name="contractType" required>
+          <select id="contractType" [ngModel]="contractType()" (ngModelChange)="onContractTypeChange($event)" name="contractType" required>
             <option value="Interne">Interne (Salarié de la société)</option>
             <option value="Externe">Externe (Prestataire ESN)</option>
           </select>
