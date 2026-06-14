@@ -27,34 +27,34 @@
       </div>
 
       @if (balances(); as b) {
-        <div class="employee-details-row">
-          <div class="employee-modal-balances animate-fade-in">
-            <!-- CP Balance -->
-            <span class="balance-item" title="Solde de Congés Payés (Début ➔ Fin)">
-              <span class="balance-label">CP :</span>
-              <span class="balance-values">
-                @if (b.category === 'CP') {
-                  {{ b.cp.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.cp.end < 0">{{ b.cp.end }}j</span>
-                } @else {
-                  {{ b.cp.start }}j
-                }
+        @if (b.category === 'CP' || b.category === 'RTT' || b.category === 'Exceptionnel') {
+          <div class="employee-details-row">
+            <div class="employee-modal-balances animate-fade-in">
+              <!-- CP Balance -->
+              <span class="balance-item" title="Solde de Congés Payés (Début ➔ Fin)">
+                <span class="balance-label">CP :</span>
+                <span class="balance-values">
+                  @if (b.category === 'CP') {
+                    {{ b.cp.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.cp.end < 0">{{ b.cp.end }}j</span>
+                  } @else {
+                    {{ b.cp.start }}j
+                  }
+                </span>
               </span>
-            </span>
 
-            <!-- RTT Balance -->
-            <span class="balance-item" title="Solde de RTT (Début ➔ Fin)">
-              <span class="balance-label">RTT :</span>
-              <span class="balance-values">
-                @if (b.category === 'RTT') {
-                  {{ b.rtt.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.rtt.end < 0">{{ b.rtt.end }}j</span>
-                } @else {
-                  {{ b.rtt.start }}j
-                }
+              <!-- RTT Balance -->
+              <span class="balance-item" title="Solde de RTT (Début ➔ Fin)">
+                <span class="balance-label">RTT :</span>
+                <span class="balance-values">
+                  @if (b.category === 'RTT') {
+                    {{ b.rtt.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.rtt.end < 0">{{ b.rtt.end }}j</span>
+                  } @else {
+                    {{ b.rtt.start }}j
+                  }
+                </span>
               </span>
-            </span>
 
-            <!-- Exceptionnel Balance -->
-            @if (b.category === 'Exceptionnel' || b.exceptional.start > 0) {
+              <!-- Exceptionnel Balance -->
               <span class="balance-item" title="Solde de Congé Exceptionnel (Début ➔ Fin)">
                 <span class="balance-label">Exceptionnel :</span>
                 <span class="balance-values">
@@ -65,9 +65,9 @@
                   }
                 </span>
               </span>
-            }
+            </div>
           </div>
-        </div>
+        }
       }
     </div>
 
@@ -162,13 +162,13 @@
           name="category"
           required
         >
+          <option value="Autre">Absence</option>
           <option value="CP">Congé Payé (CP)</option>
           <option value="RTT">Réduction du Temps de Travail (RTT)</option>
           <option value="Maladie">Absence pour Maladie</option>
           <option value="Congé maternité">Congé Maternité / Paternité</option>
           <option value="Exceptionnel">Congé Exceptionnel</option>
           <option value="Formation">Formation (compte pour 0 en absence)</option>
-          <option value="Autre">Autre absence</option>
         </select>
       </div>
 

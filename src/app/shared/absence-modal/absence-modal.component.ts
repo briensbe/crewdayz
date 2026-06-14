@@ -159,7 +159,7 @@ export class AbsenceModalComponent {
       case 'Congé maternité': return 'Congé Maternité / Paternité';
       case 'Exceptionnel': return 'Congé Exceptionnel';
       case 'Formation': return 'Formation';
-      case 'Autre': return 'Autre absence';
+      case 'Autre': return 'Absence';
       default: return category;
     }
   }
@@ -364,7 +364,7 @@ export class AbsenceModalComponent {
         // New absence mode (preset start/end dates)
         this.startDate.set(initDate);
         this.endDate.set(initEndDate || initDate);
-        this.category.set('CP');
+        this.category.set('Autre');
         this.comment.set('');
         this.showCommentInput.set(false);
         this.startPeriod.set('morning');
