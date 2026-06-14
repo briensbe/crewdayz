@@ -374,43 +374,43 @@
 .badge-cp {
   background-color: var(--abs-cp-bg);
   color: var(--abs-cp);
-  border: 1px solid hsl(199, 89%, 90%);
+  border: 1px solid var(--abs-cp-border);
 }
 
 .badge-rtt {
   background-color: var(--abs-rtt-bg);
   color: var(--abs-rtt);
-  border: 1px solid hsl(262, 83%, 90%);
+  border: 1px solid var(--abs-rtt-border);
 }
 
 .badge-maladie {
   background-color: var(--abs-maladie-bg);
   color: var(--abs-maladie);
-  border: 1px solid hsl(0, 84%, 92%);
+  border: 1px solid var(--abs-maladie-border);
 }
 
 .badge-maternite {
   background-color: var(--abs-maternite-bg);
   color: var(--abs-maternite);
-  border: 1px solid hsl(322, 81%, 92%);
+  border: 1px solid var(--abs-maternite-border);
 }
 
 .badge-exceptionnel {
   background-color: var(--abs-exceptionnel-bg);
   color: var(--abs-exceptionnel);
-  border: 1px solid hsl(36, 100%, 90%);
+  border: 1px solid var(--abs-exceptionnel-border);
 }
 
 .badge-formation {
   background-color: var(--abs-formation-bg);
   color: var(--abs-formation);
-  border: 1px solid hsl(142, 71%, 90%);
+  border: 1px solid var(--abs-formation-border);
 }
 
 .badge-other {
   background-color: var(--abs-autre-bg);
   color: var(--abs-autre);
-  border: 1px solid hsl(215, 16%, 90%);
+  border: 1px solid var(--abs-autre-border);
 }
 
 /* Confirm Delete Overlay & Card */

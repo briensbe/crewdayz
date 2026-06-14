@@ -28,26 +28,33 @@
   --danger-light: hsl(350, 89%, 96%);
 
   /* Absence Colors */
-  --abs-cp: hsl(199, 89%, 48%);
-  --abs-cp-bg: hsl(199, 89%, 95%);
+  --abs-cp: hsl(262, 83%, 58%);
+  --abs-cp-bg: hsl(262, 83%, 95%);
+  --abs-cp-border: hsl(262, 83%, 90%);
   
-  --abs-rtt: hsl(262, 83%, 58%);
-  --abs-rtt-bg: hsl(262, 83%, 95%);
+  --abs-rtt: hsl(36, 100%, 47%);
+  --abs-rtt-bg: hsl(36, 100%, 95%);
+  --abs-rtt-border: hsl(36, 100%, 90%);
   
   --abs-maladie: hsl(0, 84%, 60%);
   --abs-maladie-bg: hsl(0, 84%, 96%);
+  --abs-maladie-border: hsl(0, 84%, 92%);
   
   --abs-maternite: hsl(322, 81%, 60%);
   --abs-maternite-bg: hsl(322, 81%, 96%);
+  --abs-maternite-border: hsl(322, 81%, 92%);
   
-  --abs-exceptionnel: hsl(36, 100%, 47%);
-  --abs-exceptionnel-bg: hsl(36, 100%, 95%);
+  --abs-exceptionnel: hsl(215, 16%, 47%);
+  --abs-exceptionnel-bg: hsl(215, 16%, 95%);
+  --abs-exceptionnel-border: hsl(215, 16%, 90%);
   
   --abs-formation: hsl(142, 71%, 45%);
   --abs-formation-bg: hsl(142, 71%, 95%);
+  --abs-formation-border: hsl(142, 71%, 90%);
   
-  --abs-autre: hsl(215, 16%, 47%);
-  --abs-autre-bg: hsl(215, 16%, 95%);
+  --abs-autre: hsl(199, 89%, 48%);
+  --abs-autre-bg: hsl(199, 89%, 95%);
+  --abs-autre-border: hsl(199, 89%, 90%);
 
   /* Borders & Shadows */
   --radius-sm: 6px;
