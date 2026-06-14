@@ -71,12 +71,34 @@
 
 .employee-badge-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 0.5rem;
   background-color: var(--primary-light);
-  padding: 0.4rem 0.75rem;
+  padding: 0.5rem 0.85rem;
   border-radius: var(--radius-md);
   border: 1px solid hsl(217, 91%, 90%);
+}
+
+.employee-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.employee-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.employee-details-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-top: 1px dashed hsl(217, 91%, 85%);
+  padding-top: 0.5rem;
 }
 
 .employee-label {
@@ -89,6 +111,58 @@
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--primary-dark);
+}
+
+.employee-modal-balances {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.825rem;
+  color: var(--primary-dark);
+}
+
+.balance-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid hsl(217, 91%, 85%);
+  font-weight: 500;
+}
+
+.balance-item.balance-global {
+  background-color: hsl(217, 91%, 95%);
+  border-color: var(--primary);
+}
+
+.balance-label {
+  color: var(--primary-dark);
+  opacity: 0.8;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.balance-values {
+  font-weight: 700;
+  color: var(--primary-dark);
+  font-size: 0.8rem;
+}
+
+.balance-arrow {
+  color: var(--primary);
+  margin: 0 0.15rem;
+  font-size: 0.75rem;
+}
+
+.balance-end-value {
+  color: var(--primary-dark);
+}
+
+.balance-negative {
+  color: var(--danger);
 }
 
 .modal-form {

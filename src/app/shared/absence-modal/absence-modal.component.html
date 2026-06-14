@@ -9,8 +9,66 @@
 
     <!-- Subtitle with employee name -->
     <div class="employee-badge-container">
-      <span class="employee-label">Collaborateur :</span>
-      <span class="employee-name">{{ employeeName() }}</span>
+      <div class="employee-header-row">
+        <div class="employee-info">
+          <span class="employee-label">Collaborateur :</span>
+          <span class="employee-name">{{ employeeName() }}</span>
+        </div>
+
+        @if (balances(); as b) {
+          <!-- Solde Global -->
+          <span class="balance-item balance-global" title="Solde globalisé restant (CP + RTT + Exceptionnel - Absences)">
+            <span class="balance-label">Total :</span>
+            <span class="balance-values">
+              {{ b.total.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.total.end < 0">{{ b.total.end }}j</span>
+            </span>
+          </span>
+        }
+      </div>
+
+      @if (balances(); as b) {
+        <div class="employee-details-row">
+          <div class="employee-modal-balances animate-fade-in">
+            <!-- CP Balance -->
+            <span class="balance-item" title="Solde de Congés Payés (Début ➔ Fin)">
+              <span class="balance-label">CP :</span>
+              <span class="balance-values">
+                @if (b.category === 'CP') {
+                  {{ b.cp.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.cp.end < 0">{{ b.cp.end }}j</span>
+                } @else {
+                  {{ b.cp.start }}j
+                }
+              </span>
+            </span>
+
+            <!-- RTT Balance -->
+            <span class="balance-item" title="Solde de RTT (Début ➔ Fin)">
+              <span class="balance-label">RTT :</span>
+              <span class="balance-values">
+                @if (b.category === 'RTT') {
+                  {{ b.rtt.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.rtt.end < 0">{{ b.rtt.end }}j</span>
+                } @else {
+                  {{ b.rtt.start }}j
+                }
+              </span>
+            </span>
+
+            <!-- Exceptionnel Balance -->
+            @if (b.category === 'Exceptionnel' || b.exceptional.start > 0) {
+              <span class="balance-item" title="Solde de Congé Exceptionnel (Début ➔ Fin)">
+                <span class="balance-label">Exceptionnel :</span>
+                <span class="balance-values">
+                  @if (b.category === 'Exceptionnel') {
+                    {{ b.exceptional.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.exceptional.end < 0">{{ b.exceptional.end }}j</span>
+                  } @else {
+                    {{ b.exceptional.start }}j
+                  }
+                </span>
+              </span>
+            }
+          </div>
+        </div>
+      }
     </div>
 
     <!-- Existing absences in selected period -->

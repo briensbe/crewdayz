@@ -2,9 +2,10 @@ import { Component, input, output, signal, effect, inject, HostListener, compute
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Calendar, X, Trash2, MessageSquare, Info, Plus, Minus } from 'lucide-angular';
-import { Employee, Absence } from '../../models/types';
+import { Employee, Absence, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
+import { isFrenchPublicHoliday } from '../../../utils/holidays';
 
 export interface AbsenceSavePayload {
   employee_id: string;
@@ -186,6 +187,131 @@ export class AbsenceModalComponent {
   showCommentInput = signal(false);
   errorMessage = signal<string | null>(null);
   showConfirmDelete = signal(false);
+
+  // Compute duration of current selection
+  currentAbsenceDays = computed(() => {
+    const startStr = this.startDate();
+    const endStr = this.endDate();
+    if (!startStr || !endStr) return 0;
+
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+    if (end < start) return 0;
+
+    let total = 0;
+    const temp = new Date(start);
+
+    while (temp <= end) {
+      const y = temp.getFullYear();
+      const mm = String(temp.getMonth() + 1).padStart(2, '0');
+      const dd = String(temp.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${mm}-${dd}`;
+
+      const dayOfWeek = temp.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isHoliday = isFrenchPublicHoliday(temp);
+      const isMultiSelect = startStr !== endStr;
+
+      if (isMultiSelect && (isWeekend || isHoliday)) {
+        temp.setDate(temp.getDate() + 1);
+        continue;
+      }
+
+      let period: 'full' | 'morning' | 'afternoon' = 'full';
+      if (startStr === endStr) {
+        if (this.startPeriod() === 'morning' && this.endPeriod() === 'morning') {
+          period = 'morning';
+        } else if (this.startPeriod() === 'afternoon' && this.endPeriod() === 'afternoon') {
+          period = 'afternoon';
+        } else {
+          period = 'full';
+        }
+      } else if (dateStr === startStr) {
+        period = this.startPeriod() === 'afternoon' ? 'afternoon' : 'full';
+      } else if (dateStr === endStr) {
+        period = this.endPeriod() === 'morning' ? 'morning' : 'full';
+      }
+
+      total += (period === 'full' ? 1.0 : 0.5);
+      temp.setDate(temp.getDate() + 1);
+    }
+
+    return total;
+  });
+
+  // Compute starting and ending balances for CP, RTT, and Exceptional
+  balances = computed(() => {
+    const empId = this.employeeId();
+    const startStr = this.startDate();
+    const endStr = this.endDate();
+    const selectedCategory = this.category();
+    const currentDays = this.currentAbsenceDays();
+
+    if (!empId || !startStr) {
+      return null;
+    }
+
+    const year = new Date(startStr).getFullYear();
+    const emp = this.employeeService.employees().find(e => e.id === empId);
+    if (!emp) return null;
+
+    const balanceRecord = emp.cd_employee_balances?.find(b => b.year === year);
+    const defaults = emp.contract_type === 'Interne'
+      ? CONTRACT_DEFAULT_BALANCES.Interne
+      : CONTRACT_DEFAULT_BALANCES.Externe;
+
+    const initialCp = balanceRecord ? balanceRecord.initial_cp : defaults.initial_cp;
+    const initialRtt = balanceRecord ? balanceRecord.initial_rtt : defaults.initial_rtt;
+    const initialExceptional = balanceRecord ? balanceRecord.initial_exceptional : defaults.initial_exceptional;
+
+    const allAbsences = this.absenceService.absences().filter(a => a.employee_id === empId);
+
+    const usedCp = allAbsences
+      .filter(a => a.category === 'CP' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
+      .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
+
+    const usedRtt = allAbsences
+      .filter(a => a.category === 'RTT' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
+      .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
+
+    const usedExceptional = allAbsences
+      .filter(a => a.category === 'Exceptionnel' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
+      .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
+
+    const startCp = initialCp - usedCp;
+    const startRtt = initialRtt - usedRtt;
+    const startExceptional = initialExceptional - usedExceptional;
+
+    let endCp = startCp;
+    let endRtt = startRtt;
+    let endExceptional = startExceptional;
+
+    if (selectedCategory === 'CP') {
+      endCp = startCp - currentDays;
+    } else if (selectedCategory === 'RTT') {
+      endRtt = startRtt - currentDays;
+    } else if (selectedCategory === 'Exceptionnel') {
+      endExceptional = startExceptional - currentDays;
+    }
+
+    // Global balance: CP + RTT + Exceptional minus all absences except Formation
+    const initialTotal = initialCp + initialRtt + initialExceptional;
+    const usedTotal = allAbsences
+      .filter(a => a.category !== 'Formation' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
+      .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
+
+    const startTotal = initialTotal - usedTotal;
+    const endTotal = selectedCategory !== 'Formation' ? (startTotal - currentDays) : startTotal;
+
+    return {
+      cp: { start: startCp, end: endCp },
+      rtt: { start: startRtt, end: endRtt },
+      exceptional: { start: startExceptional, end: endExceptional },
+      total: { start: startTotal, end: endTotal },
+      category: selectedCategory,
+      duration: currentDays
+    };
+  });
 
   // Expose icons
   readonly CalendarIcon = Calendar;
