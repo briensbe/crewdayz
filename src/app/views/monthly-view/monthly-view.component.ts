@@ -105,7 +105,7 @@ export class MonthlyViewComponent implements OnInit {
   months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
   
   // Filter State
-  activeFilters = signal<FilterState>({
+  activeFilters = storageSignal<FilterState>('crewdayz_monthly_view_filters', {
     search: '',
     service: '',
     team: '',

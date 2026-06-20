@@ -5,6 +5,7 @@ import { LucideAngularModule, Plus, Edit, Trash2, Users, Building2, MapPin, Brie
 import { EmployeeService } from '../../services/employee.service';
 import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
+import { storageSignal } from '../../../utils/storage-signal';
 
 @Component({
   selector: 'app-employee-list',
@@ -41,7 +42,7 @@ export class EmployeeListComponent implements OnInit {
   yearsList = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
 
   // Filter State
-  activeFilters = signal<FilterState>({
+  activeFilters = storageSignal<FilterState>('crewdayz_employee_list_filters', {
     search: '',
     service: '',
     team: '',
