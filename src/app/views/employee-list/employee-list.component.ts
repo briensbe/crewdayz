@@ -164,6 +164,48 @@ export class EmployeeListComponent implements OnInit {
     }, 200);
   }
 
+  // Combobox custom state for Services
+  showServiceDropdown = signal(false);
+  
+  // Computes filtered list based on typed value in "service" field
+  filteredServices = computed(() => {
+    const query = this.service().toLowerCase().trim();
+    // If query is empty OR if it matches exactly an existing service, show all services
+    if (!query || this.services().some(s => s.toLowerCase() === query)) {
+      return this.services();
+    }
+    return this.services().filter(s => s.toLowerCase().includes(query));
+  });
+
+  // Determines if the entered text is a new service that doesn't exist yet
+  isNewService = computed(() => {
+    const current = this.service().trim();
+    if (!current) return false;
+    return !this.services().some(s => s.toLowerCase() === current.toLowerCase());
+  });
+
+  onServiceSearch(val: string) {
+    this.service.set(val);
+    this.showServiceDropdown.set(true);
+  }
+
+  selectService(val: string) {
+    this.service.set(val);
+    this.showServiceDropdown.set(false);
+  }
+
+  toggleServiceDropdown(event: Event) {
+    event.stopPropagation();
+    this.showServiceDropdown.update(v => !v);
+  }
+
+  closeServiceDropdown() {
+    // Timeout to allow mousedown events on options to trigger first
+    setTimeout(() => {
+      this.showServiceDropdown.set(false);
+    }, 200);
+  }
+
   ngOnInit() {
     this.employeeService.fetchEmployees();
   }

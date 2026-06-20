@@ -151,9 +151,38 @@
         </div>
 
         <!-- Assignment -->
-        <div class="form-group">
+        <div class="form-group custom-combobox">
           <label for="service">Service *</label>
-          <input id="service" type="text" [ngModel]="service()" (ngModelChange)="service.set($event)" name="service" required placeholder="DSI, RH, Marketing..." />
+          <div class="combobox-wrapper">
+            <input 
+              id="service" 
+              type="text" 
+              [ngModel]="service()" 
+              (ngModelChange)="onServiceSearch($event)" 
+              (focus)="showServiceDropdown.set(true)"
+              (blur)="closeServiceDropdown()"
+              name="service" 
+              required 
+              placeholder="DSI, RH, Marketing..." 
+              autocomplete="off"
+            />
+            <button type="button" class="combobox-toggle" (click)="toggleServiceDropdown($event)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+
+          @if (showServiceDropdown()) {
+            <ul class="combobox-options">
+              @for (s of filteredServices(); track s) {
+                <li class="combobox-option" (mousedown)="selectService(s)">{{ s }}</li>
+              }
+              @if (isNewService()) {
+                <li class="combobox-option combobox-add-new" (mousedown)="selectService(service())">
+                  <span class="plus-symbol">+</span> Ajouter "<strong>{{ service() }}</strong>"
+                </li>
+              }
+            </ul>
+          }
         </div>
         <div class="form-group custom-combobox">
           <label for="team">Équipe *</label>
