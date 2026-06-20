@@ -23,7 +23,9 @@
     <div class="filter-item">
       <select [ngModel]="selectedService()" (ngModelChange)="selectedService.set($event); onFilterChange()">
         <option value="">Tous les services</option>
-        <option *ngFor="let s of services()" [value]="s">{{ s }}</option>
+        @for (s of services(); track s) {
+          <option [value]="s">{{ s }}</option>
+        }
       </select>
     </div>
 
@@ -31,7 +33,9 @@
     <div class="filter-item">
       <select [ngModel]="selectedTeam()" (ngModelChange)="selectedTeam.set($event); onFilterChange()">
         <option value="">Toutes les équipes</option>
-        <option *ngFor="let t of teams()" [value]="t">{{ t }}</option>
+        @for (t of teams(); track t) {
+          <option [value]="t">{{ t }}</option>
+        }
       </select>
     </div>
 
@@ -39,7 +43,9 @@
     <div class="filter-item">
       <select [ngModel]="selectedWorkSite()" (ngModelChange)="selectedWorkSite.set($event); onFilterChange()">
         <option value="">Tous les sites</option>
-        <option *ngFor="let ws of workSites()" [value]="ws">{{ ws }}</option>
+        @for (ws of workSites(); track ws) {
+          <option [value]="ws">{{ ws }}</option>
+        }
       </select>
     </div>
 
@@ -47,16 +53,38 @@
     <div class="filter-item">
       <select [ngModel]="selectedContractType()" (ngModelChange)="selectedContractType.set($event); onFilterChange()">
         <option value="">Tous les types</option>
-        <option *ngFor="let ct of contractTypes()" [value]="ct">{{ ct }}</option>
+        @for (ct of contractTypes(); track ct) {
+          <option [value]="ct">{{ ct }}</option>
+        }
       </select>
     </div>
 
     <!-- Reset Button -->
-    <div class="filter-item actions-item" *ngIf="search() || selectedService() || selectedTeam() || selectedWorkSite() || selectedContractType()">
-      <button class="btn btn-outline btn-reset" (click)="resetFilters()" type="button">
-        <lucide-icon [img]="X" size="16"></lucide-icon>
-        Effacer
-      </button>
-    </div>
+    @if (search() || selectedService() || selectedTeam() || selectedWorkSite() || selectedContractType()) {
+      <div class="filter-item actions-item">
+        <button class="btn btn-outline btn-reset" (click)="resetFilters()" type="button">
+          <lucide-icon [img]="X" size="16"></lucide-icon>
+          Effacer
+        </button>
+      </div>
+    }
   </div>
+
+  <!-- Active Filter Badges inside the Filters Card -->
+  @if (activeFilterLabels().length > 0) {
+    <div class="active-filters-row">
+      <span class="active-filters-label">Filtres appliqués :</span>
+      <div class="active-filters-list">
+        @for (pill of activeFilterLabels(); track pill.key) {
+          <span class="filter-pill">
+            <span class="filter-pill-name">{{ pill.label }} :</span>
+            <span class="filter-pill-val">{{ pill.value }}</span>
+            <button class="filter-pill-close" (click)="clearFilter(pill.key)" title="Enlever ce filtre">
+              <lucide-icon [img]="X" size="12"></lucide-icon>
+            </button>
+          </span>
+        }
+      </div>
+    </div>
+  }
 </div>

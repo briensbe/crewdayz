@@ -15,7 +15,11 @@ export const routes: Routes = [
     path: '',
     canActivate: [AuthGuard],
     children: [
-      { path: '', redirectTo: '/mensuel', pathMatch: 'full' },
+      { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+      { 
+        path: 'dashboard', 
+        loadComponent: () => import('./views/dashboard/dashboard.component').then(m => m.DashboardComponent) 
+      },
       { 
         path: 'collaborateurs', 
         loadComponent: () => import('./views/employee-list/employee-list.component').then(m => m.EmployeeListComponent) 

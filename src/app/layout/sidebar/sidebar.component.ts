@@ -9,7 +9,8 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
-  LogOut
+  LogOut,
+  LayoutDashboard
 } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
 import { SupabaseService } from '../../services/supabase.service';
@@ -42,6 +43,7 @@ export class SidebarComponent {
   readonly version = environment.version;
 
   navigationItems: NavigationItem[] = [
+    { label: 'Tableau de Bord', icon: LayoutDashboard, route: '/dashboard' },
     { label: 'Collaborateurs', icon: Users, route: '/collaborateurs' },
     { label: 'Vue Mensuelle', icon: Calendar, route: '/mensuel' },
     { label: 'Vue Annuelle', icon: Layers, route: '/annuel' },

@@ -1,0 +1,314 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-text">
+      <h1>Tableau de Bord</h1>
+      <p class="subtitle">Suivi annuel des effectifs par mois basé sur les dates d'arrivée et de départ</p>
+    </div>
+    
+    <!-- Year Navigation -->
+    <div class="month-navigator">
+      <button class="nav-arrow-btn" (click)="prevYear()" title="Année précédente">
+        <lucide-icon [img]="ChevronLeft" size="18"></lucide-icon>
+      </button>
+      <span class="month-year-title">{{ currentYear() }}</span>
+      <button class="nav-arrow-btn" (click)="nextYear()" title="Année suivante">
+        <lucide-icon [img]="ChevronRight" size="18"></lucide-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <app-filters
+    [services]="services()"
+    [teams]="teams()"
+    [workSites]="workSites()"
+    [initialFilters]="activeFilters()"
+    (filterChange)="handleFilterChange($event)"
+  ></app-filters>
+
+  <!-- KPI Cards Grid -->
+  <div class="kpi-grid">
+    <!-- Total Unique Employees -->
+    <div class="kpi-card">
+      <div class="kpi-icon-wrapper blue">
+        <lucide-icon [img]="Users" size="22"></lucide-icon>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-label">Effectif Global Annuel</span>
+        <span class="kpi-value">{{ kpis().totalUniqueEmployees }}</span>
+        <span class="kpi-subtext">Collaborateurs uniques sur l'année</span>
+      </div>
+    </div>
+
+    <!-- Average Monthly Headcount -->
+    <div class="kpi-card">
+      <div class="kpi-icon-wrapper green">
+        <lucide-icon [img]="UserCheck" size="22"></lucide-icon>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-label">Moyenne Mensuelle</span>
+        <span class="kpi-value">{{ kpis().avgPresence }}</span>
+        <span class="kpi-subtext">Collaborateurs actifs par mois</span>
+      </div>
+    </div>
+
+    <!-- Arrivals -->
+    <div class="kpi-card">
+      <div class="kpi-icon-wrapper purple">
+        <lucide-icon [img]="ArrowUpRight" size="22"></lucide-icon>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-label">Nouvelles Arrivées</span>
+        <span class="kpi-value">{{ kpis().totalArrivals }}</span>
+        <span class="kpi-subtext">Recrutements sur l'année</span>
+      </div>
+    </div>
+
+    <!-- Departures -->
+    <div class="kpi-card">
+      <div class="kpi-icon-wrapper orange">
+        <lucide-icon [img]="ArrowDownRight" size="22"></lucide-icon>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-label">Départs</span>
+        <span class="kpi-value">{{ kpis().totalDepartures }}</span>
+        <span class="kpi-subtext">Fins de contrat sur l'année</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graph Section -->
+  <div class="dashboard-chart-card">
+    <div class="chart-header">
+      <div class="chart-title-wrapper">
+        <lucide-icon [img]="TrendingUp" size="18" class="chart-icon"></lucide-icon>
+        <h2>Nombre de personnes actives dans l'entreprise</h2>
+      </div>
+      @if (hoveredIndex() !== null) {
+        <div class="chart-hover-indicator">
+          {{ monthlyData()[hoveredIndex()!].monthName }} : 
+          <strong>{{ monthlyData()[hoveredIndex()!].presentCount }}</strong> actif(s)
+        </div>
+      }
+    </div>
+
+    <!-- Interactive SVG Chart -->
+    <div class="chart-container">
+      @if (kpis().totalUniqueEmployees === 0) {
+        <div class="empty-state">
+          <lucide-icon [img]="AlertCircle" size="48" class="empty-icon"></lucide-icon>
+          <h3>Aucun collaborateur actif sur cette période</h3>
+          <p>Modifiez vos critères de recherche ou de date pour afficher les effectifs.</p>
+        </div>
+      } @else {
+        <svg [attr.viewBox]="'0 0 ' + chartWidth + ' ' + chartHeight" class="presence-svg">
+          <!-- Definitions for gradients -->
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--chart-gradient-start, #3b82f6)" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="var(--chart-gradient-end, #3b82f6)" stop-opacity="0.0"/>
+            </linearGradient>
+            <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#3b82f6"/>
+              <stop offset="100%" stop-color="#60a5fa"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Y-Axis Gridlines & Labels -->
+          @for (tick of yTicks(); track tick) {
+            <g class="grid-group">
+              <line 
+                [attr.x1]="paddingLeft" 
+                [attr.y1]="getY(tick, kpis().totalUniqueEmployees)" 
+                [attr.x2]="chartWidth - paddingRight" 
+                [attr.y2]="getY(tick, kpis().totalUniqueEmployees)" 
+                class="grid-line"
+              />
+              <text 
+                [attr.x]="paddingLeft - 12" 
+                [attr.y]="getY(tick, kpis().totalUniqueEmployees) + 4" 
+                text-anchor="end" 
+                class="axis-label"
+              >
+                {{ tick }}
+              </text>
+            </g>
+          }
+
+          <!-- Chart Area under the Curve -->
+          <path [attr.d]="chartPath().area" fill="url(#areaGrad)" />
+
+          <!-- Chart Line -->
+          <path [attr.d]="chartPath().line" fill="none" stroke="url(#lineGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+          <!-- Data Points & Interaction Dots -->
+          @for (m of monthlyData(); track m.monthIndex; let idx = $index) {
+            <circle 
+              [attr.cx]="getX(idx)" 
+              [attr.cy]="getY(m.presentCount, kpis().totalUniqueEmployees)" 
+              [attr.r]="hoveredIndex() === idx ? 6 : 4" 
+              class="chart-point"
+              [class.active]="hoveredIndex() === idx"
+            />
+          }
+
+          <!-- Interactive Hover Columns -->
+          @for (m of monthlyData(); track m.monthIndex; let idx = $index) {
+            <rect 
+              [attr.x]="getX(idx) - (chartWidth - paddingLeft - paddingRight) / 24" 
+              [attr.y]="paddingTop" 
+              [attr.width]="(chartWidth - paddingLeft - paddingRight) / 12" 
+              [attr.height]="chartHeight - paddingTop - paddingBottom" 
+              fill="transparent" 
+              class="hover-column"
+              (mouseenter)="setHoveredIndex(idx)"
+              (mouseleave)="setHoveredIndex(null)"
+            />
+          }
+
+          <!-- X-Axis Labels (draw 12 months) -->
+          @for (m of monthlyData(); track m.monthIndex; let idx = $index) {
+            <text 
+              [attr.x]="getX(idx)" 
+              [attr.y]="chartHeight - paddingBottom + 20" 
+              text-anchor="middle" 
+              class="axis-label x-axis-label"
+            >
+              {{ m.monthName.substring(0, 4) }}.
+            </text>
+          }
+
+          <!-- Hover Tooltip Line Indicator -->
+          @if (hoveredIndex() !== null) {
+            <line 
+              [attr.x1]="getX(hoveredIndex()!)" 
+              [attr.y1]="paddingTop" 
+              [attr.x2]="getX(hoveredIndex()!)" 
+              [attr.y2]="chartHeight - paddingBottom" 
+              class="tooltip-indicator-line"
+            />
+          }
+        </svg>
+
+        <!-- Premium Tooltip Overlay -->
+        @if (hoveredIndex() !== null) {
+          @let activeMonth = monthlyData()[hoveredIndex()!];
+          <div 
+            class="chart-tooltip" 
+            [style.left.px]="getX(hoveredIndex()!) + 20"
+            [style.top.px]="getY(activeMonth.presentCount, kpis().totalUniqueEmployees) - 50"
+          >
+            <div class="tooltip-header">
+              <span class="tooltip-date">{{ activeMonth.monthName }} {{ currentYear() }}</span>
+            </div>
+            <div class="tooltip-body">
+              <div class="tooltip-stat">
+                <span class="dot present"></span>
+                <span>Actifs: <strong>{{ activeMonth.presentCount }}</strong></span>
+              </div>
+              <div class="tooltip-stat">
+                <span class="dot purple"></span>
+                <span>Arrivées: <strong>{{ activeMonth.arrivals.length }}</strong></span>
+              </div>
+              <div class="tooltip-stat">
+                <span class="dot orange"></span>
+                <span>Départs: <strong>{{ activeMonth.departures.length }}</strong></span>
+              </div>
+
+              @if (activeMonth.arrivals.length > 0) {
+                <div class="tooltip-absences-title text-success">Nouvelles Arrivées :</div>
+                <div class="tooltip-absences-list">
+                  @for (emp of activeMonth.arrivals; track emp.id) {
+                    <div class="tooltip-absence-item">
+                      <span class="abs-name">{{ emp.first_name }} {{ emp.last_name }}</span>
+                      <span class="abs-cat">Le {{ emp.arrival_date }}</span>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (activeMonth.departures.length > 0) {
+                <div class="tooltip-absences-title text-warning">Départs du Mois :</div>
+                <div class="tooltip-absences-list">
+                  @for (emp of activeMonth.departures; track emp.id) {
+                    <div class="tooltip-absence-item">
+                      <span class="abs-name">{{ emp.first_name }} {{ emp.last_name }}</span>
+                      <span class="abs-cat">Le {{ emp.departure_date }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Monthly Breakdown Summary Panel -->
+  <div class="absences-summary-card">
+    <div class="summary-header">
+      <h2>Détail Mensuel de l'Année {{ currentYear() }}</h2>
+      <span class="summary-count">
+        12 mois suivis
+      </span>
+    </div>
+
+    <div class="summary-content">
+      <div class="table-responsive">
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>Mois</th>
+              <th>Actifs / Effectif Global</th>
+              <th>Arrivées du mois</th>
+              <th>Départs du mois</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of monthlyData(); track m.monthIndex) {
+              <tr>
+                <td class="date-cell">
+                  <strong>{{ m.monthName }}</strong>
+                </td>
+                <td>
+                  @let rate = kpis().totalUniqueEmployees > 0 ? (m.presentCount / kpis().totalUniqueEmployees * 100) : 0;
+                  <div class="progress-bar-container">
+                    <div class="progress-bar" [style.width.%]="rate" [class.low]="rate < 50" [class.medium]="rate >= 50 && rate < 85" [class.high]="rate >= 85"></div>
+                    <span class="progress-text">{{ m.presentCount }} / {{ kpis().totalUniqueEmployees }} ({{ rate.toFixed(0) }}%)</span>
+                  </div>
+                </td>
+                <td>
+                  @if (m.arrivals.length > 0) {
+                    <div class="absents-tags">
+                      @for (emp of m.arrivals; track emp.id) {
+                        <span class="absent-tag arrival" [title]="'Recruté le ' + emp.arrival_date">
+                          {{ emp.first_name }} {{ emp.last_name }}
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="no-absents-text">-</span>
+                  }
+                </td>
+                <td>
+                  @if (m.departures.length > 0) {
+                    <div class="absents-tags">
+                      @for (emp of m.departures; track emp.id) {
+                        <span class="absent-tag departure" [title]="'Sortie le ' + emp.departure_date">
+                          {{ emp.first_name }} {{ emp.last_name }}
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="no-absents-text">-</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
