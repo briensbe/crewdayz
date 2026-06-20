@@ -525,7 +525,7 @@
 .inline-edit-popover.vertical-layout {
   flex-direction: column;
   align-items: stretch;
-  min-width: 200px;
+  min-width: 230px;
   box-shadow: var(--shadow-lg);
   padding: 8px;
 }
