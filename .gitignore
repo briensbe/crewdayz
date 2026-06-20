@@ -111,6 +111,7 @@ environment*
 
 # perso 
 private-docs/
+private/
 
 # Claude Code
 .claude/
