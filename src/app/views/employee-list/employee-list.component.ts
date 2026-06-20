@@ -65,6 +65,14 @@ export class EmployeeListComponent implements OnInit {
     return Array.from(new Set(list)).filter(Boolean).sort();
   });
 
+  profiles = computed(() => {
+    const list = this.employeeService.employees().map((e) => e.profile);
+    // Include the default options just in case database is empty or we want standard defaults
+    const defaults = ['Développeur', 'Business Analyst', 'Alternant', 'Responsable'];
+    const merged = [...defaults, ...list];
+    return Array.from(new Set(merged)).filter(Boolean).sort();
+  });
+
   companyNames = computed(() => {
     const list = this.employeeService.employees().map((e) => e.company_name);
     return Array.from(new Set(list)).filter((c): c is string => !!c).sort();
@@ -120,7 +128,7 @@ export class EmployeeListComponent implements OnInit {
   workSite = signal('');
   contractType = signal<'Interne' | 'Externe'>('Interne');
   companyName = signal('');
-  profile = signal<'Développeur' | 'Business Analyst' | 'Alternant' | 'Responsable'>('Développeur');
+  profile = signal<string>('Développeur');
   arrivalDate = signal<string>('');
   departureDate = signal<string>('');
   initialCP = signal(25.0);
@@ -295,6 +303,48 @@ export class EmployeeListComponent implements OnInit {
     // Timeout to allow mousedown events on options to trigger first
     setTimeout(() => {
       this.showWorkSiteDropdown.set(false);
+    }, 200);
+  }
+
+  // Combobox custom state for profiles
+  showProfileDropdown = signal(false);
+  
+  // Computes filtered list based on typed value in "profile" field
+  filteredProfiles = computed(() => {
+    const query = this.profile().toLowerCase().trim();
+    // If query is empty OR if it matches exactly an existing profile, show all profiles
+    if (!query || this.profiles().some(p => p.toLowerCase() === query)) {
+      return this.profiles();
+    }
+    return this.profiles().filter(p => p.toLowerCase().includes(query));
+  });
+
+  // Determines if the entered text is a new profile that doesn't exist yet
+  isNewProfile = computed(() => {
+    const current = this.profile().trim();
+    if (!current) return false;
+    return !this.profiles().some(p => p.toLowerCase() === current.toLowerCase());
+  });
+
+  onProfileSearch(val: string) {
+    this.profile.set(val);
+    this.showProfileDropdown.set(true);
+  }
+
+  selectProfile(val: string) {
+    this.profile.set(val);
+    this.showProfileDropdown.set(false);
+  }
+
+  toggleProfileDropdown(event: Event) {
+    event.stopPropagation();
+    this.showProfileDropdown.update(v => !v);
+  }
+
+  closeProfileDropdown() {
+    // Timeout to allow mousedown events on options to trigger first
+    setTimeout(() => {
+      this.showProfileDropdown.set(false);
     }, 200);
   }
 
