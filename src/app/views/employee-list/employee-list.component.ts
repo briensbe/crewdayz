@@ -256,6 +256,48 @@ export class EmployeeListComponent implements OnInit {
     }, 200);
   }
 
+  // Combobox custom state for workSites
+  showWorkSiteDropdown = signal(false);
+  
+  // Computes filtered list based on typed value in "workSite" field
+  filteredWorkSites = computed(() => {
+    const query = this.workSite().toLowerCase().trim();
+    // If query is empty OR if it matches exactly an existing site, show all sites
+    if (!query || this.workSites().some(w => w.toLowerCase() === query)) {
+      return this.workSites();
+    }
+    return this.workSites().filter(w => w.toLowerCase().includes(query));
+  });
+
+  // Determines if the entered text is a new site that doesn't exist yet
+  isNewWorkSite = computed(() => {
+    const current = this.workSite().trim();
+    if (!current) return false;
+    return !this.workSites().some(w => w.toLowerCase() === current.toLowerCase());
+  });
+
+  onWorkSiteSearch(val: string) {
+    this.workSite.set(val);
+    this.showWorkSiteDropdown.set(true);
+  }
+
+  selectWorkSite(val: string) {
+    this.workSite.set(val);
+    this.showWorkSiteDropdown.set(false);
+  }
+
+  toggleWorkSiteDropdown(event: Event) {
+    event.stopPropagation();
+    this.showWorkSiteDropdown.update(v => !v);
+  }
+
+  closeWorkSiteDropdown() {
+    // Timeout to allow mousedown events on options to trigger first
+    setTimeout(() => {
+      this.showWorkSiteDropdown.set(false);
+    }, 200);
+  }
+
   ngOnInit() {
     this.employeeService.fetchEmployees();
   }

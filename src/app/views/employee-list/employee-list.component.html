@@ -218,9 +218,38 @@
           }
         </div>
 
-        <div class="form-group">
+        <div class="form-group custom-combobox">
           <label for="workSite">Site de travail *</label>
-          <input id="workSite" type="text" [ngModel]="workSite()" (ngModelChange)="workSite.set($event)" name="workSite" required placeholder="Paris, Lyon, Télétravail..." />
+          <div class="combobox-wrapper">
+            <input 
+              id="workSite" 
+              type="text" 
+              [ngModel]="workSite()" 
+              (ngModelChange)="onWorkSiteSearch($event)" 
+              (focus)="showWorkSiteDropdown.set(true)"
+              (blur)="closeWorkSiteDropdown()"
+              name="workSite" 
+              required 
+              placeholder="Paris, Lyon, Télétravail..." 
+              autocomplete="off"
+            />
+            <button type="button" class="combobox-toggle" (click)="toggleWorkSiteDropdown($event)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+
+          @if (showWorkSiteDropdown()) {
+            <ul class="combobox-options">
+              @for (w of filteredWorkSites(); track w) {
+                <li class="combobox-option" (mousedown)="selectWorkSite(w)">{{ w }}</li>
+              }
+              @if (isNewWorkSite()) {
+                <li class="combobox-option combobox-add-new" (mousedown)="selectWorkSite(workSite())">
+                  <span class="plus-symbol">+</span> Ajouter "<strong>{{ workSite() }}</strong>"
+                </li>
+              }
+            </ul>
+          }
         </div>
         <div class="form-group">
           <label for="profile">Profil métier *</label>
