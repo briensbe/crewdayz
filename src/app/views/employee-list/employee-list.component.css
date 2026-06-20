@@ -509,7 +509,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  min-width: 100%;
+  width: max-content;
   min-height: 100%;
   z-index: 100;
   background-color: var(--surface);
@@ -520,13 +521,13 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  box-shadow: var(--shadow-lg);
 }
 
 .inline-edit-popover.vertical-layout {
   flex-direction: column;
   align-items: stretch;
   min-width: 230px;
-  box-shadow: var(--shadow-lg);
   padding: 8px;
 }
 
@@ -541,6 +542,10 @@
   color: var(--text-main);
   outline: none;
   transition: var(--transition);
+}
+
+.inline-input.auto-grow {
+  width: auto;
 }
 
 .inline-input:focus {

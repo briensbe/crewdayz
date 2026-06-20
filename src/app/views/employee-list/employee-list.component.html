@@ -70,8 +70,8 @@
                 @if (editingEmployeeId() === emp.id && editingField() === 'name') {
                   <div class="inline-edit-popover" (click)="$event.stopPropagation()">
                     <div class="inputs-row">
-                      <input type="text" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" placeholder="Prénom" class="inline-input" required />
-                      <input type="text" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" placeholder="Nom" class="inline-input" required />
+                      <input type="text" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" placeholder="Prénom" class="inline-input auto-grow" [size]="(firstName().length || 8) + 2" required />
+                      <input type="text" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" placeholder="Nom" class="inline-input auto-grow" [size]="(lastName().length || 8) + 2" required />
                     </div>
                   </div>
                 }
@@ -100,7 +100,8 @@
                             (blur)="closeCompanyDropdown()"
                             placeholder="ESN..." 
                             autocomplete="off"
-                            class="inline-input"
+                            class="inline-input auto-grow"
+                            [size]="(companyName().length || 10) + 2"
                           />
                         </div>
                         @if (showCompanyDropdown()) {
@@ -133,7 +134,8 @@
                           (focus)="showProfileDropdown.set(true)"
                           (blur)="closeProfileDropdown()"
                           autocomplete="off"
-                          class="inline-input"
+                          class="inline-input auto-grow"
+                          [size]="(profile().length || 12) + 2"
                         />
                       </div>
                       @if (showProfileDropdown()) {
@@ -165,7 +167,8 @@
                           (focus)="showServiceDropdown.set(true)"
                           (blur)="closeServiceDropdown()"
                           autocomplete="off"
-                          class="inline-input"
+                          class="inline-input auto-grow"
+                          [size]="(service().length || 10) + 2"
                         />
                       </div>
                       @if (showServiceDropdown()) {
@@ -197,7 +200,8 @@
                           (focus)="showTeamDropdown.set(true)"
                           (blur)="closeTeamDropdown()"
                           autocomplete="off"
-                          class="inline-input"
+                          class="inline-input auto-grow"
+                          [size]="(team().length || 10) + 2"
                         />
                       </div>
                       @if (showTeamDropdown()) {
@@ -229,7 +233,8 @@
                           (focus)="showWorkSiteDropdown.set(true)"
                           (blur)="closeWorkSiteDropdown()"
                           autocomplete="off"
-                          class="inline-input"
+                          class="inline-input auto-grow"
+                          [size]="(workSite().length || 10) + 2"
                         />
                       </div>
                       @if (showWorkSiteDropdown()) {
