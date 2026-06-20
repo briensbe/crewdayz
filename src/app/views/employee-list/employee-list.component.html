@@ -155,9 +155,38 @@
           <label for="service">Service *</label>
           <input id="service" type="text" [ngModel]="service()" (ngModelChange)="service.set($event)" name="service" required placeholder="DSI, RH, Marketing..." />
         </div>
-        <div class="form-group">
+        <div class="form-group custom-combobox">
           <label for="team">Équipe *</label>
-          <input id="team" type="text" [ngModel]="team()" (ngModelChange)="team.set($event)" name="team" required placeholder="Équipe Web, Ilot A..." />
+          <div class="combobox-wrapper">
+            <input 
+              id="team" 
+              type="text" 
+              [ngModel]="team()" 
+              (ngModelChange)="onTeamSearch($event)" 
+              (focus)="showTeamDropdown.set(true)"
+              (blur)="closeTeamDropdown()"
+              name="team" 
+              required 
+              placeholder="Équipe Web, Ilot A..." 
+              autocomplete="off"
+            />
+            <button type="button" class="combobox-toggle" (click)="toggleTeamDropdown($event)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+
+          @if (showTeamDropdown()) {
+            <ul class="combobox-options">
+              @for (t of filteredTeams(); track t) {
+                <li class="combobox-option" (mousedown)="selectTeam(t)">{{ t }}</li>
+              }
+              @if (isNewTeam()) {
+                <li class="combobox-option combobox-add-new" (mousedown)="selectTeam(team())">
+                  <span class="plus-symbol">+</span> Ajouter "<strong>{{ team() }}</strong>"
+                </li>
+              }
+            </ul>
+          }
         </div>
 
         <div class="form-group">

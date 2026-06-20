@@ -122,6 +122,48 @@ export class EmployeeListComponent implements OnInit {
   errorMessage = signal<string | null>(null);
   submitting = signal(false);
 
+  // Combobox custom state for Teams
+  showTeamDropdown = signal(false);
+  
+  // Computes filtered list based on typed value in "team" field
+  filteredTeams = computed(() => {
+    const query = this.team().toLowerCase().trim();
+    // If query is empty OR if it matches exactly an existing team, show all teams
+    if (!query || this.teams().some(t => t.toLowerCase() === query)) {
+      return this.teams();
+    }
+    return this.teams().filter(t => t.toLowerCase().includes(query));
+  });
+
+  // Determines if the entered text is a new team that doesn't exist yet
+  isNewTeam = computed(() => {
+    const current = this.team().trim();
+    if (!current) return false;
+    return !this.teams().some(t => t.toLowerCase() === current.toLowerCase());
+  });
+
+  onTeamSearch(val: string) {
+    this.team.set(val);
+    this.showTeamDropdown.set(true);
+  }
+
+  selectTeam(val: string) {
+    this.team.set(val);
+    this.showTeamDropdown.set(false);
+  }
+
+  toggleTeamDropdown(event: Event) {
+    event.stopPropagation();
+    this.showTeamDropdown.update(v => !v);
+  }
+
+  closeTeamDropdown() {
+    // Timeout to allow mousedown events on options to trigger first
+    setTimeout(() => {
+      this.showTeamDropdown.set(false);
+    }, 200);
+  }
+
   ngOnInit() {
     this.employeeService.fetchEmployees();
   }
