@@ -13,7 +13,7 @@ export interface AbsenceSavePayload {
   endDate: string;
   startPeriod: 'morning' | 'afternoon';
   endPeriod: 'morning' | 'afternoon';
-  category: 'CP' | 'RTT' | 'Maladie' | 'Congé maternité' | 'Exceptionnel' | 'Formation' | 'Autre';
+  category: 'CP' | 'RTT' | 'Maladie' | 'Congé maternité' | 'Exceptionnel' | 'Formation' | 'Autre' | 'Temps partiel' | 'Prévisionnel';
   comment: string;
 }
 
@@ -159,6 +159,8 @@ export class AbsenceModalComponent {
       case 'Congé maternité': return 'Congé Maternité / Paternité';
       case 'Exceptionnel': return 'Congé Exceptionnel';
       case 'Formation': return 'Formation';
+      case 'Temps partiel': return 'Temps partiel';
+      case 'Prévisionnel': return 'Prévisionnel (Simulation)';
       case 'Autre': return 'Absence';
       default: return category;
     }
@@ -172,6 +174,8 @@ export class AbsenceModalComponent {
       case 'Congé maternité': return 'badge-maternite';
       case 'Exceptionnel': return 'badge-exceptionnel';
       case 'Formation': return 'badge-formation';
+      case 'Temps partiel': return 'badge-partiel';
+      case 'Prévisionnel': return 'badge-previsionnel';
       default: return 'badge-other';
     }
   }
@@ -182,7 +186,7 @@ export class AbsenceModalComponent {
   endDate = signal('');
   startPeriod = signal<'morning' | 'afternoon'>('morning');
   endPeriod = signal<'morning' | 'afternoon'>('afternoon');
-  category = signal<'CP' | 'RTT' | 'Maladie' | 'Congé maternité' | 'Exceptionnel' | 'Formation' | 'Autre'>('CP');
+  category = signal<'CP' | 'RTT' | 'Maladie' | 'Congé maternité' | 'Exceptionnel' | 'Formation' | 'Autre' | 'Temps partiel' | 'Prévisionnel'>('CP');
   comment = signal('');
   showCommentInput = signal(false);
   errorMessage = signal<string | null>(null);
@@ -294,14 +298,14 @@ export class AbsenceModalComponent {
       endExceptional = startExceptional - currentDays;
     }
 
-    // Global balance: CP + RTT + Exceptional minus all absences except Formation
+    // Global balance: CP + RTT + Exceptional minus all absences except Formation, Temps partiel, and Prévisionnel
     const initialTotal = initialCp + initialRtt + initialExceptional;
     const usedTotal = allAbsences
-      .filter(a => a.category !== 'Formation' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
+      .filter(a => a.category !== 'Formation' && a.category !== 'Temps partiel' && a.category !== 'Prévisionnel' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
       .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
 
     const startTotal = initialTotal - usedTotal;
-    const endTotal = selectedCategory !== 'Formation' ? (startTotal - currentDays) : startTotal;
+    const endTotal = (selectedCategory !== 'Formation' && selectedCategory !== 'Temps partiel' && selectedCategory !== 'Prévisionnel') ? (startTotal - currentDays) : startTotal;
 
     return {
       cp: { start: startCp, end: endCp },

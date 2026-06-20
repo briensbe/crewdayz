@@ -44,6 +44,8 @@
             <div class="legend-item"><span class="legend-badge abs-maternite">1 / 0.5</span> Maternité</div>
             <div class="legend-item"><span class="legend-badge abs-exceptionnel">1 / 0.5</span> Exceptionnel</div>
             <div class="legend-item"><span class="legend-badge abs-formation">F</span> Formation (Absence = 0)</div>
+            <div class="legend-item"><span class="legend-badge abs-partiel">1 / 0.5</span> Temps partiel</div>
+            <div class="legend-item"><span class="legend-badge abs-previsionnel">1 / 0.5</span> Prévisionnel (Simulation)</div>
           </div>
         </div>
       </div>
@@ -122,7 +124,7 @@
               @if (cell) {
                 <span class="absence-indicator" 
                       [class]="cell.class"
-                      [title]="cell.comment || (cell.val === 'F' ? 'Formation' : 'Absence')">
+                      [title]="cell.tooltip">
                   {{ cell.val }}
                   @if (cell.comment) {
                     <lucide-icon [img]="MessageSquare" class="comment-icon-cell" size="9"></lucide-icon>

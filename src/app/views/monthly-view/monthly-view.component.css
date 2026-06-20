@@ -449,6 +449,15 @@ tr:hover .sticky-right-1.worked-value {
   background-color: var(--abs-autre-bg);
   color: var(--abs-autre);
 }
+.abs-partiel {
+  background-color: var(--abs-partiel-bg);
+  color: var(--abs-partiel);
+}
+.abs-previsionnel {
+  background-color: var(--abs-previsionnel-bg);
+  color: var(--abs-previsionnel);
+  border: 1.5px dashed var(--abs-previsionnel-border) !important;
+}
 
 /* Text elements */
 .font-bold {

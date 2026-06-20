@@ -55,6 +55,14 @@
   --abs-autre: hsl(199, 89%, 48%);
   --abs-autre-bg: hsl(199, 89%, 95%);
   --abs-autre-border: hsl(199, 89%, 90%);
+  
+  --abs-partiel: hsl(215, 25%, 45%);
+  --abs-partiel-bg: hsl(215, 25%, 95%);
+  --abs-partiel-border: hsl(215, 25%, 90%);
+
+  --abs-previsionnel: hsl(25, 95%, 45%);
+  --abs-previsionnel-bg: hsl(25, 95%, 97%);
+  --abs-previsionnel-border: hsl(25, 95%, 90%);
 
   /* Borders & Shadows */
   --radius-sm: 6px;

@@ -413,6 +413,18 @@
   border: 1px solid var(--abs-autre-border);
 }
 
+.badge-partiel {
+  background-color: var(--abs-partiel-bg);
+  color: var(--abs-partiel);
+  border: 1px solid var(--abs-partiel-border);
+}
+
+.badge-previsionnel {
+  background-color: var(--abs-previsionnel-bg);
+  color: var(--abs-previsionnel);
+  border: 1px dashed var(--abs-previsionnel-border);
+}
+
 /* Confirm Delete Overlay & Card */
 .confirm-overlay {
   background-color: rgba(15, 23, 42, 0.6);

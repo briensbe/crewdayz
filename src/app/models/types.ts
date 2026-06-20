@@ -50,7 +50,7 @@ export interface Absence {
   employee_id: string;
   date: string; // YYYY-MM-DD format
   period: 'full' | 'morning' | 'afternoon';
-  category: 'CP' | 'RTT' | 'Maladie' | 'Congé maternité' | 'Exceptionnel' | 'Formation' | 'Autre';
+  category: 'CP' | 'RTT' | 'Maladie' | 'Congé maternité' | 'Exceptionnel' | 'Formation' | 'Autre' | 'Temps partiel' | 'Prévisionnel';
   comment?: string;
   created_at?: string;
 }

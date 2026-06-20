@@ -242,8 +242,23 @@ export class MonthlyViewComponent implements OnInit {
     return match.length > 0 ? match[0] : null;
   }
 
+  getCategoryLabel(category: string): string {
+    switch (category) {
+      case 'CP': return 'Congé Payé (CP)';
+      case 'RTT': return 'RTT';
+      case 'Maladie': return 'Maladie';
+      case 'Congé maternité': return 'Congé Maternité / Paternité';
+      case 'Exceptionnel': return 'Congé Exceptionnel';
+      case 'Formation': return 'Formation';
+      case 'Temps partiel': return 'Temps partiel';
+      case 'Prévisionnel': return 'Prévisionnel (Simulation)';
+      case 'Autre': return 'Absence';
+      default: return category;
+    }
+  }
+
   // Determine the display value for a cell: 1, 0.5, 0 or empty
-  getCellVal(employeeId: string, dateStr: string): { val: string; class: string; comment?: string; absence: Absence } | null {
+  getCellVal(employeeId: string, dateStr: string): { val: string; class: string; comment?: string; absence: Absence; tooltip: string } | null {
     const list = this.absenceService.absences().filter(
       a => a.employee_id === employeeId && a.date === dateStr
     );
@@ -276,13 +291,32 @@ export class MonthlyViewComponent implements OnInit {
       case 'Congé maternité': catClass = 'abs-maternite'; break;
       case 'Exceptionnel': catClass = 'abs-exceptionnel'; break;
       case 'Formation': catClass = 'abs-formation'; break;
+      case 'Temps partiel': catClass = 'abs-partiel'; break;
+      case 'Prévisionnel': catClass = 'abs-previsionnel'; break;
     }
+
+    const tooltipParts = list.map(a => {
+      let label = this.getCategoryLabel(a.category);
+      if (a.period === 'morning') {
+        label += ' (Matin)';
+      } else if (a.period === 'afternoon') {
+        label += ' (Après-midi)';
+      } else {
+        label += ' (Journée)';
+      }
+      if (a.comment) {
+        label += ` : ${a.comment}`;
+      }
+      return label;
+    });
+    const tooltip = tooltipParts.join('\n');
 
     return {
       val: category === 'Formation' ? 'F' : String(totalAbsenceVal),
       class: catClass,
       comment: comment || undefined,
-      absence: list[0]
+      absence: list[0],
+      tooltip: tooltip
     };
   }
 
