@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Plus, Edit, Trash2, Users, Building2, MapPin, Briefcase, DollarSign, Calendar } from 'lucide-angular';
+import { LucideAngularModule, Plus, Edit, Trash2, Users, Building2, MapPin, Briefcase, DollarSign, Calendar, Check, X } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
@@ -17,6 +17,20 @@ import { storageSignal } from '../../../utils/storage-signal';
 export class EmployeeListComponent implements OnInit {
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
+    if (this.editingEmployeeId()) {
+      if (event.key === 'Enter') {
+        // If it's a combobox search input or textarea, we might want to check. But since we use normal inputs/comboboxes, Enter to save is great.
+        // If they are on a dropdown, let's avoid saving on enter if it's just selecting an option.
+        // But for simplicity, we can let user press enter.
+        event.preventDefault();
+        this.saveInlineEdit();
+      } else if (event.key === 'Escape' || event.key === 'Esc') {
+        event.preventDefault();
+        this.cancelInlineEdit();
+      }
+      return;
+    }
+
     if (!this.showModal()) return;
 
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
@@ -28,6 +42,17 @@ export class EmployeeListComponent implements OnInit {
     }
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    if (this.editingEmployeeId()) {
+      const clickedInside = target.closest('.inline-edit-popover') || target.closest('.clickable-row td');
+      if (!clickedInside) {
+        this.cancelInlineEdit();
+      }
+    }
+  }
+
   // Services and dependencies
   protected readonly employeeService = inject(EmployeeService);
 
@@ -36,6 +61,12 @@ export class EmployeeListComponent implements OnInit {
   readonly Edit = Edit;
   readonly Trash2 = Trash2;
   readonly Users = Users;
+  readonly Check = Check;
+  readonly X = X;
+
+  // Inline editing state
+  editingEmployeeId = signal<string | null>(null);
+  editingField = signal<string | null>(null);
 
   // Active Year State
   selectedYear = signal<number>(new Date().getFullYear());
@@ -486,6 +517,93 @@ export class EmployeeListComponent implements OnInit {
     } finally {
       this.submitting.set(false);
     }
+  }
+
+  startInlineEdit(emp: Employee, field: string, event: Event) {
+    event.stopPropagation();
+    if (!emp.id) return;
+    
+    this.editingEmployeeId.set(emp.id);
+    this.editingField.set(field);
+
+    // Pre-fill fields for editing
+    this.firstName.set(emp.first_name);
+    this.lastName.set(emp.last_name);
+    this.service.set(emp.service);
+    this.team.set(emp.team);
+    this.workSite.set(emp.work_site);
+    this.contractType.set(emp.contract_type);
+    this.companyName.set(emp.company_name || '');
+    this.profile.set(emp.profile);
+    this.arrivalDate.set(emp.arrival_date || '');
+    this.departureDate.set(emp.departure_date || '');
+
+    const activeYear = this.selectedYear();
+    const balance = emp.cd_employee_balances?.find((b) => b.year === activeYear);
+    const defaults =
+      emp.contract_type === 'Interne'
+        ? CONTRACT_DEFAULT_BALANCES.Interne
+        : CONTRACT_DEFAULT_BALANCES.Externe;
+
+    this.initialCP.set(balance ? balance.initial_cp : defaults.initial_cp);
+    this.initialRTT.set(balance ? balance.initial_rtt : defaults.initial_rtt);
+    this.initialExceptional.set(
+      balance ? balance.initial_exceptional : defaults.initial_exceptional,
+    );
+  }
+
+  async saveInlineEdit() {
+    const id = this.editingEmployeeId();
+    if (!id) return;
+
+    // Validation
+    if (
+      !this.firstName() ||
+      !this.lastName() ||
+      !this.service() ||
+      !this.team() ||
+      !this.workSite()
+    ) {
+      alert('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+
+    if (this.contractType() === 'Externe' && !this.companyName()) {
+      alert('Veuillez renseigner le nom de la société (ESN) pour les externes.');
+      return;
+    }
+
+    const payload: Employee = {
+      first_name: this.firstName(),
+      last_name: this.lastName(),
+      service: this.service(),
+      team: this.team(),
+      work_site: this.workSite(),
+      contract_type: this.contractType(),
+      company_name: this.contractType() === 'Externe' ? this.companyName() : undefined,
+      profile: this.profile(),
+      arrival_date: this.arrivalDate() || undefined,
+      departure_date: this.departureDate() || undefined,
+      initial_cp: this.initialCP(),
+      initial_rtt: this.initialRTT(),
+      initial_exceptional: this.initialExceptional(),
+    };
+
+    this.submitting.set(true);
+    try {
+      const activeYear = this.selectedYear();
+      await this.employeeService.updateEmployee(id, payload, activeYear);
+      this.cancelInlineEdit();
+    } catch (err: any) {
+      alert(err.message || "Erreur lors de l'enregistrement.");
+    } finally {
+      this.submitting.set(false);
+    }
+  }
+
+  cancelInlineEdit() {
+    this.editingEmployeeId.set(null);
+    this.editingField.set(null);
   }
 
   async deleteEmployee(emp: Employee) {

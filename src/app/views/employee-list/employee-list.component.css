@@ -500,5 +500,93 @@
   font-weight: 700;
 }
 
+/* Inline Editing In-Cell Overlay Styles */
+.clickable-row td {
+  position: relative; /* Anchor for the absolute overlay */
+}
+
+.inline-edit-popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100%;
+  z-index: 100;
+  background-color: var(--surface);
+  box-sizing: border-box;
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.inline-edit-popover.vertical-layout {
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 200px;
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
+}
+
+.inline-input {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface);
+  color: var(--text-main);
+  outline: none;
+  transition: var(--transition);
+}
+
+.inline-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+.inputs-row {
+  display: flex;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.date-field, .balance-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.date-field label, .balance-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 55px;
+  text-align: left;
+}
+
+.inline-num {
+  width: 75px;
+}
+
+.inline-combobox {
+  width: 100%;
+}
+
+.inline-edit-popover.contract-layout {
+  min-width: 250px;
+  width: max-content;
+  box-shadow: var(--shadow-lg);
+  padding: 6px 8px;
+}
+
+
+
+
+
 
 

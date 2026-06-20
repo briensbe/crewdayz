@@ -8,7 +8,9 @@
       <div class="year-selector">
         <label for="listYear" class="year-label">Soldes pour l'année :</label>
         <select id="listYear" [ngModel]="selectedYear()" (ngModelChange)="onYearChange($event)" class="year-select">
-          <option *ngFor="let y of yearsList" [value]="y">{{ y }}</option>
+          @for (y of yearsList; track y) {
+            <option [value]="y">{{ y }}</option>
+          }
         </select>
       </div>
       <button class="btn btn-primary" (click)="openAddModal()">
@@ -56,67 +58,265 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let emp of filteredEmployees()" (click)="openEditModal(emp)" class="clickable-row">
-            <td>
-              <div class="name-cell">
-                <span class="avatar-sm">{{ emp.first_name.charAt(0) }}{{ emp.last_name.charAt(0) }}</span>
-                <div class="name-details">
-                  <span class="full-name">{{ emp.first_name }} {{ emp.last_name }}</span>
+          @for (emp of filteredEmployees(); track emp.id) {
+            <tr class="clickable-row">
+              <td (click)="startInlineEdit(emp, 'name', $event)">
+                <div class="name-cell">
+                  <span class="avatar-sm">{{ emp.first_name.charAt(0) }}{{ emp.last_name.charAt(0) }}</span>
+                  <div class="name-details">
+                    <span class="full-name">{{ emp.first_name }} {{ emp.last_name }}</span>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td>
-              <div class="contract-badge" [class.interne]="emp.contract_type === 'Interne'" [class.externe]="emp.contract_type === 'Externe'">
-                {{ emp.contract_type }}
-                @if (emp.contract_type === 'Externe' && emp.company_name) {
-                  <span class="company-name">({{ emp.company_name }})</span>
+                @if (editingEmployeeId() === emp.id && editingField() === 'name') {
+                  <div class="inline-edit-popover" (click)="$event.stopPropagation()">
+                    <div class="inputs-row">
+                      <input type="text" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" placeholder="Prénom" class="inline-input" required />
+                      <input type="text" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" placeholder="Nom" class="inline-input" required />
+                    </div>
+                  </div>
                 }
-              </div>
-            </td>            
-            <td><span class="profile-text">{{ emp.profile }}</span></td>
-            <td><span class="subtle-text">{{ emp.service }}</span></td>
-            <td><span class="team-badge">{{ emp.team }}</span></td>
-            <td><span class="subtle-text">{{ emp.work_site }}</span></td>
-            <td>
-              <div class="dates-info">
-                @if (emp.arrival_date) {
-                  <div><span class="subtle-label">Arrivée :</span> {{ emp.arrival_date | date:'dd/MM/yyyy' }}</div>
+              </td>
+              <td (click)="startInlineEdit(emp, 'contract', $event)">
+                <div class="contract-badge" [class.interne]="emp.contract_type === 'Interne'" [class.externe]="emp.contract_type === 'Externe'">
+                  {{ emp.contract_type }}
+                  @if (emp.contract_type === 'Externe' && emp.company_name) {
+                    <span class="company-name">({{ emp.company_name }})</span>
+                  }
+                </div>
+                @if (editingEmployeeId() === emp.id && editingField() === 'contract') {
+                  <div class="inline-edit-popover contract-layout" (click)="$event.stopPropagation()">
+                    <select [ngModel]="contractType()" (ngModelChange)="onContractTypeChange($event)" class="inline-input">
+                      <option value="Interne">Interne</option>
+                      <option value="Externe">Externe</option>
+                    </select>
+                    @if (contractType() === 'Externe') {
+                      <div class="custom-combobox inline-combobox">
+                        <div class="combobox-wrapper">
+                          <input 
+                            type="text" 
+                            [ngModel]="companyName()" 
+                            (ngModelChange)="onCompanySearch($event)" 
+                            (focus)="showCompanyDropdown.set(true)"
+                            (blur)="closeCompanyDropdown()"
+                            placeholder="ESN..." 
+                            autocomplete="off"
+                            class="inline-input"
+                          />
+                        </div>
+                        @if (showCompanyDropdown()) {
+                          <ul class="combobox-options">
+                            @for (c of filteredCompanies(); track c) {
+                              <li class="combobox-option" (mousedown)="selectCompany(c)">{{ c }}</li>
+                            }
+                            @if (isNewCompany()) {
+                              <li class="combobox-option combobox-add-new" (mousedown)="selectCompany(companyName())">
+                                + "{{ companyName() }}"
+                              </li>
+                            }
+                          </ul>
+                        }
+                      </div>
+                    }
+                  </div>
                 }
-                @if (emp.departure_date) {
-                  <div><span class="subtle-label">Départ :</span> {{ emp.departure_date | date:'dd/MM/yyyy' }}</div>
+              </td>            
+              <td (click)="startInlineEdit(emp, 'profile', $event)">
+                <span class="profile-text">{{ emp.profile }}</span>
+                @if (editingEmployeeId() === emp.id && editingField() === 'profile') {
+                  <div class="inline-edit-popover" (click)="$event.stopPropagation()">
+                    <div class="custom-combobox inline-combobox">
+                      <div class="combobox-wrapper">
+                        <input 
+                          type="text" 
+                          [ngModel]="profile()" 
+                          (ngModelChange)="onProfileSearch($event)" 
+                          (focus)="showProfileDropdown.set(true)"
+                          (blur)="closeProfileDropdown()"
+                          autocomplete="off"
+                          class="inline-input"
+                        />
+                      </div>
+                      @if (showProfileDropdown()) {
+                        <ul class="combobox-options">
+                          @for (p of filteredProfiles(); track p) {
+                            <li class="combobox-option" (mousedown)="selectProfile(p)">{{ p }}</li>
+                          }
+                          @if (isNewProfile()) {
+                            <li class="combobox-option combobox-add-new" (mousedown)="selectProfile(profile())">
+                              + "{{ profile() }}"
+                            </li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                  </div>
                 }
-                @if (!emp.arrival_date && !emp.departure_date) {
-                  <span class="subtle-text">-</span>
+              </td>
+              <td (click)="startInlineEdit(emp, 'service', $event)">
+                <span class="subtle-text">{{ emp.service }}</span>
+                @if (editingEmployeeId() === emp.id && editingField() === 'service') {
+                  <div class="inline-edit-popover" (click)="$event.stopPropagation()">
+                    <div class="custom-combobox inline-combobox">
+                      <div class="combobox-wrapper">
+                        <input 
+                          type="text" 
+                          [ngModel]="service()" 
+                          (ngModelChange)="onServiceSearch($event)" 
+                          (focus)="showServiceDropdown.set(true)"
+                          (blur)="closeServiceDropdown()"
+                          autocomplete="off"
+                          class="inline-input"
+                        />
+                      </div>
+                      @if (showServiceDropdown()) {
+                        <ul class="combobox-options">
+                          @for (s of filteredServices(); track s) {
+                            <li class="combobox-option" (mousedown)="selectService(s)">{{ s }}</li>
+                          }
+                          @if (isNewService()) {
+                            <li class="combobox-option combobox-add-new" (mousedown)="selectService(service())">
+                              + "{{ service() }}"
+                            </li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                  </div>
                 }
-              </div>
-            </td>
-            <td>
-              <div class="balances-badges">
-                <span class="balance-badge cp" title="Solde CP Initial">
-                  <span class="badge-label">CP</span>
-                  <span class="badge-value">{{ emp.initial_cp !== undefined && emp.initial_cp !== null ? emp.initial_cp + 'j' : '-' }}</span>
-                </span>
-                <span class="balance-badge rtt" title="Solde RTT Initial">
-                  <span class="badge-label">RTT</span>
-                  <span class="badge-value">{{ emp.initial_rtt !== undefined && emp.initial_rtt !== null ? emp.initial_rtt + 'j' : '-' }}</span>
-                </span>
-                <span class="balance-badge exceptional" title="Solde Exceptionnel Initial">
-                  <span class="badge-label">Exc.</span>
-                  <span class="badge-value">{{ emp.initial_exceptional !== undefined && emp.initial_exceptional !== null ? emp.initial_exceptional + 'j' : '-' }}</span>
-                </span>
-              </div>
-            </td>
-            <td class="text-right">
-              <div class="action-buttons">
-                <button class="action-btn edit-btn" (click)="openEditModal(emp); $event.stopPropagation()" title="Modifier">
-                  <lucide-icon [img]="Edit" size="16"></lucide-icon>
-                </button>
-                <button class="action-btn delete-btn" (click)="deleteEmployee(emp); $event.stopPropagation()" title="Supprimer">
-                  <lucide-icon [img]="Trash2" size="16"></lucide-icon>
-                </button>
-              </div>
-            </td>
-          </tr>
+              </td>
+              <td (click)="startInlineEdit(emp, 'team', $event)">
+                <span class="team-badge">{{ emp.team }}</span>
+                @if (editingEmployeeId() === emp.id && editingField() === 'team') {
+                  <div class="inline-edit-popover" (click)="$event.stopPropagation()">
+                    <div class="custom-combobox inline-combobox">
+                      <div class="combobox-wrapper">
+                        <input 
+                          type="text" 
+                          [ngModel]="team()" 
+                          (ngModelChange)="onTeamSearch($event)" 
+                          (focus)="showTeamDropdown.set(true)"
+                          (blur)="closeTeamDropdown()"
+                          autocomplete="off"
+                          class="inline-input"
+                        />
+                      </div>
+                      @if (showTeamDropdown()) {
+                        <ul class="combobox-options">
+                          @for (t of filteredTeams(); track t) {
+                            <li class="combobox-option" (mousedown)="selectTeam(t)">{{ t }}</li>
+                          }
+                          @if (isNewTeam()) {
+                            <li class="combobox-option combobox-add-new" (mousedown)="selectTeam(team())">
+                              + "{{ team() }}"
+                            </li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                  </div>
+                }
+              </td>
+              <td (click)="startInlineEdit(emp, 'workSite', $event)">
+                <span class="subtle-text">{{ emp.work_site }}</span>
+                @if (editingEmployeeId() === emp.id && editingField() === 'workSite') {
+                  <div class="inline-edit-popover" (click)="$event.stopPropagation()">
+                    <div class="custom-combobox inline-combobox">
+                      <div class="combobox-wrapper">
+                        <input 
+                          type="text" 
+                          [ngModel]="workSite()" 
+                          (ngModelChange)="onWorkSiteSearch($event)" 
+                          (focus)="showWorkSiteDropdown.set(true)"
+                          (blur)="closeWorkSiteDropdown()"
+                          autocomplete="off"
+                          class="inline-input"
+                        />
+                      </div>
+                      @if (showWorkSiteDropdown()) {
+                        <ul class="combobox-options">
+                          @for (w of filteredWorkSites(); track w) {
+                            <li class="combobox-option" (mousedown)="selectWorkSite(w)">{{ w }}</li>
+                          }
+                          @if (isNewWorkSite()) {
+                            <li class="combobox-option combobox-add-new" (mousedown)="selectWorkSite(workSite())">
+                              + "{{ workSite() }}"
+                            </li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                  </div>
+                }
+              </td>
+              <td (click)="startInlineEdit(emp, 'dates', $event)">
+                <div class="dates-info">
+                  @if (emp.arrival_date) {
+                    <div><span class="subtle-label">Arrivée :</span> {{ emp.arrival_date | date:'dd/MM/yyyy' }}</div>
+                  }
+                  @if (emp.departure_date) {
+                    <div><span class="subtle-label">Départ :</span> {{ emp.departure_date | date:'dd/MM/yyyy' }}</div>
+                  }
+                  @if (!emp.arrival_date && !emp.departure_date) {
+                    <span class="subtle-text">-</span>
+                  }
+                </div>
+                @if (editingEmployeeId() === emp.id && editingField() === 'dates') {
+                  <div class="inline-edit-popover vertical-layout" (click)="$event.stopPropagation()">
+                    <div class="date-field">
+                      <label>Arrivée :</label>
+                      <input type="date" [ngModel]="arrivalDate()" (ngModelChange)="arrivalDate.set($event)" class="inline-input" />
+                    </div>
+                    <div class="date-field">
+                      <label>Départ :</label>
+                      <input type="date" [ngModel]="departureDate()" (ngModelChange)="departureDate.set($event)" class="inline-input" />
+                    </div>
+                  </div>
+                }
+              </td>
+              <td (click)="startInlineEdit(emp, 'balances', $event)">
+                <div class="balances-badges">
+                  <span class="balance-badge cp" title="Solde CP Initial">
+                    <span class="badge-label">CP</span>
+                    <span class="badge-value">{{ emp.initial_cp !== undefined && emp.initial_cp !== null ? emp.initial_cp + 'j' : '-' }}</span>
+                  </span>
+                  <span class="balance-badge rtt" title="Solde RTT Initial">
+                    <span class="badge-label">RTT</span>
+                    <span class="badge-value">{{ emp.initial_rtt !== undefined && emp.initial_rtt !== null ? emp.initial_rtt + 'j' : '-' }}</span>
+                  </span>
+                  <span class="balance-badge exceptional" title="Solde Exceptionnel Initial">
+                    <span class="badge-label">Exc.</span>
+                    <span class="badge-value">{{ emp.initial_exceptional !== undefined && emp.initial_exceptional !== null ? emp.initial_exceptional + 'j' : '-' }}</span>
+                  </span>
+                </div>
+                @if (editingEmployeeId() === emp.id && editingField() === 'balances') {
+                  <div class="inline-edit-popover vertical-layout" (click)="$event.stopPropagation()">
+                    <div class="balance-field cp">
+                      <label>CP :</label>
+                      <input type="number" step="0.5" min="0" [ngModel]="initialCP()" (ngModelChange)="initialCP.set($event)" class="inline-input inline-num" />
+                    </div>
+                    <div class="balance-field rtt">
+                      <label>RTT :</label>
+                      <input type="number" step="0.5" min="0" [ngModel]="initialRTT()" (ngModelChange)="initialRTT.set($event)" class="inline-input inline-num" />
+                    </div>
+                    <div class="balance-field exceptional">
+                      <label>Exc. :</label>
+                      <input type="number" step="0.5" min="0" [ngModel]="initialExceptional()" (ngModelChange)="initialExceptional.set($event)" class="inline-input inline-num" />
+                    </div>
+                  </div>
+                }
+              </td>
+              <td class="text-right">
+                <div class="action-buttons">
+                  <button class="action-btn edit-btn" (click)="openEditModal(emp); $event.stopPropagation()" title="Modifier via formulaire global">
+                    <lucide-icon [img]="Edit" size="16"></lucide-icon>
+                  </button>
+                  <button class="action-btn delete-btn" (click)="deleteEmployee(emp); $event.stopPropagation()" title="Supprimer">
+                    <lucide-icon [img]="Trash2" size="16"></lucide-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
     }
@@ -124,7 +324,8 @@
 </div>
 
 <!-- Modal Dialog for Add / Edit -->
-<div class="modal-overlay animate-fade-in" *ngIf="showModal()" (click)="showModal.set(false)">
+@if (showModal()) {
+  <div class="modal-overlay animate-fade-in" (click)="showModal.set(false)">
   <div class="modal-card" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>{{ isEditMode() ? 'Modifier le collaborateur' : 'Ajouter un collaborateur' }}</h2>
@@ -370,3 +571,4 @@
     </form>
   </div>
 </div>
+}
