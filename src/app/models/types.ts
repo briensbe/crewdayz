@@ -31,7 +31,9 @@ export interface Employee {
   work_site: string;
   contract_type: 'Interne' | 'Externe';
   company_name?: string;
-  profile: 'Développeur' | 'Business Analyst';
+  profile: 'Développeur' | 'Business Analyst' | 'Alternant' | 'Responsable';
+  arrival_date?: string;
+  departure_date?: string;
   created_at?: string;
   updated_at?: string;
 

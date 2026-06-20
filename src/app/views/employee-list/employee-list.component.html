@@ -49,6 +49,7 @@
             <th>Service</th>
             <th>Équipe</th>
             <th>Site de travail</th>
+            <th>Dates d'activité</th>
             <th class="text-center">Soldes Initiaux</th>
             <th class="text-right">Actions</th>
           </tr>
@@ -75,6 +76,19 @@
             <td><span class="subtle-text">{{ emp.service }}</span></td>
             <td><span class="team-badge">{{ emp.team }}</span></td>
             <td><span class="subtle-text">{{ emp.work_site }}</span></td>
+            <td>
+              <div class="dates-info">
+                @if (emp.arrival_date) {
+                  <div><span class="subtle-label">Arrivée :</span> {{ emp.arrival_date | date:'dd/MM/yyyy' }}</div>
+                }
+                @if (emp.departure_date) {
+                  <div><span class="subtle-label">Départ :</span> {{ emp.departure_date | date:'dd/MM/yyyy' }}</div>
+                }
+                @if (!emp.arrival_date && !emp.departure_date) {
+                  <span class="subtle-text">-</span>
+                }
+              </div>
+            </td>
             <td>
               <div class="balances-badges">
                 <span class="balance-badge cp" title="Solde CP Initial">
@@ -155,6 +169,8 @@
           <select id="profile" [ngModel]="profile()" (ngModelChange)="profile.set($event)" name="profile" required>
             <option value="Développeur">Développeur</option>
             <option value="Business Analyst">Business Analyst</option>
+            <option value="Alternant">Alternant</option>
+            <option value="Responsable">Responsable</option>
           </select>
         </div>
 
@@ -169,6 +185,15 @@
         <div class="form-group" [style.visibility]="contractType() === 'Externe' ? 'visible' : 'hidden'">
           <label for="companyName">Nom de l'ESN *</label>
           <input id="companyName" type="text" [ngModel]="companyName()" (ngModelChange)="companyName.set($event)" name="companyName" placeholder="Ex: Capgemini, Sopra Steria..." />
+        </div>
+
+        <div class="form-group">
+          <label for="arrivalDate">Date d'arrivée</label>
+          <input id="arrivalDate" type="date" [ngModel]="arrivalDate()" (ngModelChange)="arrivalDate.set($event)" name="arrivalDate" />
+        </div>
+        <div class="form-group">
+          <label for="departureDate">Date de départ</label>
+          <input id="departureDate" type="date" [ngModel]="departureDate()" (ngModelChange)="departureDate.set($event)" name="departureDate" />
         </div>
       </div>
 

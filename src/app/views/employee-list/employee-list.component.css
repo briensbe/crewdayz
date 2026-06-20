@@ -400,5 +400,19 @@
   transition: var(--transition);
 }
 
+.dates-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.8rem;
+  color: var(--text-main);
+}
+
+.dates-info .subtle-label {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
 
 

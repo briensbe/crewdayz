@@ -112,7 +112,9 @@ export class EmployeeListComponent implements OnInit {
   workSite = signal('');
   contractType = signal<'Interne' | 'Externe'>('Interne');
   companyName = signal('');
-  profile = signal<'Développeur' | 'Business Analyst'>('Développeur');
+  profile = signal<'Développeur' | 'Business Analyst' | 'Alternant' | 'Responsable'>('Développeur');
+  arrivalDate = signal<string>('');
+  departureDate = signal<string>('');
   initialCP = signal(25.0);
   initialRTT = signal(10.0);
   initialExceptional = signal(0.0);
@@ -149,6 +151,8 @@ export class EmployeeListComponent implements OnInit {
     this.contractType.set(emp.contract_type);
     this.companyName.set(emp.company_name || '');
     this.profile.set(emp.profile);
+    this.arrivalDate.set(emp.arrival_date || '');
+    this.departureDate.set(emp.departure_date || '');
     
     // Fill balances for selected year
     const activeYear = this.selectedYear();
@@ -174,6 +178,8 @@ export class EmployeeListComponent implements OnInit {
     this.contractType.set('Interne');
     this.companyName.set('');
     this.profile.set('Développeur');
+    this.arrivalDate.set('');
+    this.departureDate.set('');
     
     const defaults = CONTRACT_DEFAULT_BALANCES.Interne;
     this.initialCP.set(defaults.initial_cp);
@@ -220,6 +226,8 @@ export class EmployeeListComponent implements OnInit {
       contract_type: this.contractType(),
       company_name: this.contractType() === 'Externe' ? this.companyName() : undefined,
       profile: this.profile(),
+      arrival_date: this.arrivalDate() || undefined,
+      departure_date: this.departureDate() || undefined,
       initial_cp: this.initialCP(),
       initial_rtt: this.initialRTT(),
       initial_exceptional: this.initialExceptional()
