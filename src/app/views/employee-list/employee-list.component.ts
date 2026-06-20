@@ -11,8 +11,8 @@ import { FiltersComponent, FilterState } from '../../shared/filters/filters.comp
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, FiltersComponent],
   templateUrl: './employee-list.component.html',
-  styleUrl: './employee-list.component.css'
-  })
+  styleUrl: './employee-list.component.css',
+})
 export class EmployeeListComponent implements OnInit {
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
@@ -46,23 +46,28 @@ export class EmployeeListComponent implements OnInit {
     service: '',
     team: '',
     work_site: '',
-    contract_type: ''
+    contract_type: '',
   });
 
   // Unique options for filters dynamically extracted from employees list
   services = computed(() => {
-    const list = this.employeeService.employees().map(e => e.service);
+    const list = this.employeeService.employees().map((e) => e.service);
     return Array.from(new Set(list)).filter(Boolean).sort();
   });
 
   teams = computed(() => {
-    const list = this.employeeService.employees().map(e => e.team);
+    const list = this.employeeService.employees().map((e) => e.team);
     return Array.from(new Set(list)).filter(Boolean).sort();
   });
 
   workSites = computed(() => {
-    const list = this.employeeService.employees().map(e => e.work_site);
+    const list = this.employeeService.employees().map((e) => e.work_site);
     return Array.from(new Set(list)).filter(Boolean).sort();
+  });
+
+  companyNames = computed(() => {
+    const list = this.employeeService.employees().map((e) => e.company_name);
+    return Array.from(new Set(list)).filter((c): c is string => !!c).sort();
   });
 
   // Filtered employees list mapped with active year balances (returns undefined if not in DB)
@@ -70,33 +75,36 @@ export class EmployeeListComponent implements OnInit {
     const filters = this.activeFilters();
     const activeYear = Number(this.selectedYear());
 
-    return this.employeeService.employees().filter(emp => {
-      // Search filter (first name, last name, or ESN name)
-      if (filters.search) {
-        const query = filters.search.toLowerCase();
-        const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
-        const matchesName = fullName.includes(query);
-        const matchesCompany = emp.company_name?.toLowerCase().includes(query) || false;
-        if (!matchesName && !matchesCompany) return false;
-      }
-      // Dropdown filters
-      if (filters.service && emp.service !== filters.service) return false;
-      if (filters.team && emp.team !== filters.team) return false;
-      if (filters.work_site && emp.work_site !== filters.work_site) return false;
-      if (filters.contract_type && emp.contract_type !== filters.contract_type) return false;
+    return this.employeeService
+      .employees()
+      .filter((emp) => {
+        // Search filter (first name, last name, or ESN name)
+        if (filters.search) {
+          const query = filters.search.toLowerCase();
+          const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
+          const matchesName = fullName.includes(query);
+          const matchesCompany = emp.company_name?.toLowerCase().includes(query) || false;
+          if (!matchesName && !matchesCompany) return false;
+        }
+        // Dropdown filters
+        if (filters.service && emp.service !== filters.service) return false;
+        if (filters.team && emp.team !== filters.team) return false;
+        if (filters.work_site && emp.work_site !== filters.work_site) return false;
+        if (filters.contract_type && emp.contract_type !== filters.contract_type) return false;
 
-      return true;
-    }).map(emp => {
-      // Find balance for the selected year
-      const balance = emp.cd_employee_balances?.find(b => b.year === activeYear);
+        return true;
+      })
+      .map((emp): Employee => {
+        // Find balance for the selected year
+        const balance = emp.cd_employee_balances?.find((b) => b.year === activeYear);
 
-      return {
-        ...emp,
-        initial_cp: balance?.initial_cp,
-        initial_rtt: balance?.initial_rtt,
-        initial_exceptional: balance?.initial_exceptional
-      };
-    });
+        return {
+          ...emp,
+          initial_cp: balance?.initial_cp,
+          initial_rtt: balance?.initial_rtt,
+          initial_exceptional: balance?.initial_exceptional,
+        };
+      });
   });
 
   // Modal State
@@ -124,22 +132,22 @@ export class EmployeeListComponent implements OnInit {
 
   // Combobox custom state for Teams
   showTeamDropdown = signal(false);
-  
+
   // Computes filtered list based on typed value in "team" field
   filteredTeams = computed(() => {
     const query = this.team().toLowerCase().trim();
     // If query is empty OR if it matches exactly an existing team, show all teams
-    if (!query || this.teams().some(t => t.toLowerCase() === query)) {
+    if (!query || this.teams().some((t) => t.toLowerCase() === query)) {
       return this.teams();
     }
-    return this.teams().filter(t => t.toLowerCase().includes(query));
+    return this.teams().filter((t) => t.toLowerCase().includes(query));
   });
 
   // Determines if the entered text is a new team that doesn't exist yet
   isNewTeam = computed(() => {
     const current = this.team().trim();
     if (!current) return false;
-    return !this.teams().some(t => t.toLowerCase() === current.toLowerCase());
+    return !this.teams().some((t) => t.toLowerCase() === current.toLowerCase());
   });
 
   onTeamSearch(val: string) {
@@ -154,7 +162,7 @@ export class EmployeeListComponent implements OnInit {
 
   toggleTeamDropdown(event: Event) {
     event.stopPropagation();
-    this.showTeamDropdown.update(v => !v);
+    this.showTeamDropdown.update((v) => !v);
   }
 
   closeTeamDropdown() {
@@ -166,22 +174,22 @@ export class EmployeeListComponent implements OnInit {
 
   // Combobox custom state for Services
   showServiceDropdown = signal(false);
-  
+
   // Computes filtered list based on typed value in "service" field
   filteredServices = computed(() => {
     const query = this.service().toLowerCase().trim();
     // If query is empty OR if it matches exactly an existing service, show all services
-    if (!query || this.services().some(s => s.toLowerCase() === query)) {
+    if (!query || this.services().some((s) => s.toLowerCase() === query)) {
       return this.services();
     }
-    return this.services().filter(s => s.toLowerCase().includes(query));
+    return this.services().filter((s) => s.toLowerCase().includes(query));
   });
 
   // Determines if the entered text is a new service that doesn't exist yet
   isNewService = computed(() => {
     const current = this.service().trim();
     if (!current) return false;
-    return !this.services().some(s => s.toLowerCase() === current.toLowerCase());
+    return !this.services().some((s) => s.toLowerCase() === current.toLowerCase());
   });
 
   onServiceSearch(val: string) {
@@ -196,13 +204,55 @@ export class EmployeeListComponent implements OnInit {
 
   toggleServiceDropdown(event: Event) {
     event.stopPropagation();
-    this.showServiceDropdown.update(v => !v);
+    this.showServiceDropdown.update((v) => !v);
   }
 
   closeServiceDropdown() {
     // Timeout to allow mousedown events on options to trigger first
     setTimeout(() => {
       this.showServiceDropdown.set(false);
+    }, 200);
+  }
+
+  // Combobox custom state for ESN companies
+  showCompanyDropdown = signal(false);
+
+  // Computes filtered list based on typed value in "companyName" field
+  filteredCompanies = computed(() => {
+    const query = this.companyName().toLowerCase().trim();
+    // If query is empty OR if it matches exactly an existing company, show all companies
+    if (!query || this.companyNames().some((c) => c?.toLowerCase() === query)) {
+      return this.companyNames();
+    }
+    return this.companyNames().filter((c) => c?.toLowerCase().includes(query));
+  });
+
+  // Determines if the entered text is a new company that doesn't exist yet
+  isNewCompany = computed(() => {
+    const current = this.companyName().trim();
+    if (!current) return false;
+    return !this.companyNames().some((c) => c?.toLowerCase() === current.toLowerCase());
+  });
+
+  onCompanySearch(val: string) {
+    this.companyName.set(val);
+    this.showCompanyDropdown.set(true);
+  }
+
+  selectCompany(val: string) {
+    this.companyName.set(val);
+    this.showCompanyDropdown.set(false);
+  }
+
+  toggleCompanyDropdown(event: Event) {
+    event.stopPropagation();
+    this.showCompanyDropdown.update((v) => !v);
+  }
+
+  closeCompanyDropdown() {
+    // Timeout to allow mousedown events on options to trigger first
+    setTimeout(() => {
+      this.showCompanyDropdown.set(false);
     }, 200);
   }
 
@@ -225,7 +275,7 @@ export class EmployeeListComponent implements OnInit {
     if (!emp.id) return;
     this.isEditMode.set(true);
     this.currentEmployeeId.set(emp.id);
-    
+
     // Fill form
     this.firstName.set(emp.first_name);
     this.lastName.set(emp.last_name);
@@ -237,17 +287,20 @@ export class EmployeeListComponent implements OnInit {
     this.profile.set(emp.profile);
     this.arrivalDate.set(emp.arrival_date || '');
     this.departureDate.set(emp.departure_date || '');
-    
+
     // Fill balances for selected year
     const activeYear = this.selectedYear();
-    const balance = emp.cd_employee_balances?.find(b => b.year === activeYear);
-    const defaults = emp.contract_type === 'Interne'
-      ? CONTRACT_DEFAULT_BALANCES.Interne
-      : CONTRACT_DEFAULT_BALANCES.Externe;
+    const balance = emp.cd_employee_balances?.find((b) => b.year === activeYear);
+    const defaults =
+      emp.contract_type === 'Interne'
+        ? CONTRACT_DEFAULT_BALANCES.Interne
+        : CONTRACT_DEFAULT_BALANCES.Externe;
 
     this.initialCP.set(balance ? balance.initial_cp : defaults.initial_cp);
     this.initialRTT.set(balance ? balance.initial_rtt : defaults.initial_rtt);
-    this.initialExceptional.set(balance ? balance.initial_exceptional : defaults.initial_exceptional);
+    this.initialExceptional.set(
+      balance ? balance.initial_exceptional : defaults.initial_exceptional,
+    );
 
     this.errorMessage.set(null);
     this.showModal.set(true);
@@ -264,7 +317,7 @@ export class EmployeeListComponent implements OnInit {
     this.profile.set('Développeur');
     this.arrivalDate.set('');
     this.departureDate.set('');
-    
+
     const defaults = CONTRACT_DEFAULT_BALANCES.Interne;
     this.initialCP.set(defaults.initial_cp);
     this.initialRTT.set(defaults.initial_rtt);
@@ -291,7 +344,13 @@ export class EmployeeListComponent implements OnInit {
     this.errorMessage.set(null);
 
     // Validation
-    if (!this.firstName() || !this.lastName() || !this.service() || !this.team() || !this.workSite()) {
+    if (
+      !this.firstName() ||
+      !this.lastName() ||
+      !this.service() ||
+      !this.team() ||
+      !this.workSite()
+    ) {
       this.errorMessage.set('Veuillez remplir tous les champs obligatoires.');
       return;
     }
@@ -314,7 +373,7 @@ export class EmployeeListComponent implements OnInit {
       departure_date: this.departureDate() || undefined,
       initial_cp: this.initialCP(),
       initial_rtt: this.initialRTT(),
-      initial_exceptional: this.initialExceptional()
+      initial_exceptional: this.initialExceptional(),
     };
 
     this.submitting.set(true);
@@ -330,7 +389,7 @@ export class EmployeeListComponent implements OnInit {
       }
       this.showModal.set(false);
     } catch (err: any) {
-      this.errorMessage.set(err.message || 'Erreur lors de l\'enregistrement.');
+      this.errorMessage.set(err.message || "Erreur lors de l'enregistrement.");
     } finally {
       this.submitting.set(false);
     }
@@ -338,7 +397,11 @@ export class EmployeeListComponent implements OnInit {
 
   async deleteEmployee(emp: Employee) {
     if (!emp.id) return;
-    if (confirm(`Êtes-vous sûr de vouloir supprimer ${emp.first_name} ${emp.last_name} ? Cette action supprimera également toutes ses absences.`)) {
+    if (
+      confirm(
+        `Êtes-vous sûr de vouloir supprimer ${emp.first_name} ${emp.last_name} ? Cette action supprimera également toutes ses absences.`,
+      )
+    ) {
       try {
         await this.employeeService.deleteEmployee(emp.id);
       } catch (err: any) {

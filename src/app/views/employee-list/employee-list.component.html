@@ -71,7 +71,7 @@
                   <span class="company-name">({{ emp.company_name }})</span>
                 }
               </div>
-            </td>
+            </td>            
             <td><span class="profile-text">{{ emp.profile }}</span></td>
             <td><span class="subtle-text">{{ emp.service }}</span></td>
             <td><span class="team-badge">{{ emp.team }}</span></td>
@@ -240,9 +240,37 @@
             <option value="Externe">Externe (Prestataire ESN)</option>
           </select>
         </div>
-        <div class="form-group" [style.visibility]="contractType() === 'Externe' ? 'visible' : 'hidden'">
+        <div class="form-group custom-combobox" [style.visibility]="contractType() === 'Externe' ? 'visible' : 'hidden'">
           <label for="companyName">Nom de l'ESN *</label>
-          <input id="companyName" type="text" [ngModel]="companyName()" (ngModelChange)="companyName.set($event)" name="companyName" placeholder="Ex: Capgemini, Sopra Steria..." />
+          <div class="combobox-wrapper">
+            <input 
+              id="companyName" 
+              type="text" 
+              [ngModel]="companyName()" 
+              (ngModelChange)="onCompanySearch($event)" 
+              (focus)="showCompanyDropdown.set(true)"
+              (blur)="closeCompanyDropdown()"
+              name="companyName" 
+              placeholder="Ex: Capgemini, Sopra Steria..." 
+              autocomplete="off"
+            />
+            <button type="button" class="combobox-toggle" (click)="toggleCompanyDropdown($event)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+
+          @if (showCompanyDropdown()) {
+            <ul class="combobox-options">
+              @for (c of filteredCompanies(); track c) {
+                <li class="combobox-option" (mousedown)="selectCompany(c)">{{ c }}</li>
+              }
+              @if (isNewCompany()) {
+                <li class="combobox-option combobox-add-new" (mousedown)="selectCompany(companyName())">
+                  <span class="plus-symbol">+</span> Ajouter "<strong>{{ companyName() }}</strong>"
+                </li>
+              }
+            </ul>
+          }
         </div>
 
         <div class="form-group">
