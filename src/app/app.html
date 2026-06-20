@@ -6,4 +6,6 @@
   <main [class.main-content]="supabaseService.user() !== null" [class.sidebar-collapsed]="supabaseService.user() !== null && sidebarService.collapsed()">
     <router-outlet></router-outlet>
   </main>
+
+  <app-release-notes></app-release-notes>
 </div>

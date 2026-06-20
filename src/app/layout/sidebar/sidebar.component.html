@@ -2,7 +2,9 @@
   <div class="sidebar-header">
     <div class="logo-container">
       <div class="logo-icon">📅</div>
-      <span class="logo-text" *ngIf="!sidebarService.collapsed()">CrewDayz</span>
+      @if (!sidebarService.collapsed()) {
+        <span class="logo-text">CrewDayz</span>
+      }
     </div>
     <button class="toggle-btn" (click)="toggleSidebar()" [title]="sidebarService.collapsed() ? 'Agrandir le menu' : 'Réduire le menu'">
       <lucide-icon [img]="sidebarService.collapsed() ? ChevronRight : ChevronLeft" size="18"></lucide-icon>
@@ -10,25 +12,33 @@
   </div>
 
   <div class="nav-items">
-    <a *ngFor="let item of navigationItems" 
-       class="nav-item"
-       [routerLink]="item.route"
-       routerLinkActive="active"
-       [routerLinkActiveOptions]="{exact: true}"
-       [title]="sidebarService.collapsed() ? item.label : ''">
-      <div class="nav-item-icon">
-        <lucide-icon [img]="item.icon" size="20"></lucide-icon>
-      </div>
-      <span class="nav-item-label" *ngIf="!sidebarService.collapsed()">{{ item.label }}</span>
-    </a>
+    @for (item of navigationItems; track item.route) {
+      <a class="nav-item"
+         [routerLink]="item.route"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: true}"
+         [title]="sidebarService.collapsed() ? item.label : ''">
+        <div class="nav-item-icon">
+          <lucide-icon [img]="item.icon" size="20"></lucide-icon>
+        </div>
+        @if (!sidebarService.collapsed()) {
+          <span class="nav-item-label">{{ item.label }}</span>
+        }
+      </a>
+    }
   </div>
 
   <div class="sidebar-footer">
     <button class="logout-btn" (click)="logout()" [title]="sidebarService.collapsed() ? 'Se déconnecter' : ''">
       <lucide-icon [img]="LogOut" size="20"></lucide-icon>
-      <span class="logout-label" *ngIf="!sidebarService.collapsed()">Déconnexion</span>
+      @if (!sidebarService.collapsed()) {
+        <span class="logout-label">Déconnexion</span>
+      }
     </button>
-    <div class="sidebar-version" [class.collapsed]="sidebarService.collapsed()">
+    <div class="sidebar-version" 
+         [class.collapsed]="sidebarService.collapsed()" 
+         (click)="showReleaseNotes()"
+         title="Voir l'historique des versions">
       v{{ version }}
     </div>
   </div>

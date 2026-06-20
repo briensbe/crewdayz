@@ -13,6 +13,7 @@ import {
 } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { ReleaseNotesService } from '../../services/release-notes.service';
 import { environment } from '../../../environments/environment';
 
 interface NavigationItem {
@@ -31,6 +32,7 @@ interface NavigationItem {
 export class SidebarComponent {
   protected readonly sidebarService = inject(SidebarService);
   private readonly supabaseService = inject(SupabaseService);
+  private readonly releaseNotesService = inject(ReleaseNotesService);
   private readonly router = inject(Router);
 
   // Expose icons
@@ -50,6 +52,10 @@ export class SidebarComponent {
     this.sidebarService.toggleCollapsed();
   }
 
+  showReleaseNotes() {
+    this.releaseNotesService.openNotes();
+  }
+
   async logout() {
     try {
       await this.supabaseService.signOut();
@@ -59,3 +65,4 @@ export class SidebarComponent {
     }
   }
 }
+

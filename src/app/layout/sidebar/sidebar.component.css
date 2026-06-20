@@ -186,7 +186,12 @@
   font-weight: 400;
   letter-spacing: 0.05em;
   user-select: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, color 0.2s;
+  cursor: pointer;
+}
+
+.sidebar-version:hover {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .sidebar-version.collapsed {

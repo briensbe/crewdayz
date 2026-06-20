@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { SidebarService } from './services/sidebar.service';
 import { SupabaseService } from './services/supabase.service';
+import { ReleaseNotesComponent } from './shared/release-notes/release-notes.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidebarComponent],
+  imports: [CommonModule, RouterOutlet, SidebarComponent, ReleaseNotesComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

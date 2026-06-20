@@ -1,0 +1,65 @@
+[
+  {
+    "version": "2026.06.20",
+    "date": "2026-06-20",
+    "news": [
+      {
+        "title": "Filtres persistants",
+        "items": [
+          "Sauvegarde automatique de vos filtres de recherche et de sélection dans le stockage local (LocalStorage)",
+          "Les filtres restent configurés même après le rechargement de la page ou après avoir navigué dans l'application"
+        ]
+      },
+      {
+        "title": "Listes déroulantes (Combobox) éditables",
+        "items": [
+          "Saisie assistée dynamique pour la sélection des Profils, des sites de travail, des ESN, des Services et des Équipes",
+          "Possibilité d'ajouter des entrées à la volée directement depuis les champs d'édition"
+        ]
+      },
+      {
+        "title": "Suivi des Collaborateurs",
+        "items": [
+          "Ajout des dates d'arrivée et de départ pour chaque collaborateur pour une gestion plus fine et historique",
+          "Ajout de nouveaux profils types pour enrichir la base par défaut"
+        ]
+      }
+    ]
+  },
+  {
+    "version": "2026.06.12",
+    "date": "2026-06-12",
+    "news": [
+      {
+        "title": "Améliorations Ergonomiques",
+        "items": [
+          "Les colonnes de fin de tableau (Solde Final, Jours Travaillés) restent désormais fixes (sticky) lors du défilement horizontal",
+          "Possibilité de masquer le solde initial de début de période pour libérer de l'espace visuel",
+          "Modernisation de la palette de couleurs globale et optimisations de l'interface utilisateur pour les collaborateurs"
+        ]
+      }
+    ]
+  },
+  {
+    "version": "2026.05.28",
+    "date": "2026-05-28",
+    "news": [
+      {
+        "title": "Calculs des Soldes & Absences",
+        "items": [
+          "Visualisation en temps réel de l'impact d'une saisie de congés/absences en cours sur les soldes finaux",
+          "Déduction automatique des jours fériés dans le total des jours travaillés",
+          "Prise en compte des soldes de congés non pris à fin décembre pour le calcul du total annuel",
+          "Introduction d'un mode multi-années pour gérer les soldes annuels"
+        ]
+      },
+      {
+        "title": "Contrôles de Saisie",
+        "items": [
+          "Lors d'une sélection multiple, le système empêche automatiquement de positionner des événements sur les week-ends et jours fériés",
+          "Affichage condensé des soldes initiaux pour une navigation plus rapide"
+        ]
+      }
+    ]
+  }
+]
