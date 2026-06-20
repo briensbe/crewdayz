@@ -92,9 +92,6 @@ export class EmployeeService {
     }
   }
 
-  /**
-   * Update an existing employee
-   */
   async updateEmployee(id: string, employee: Partial<Employee>, year: number): Promise<Employee> {
     try {
       const { initial_cp, initial_rtt, initial_exceptional, cd_employee_balances, ...empFields } = employee;
@@ -108,14 +105,31 @@ export class EmployeeService {
 
       if (empError) throw empError;
 
-      // Upsert the balance for that year
-      if (initial_cp !== undefined || initial_rtt !== undefined || initial_exceptional !== undefined) {
+      // Check if balances actually changed compared to current local state
+      const existingEmployee = this._employees().find(e => e.id === id);
+      const existingBalance = existingEmployee?.cd_employee_balances?.find(b => b.year === year);
+
+      const currentCp = existingBalance?.initial_cp ?? 0;
+      const currentRtt = existingBalance?.initial_rtt ?? 0;
+      const currentExceptional = existingBalance?.initial_exceptional ?? 0;
+
+      const newCp = initial_cp !== undefined ? initial_cp : currentCp;
+      const newRtt = initial_rtt !== undefined ? initial_rtt : currentRtt;
+      const newExceptional = initial_exceptional !== undefined ? initial_exceptional : currentExceptional;
+
+      const hasBalanceChanges = 
+        newCp !== currentCp ||
+        newRtt !== currentRtt ||
+        newExceptional !== currentExceptional;
+
+      // Upsert the balance for that year ONLY if they changed
+      if (hasBalanceChanges) {
         const balancePayload = {
           employee_id: id,
           year: year,
-          initial_cp: initial_cp ?? 0,
-          initial_rtt: initial_rtt ?? 0,
-          initial_exceptional: initial_exceptional ?? 0
+          initial_cp: newCp,
+          initial_rtt: newRtt,
+          initial_exceptional: newExceptional
         };
 
         const { error: balError } = await this.supabase.client
@@ -129,14 +143,14 @@ export class EmployeeService {
         const updatedList = employees.map(emp => {
           if (emp.id === id) {
             const balances = [...(emp.cd_employee_balances || [])];
-            if (initial_cp !== undefined || initial_rtt !== undefined || initial_exceptional !== undefined) {
+            if (hasBalanceChanges) {
               const balanceIndex = balances.findIndex(b => b.year === year);
               const newBalance = {
                 employee_id: id,
                 year: year,
-                initial_cp: initial_cp ?? (balanceIndex >= 0 ? balances[balanceIndex].initial_cp : 0),
-                initial_rtt: initial_rtt ?? (balanceIndex >= 0 ? balances[balanceIndex].initial_rtt : 0),
-                initial_exceptional: initial_exceptional ?? (balanceIndex >= 0 ? balances[balanceIndex].initial_exceptional : 0)
+                initial_cp: newCp,
+                initial_rtt: newRtt,
+                initial_exceptional: newExceptional
               };
 
               if (balanceIndex >= 0) {
