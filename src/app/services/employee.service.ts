@@ -71,8 +71,21 @@ export class EmployeeService {
 
       if (balError) throw balError;
 
-      await this.fetchEmployees();
-      return empData;
+      const newEmp: Employee = {
+        ...empData,
+        cd_employee_balances: [balancePayload]
+      };
+
+      this._employees.update(employees => {
+        const list = [...employees, newEmp];
+        return list.sort((a, b) => {
+          const lnCompare = (a.last_name || "").localeCompare(b.last_name || "");
+          if (lnCompare !== 0) return lnCompare;
+          return (a.first_name || "").localeCompare(b.first_name || "");
+        });
+      });
+
+      return newEmp;
     } catch (err) {
       console.error("Error creating employee:", err);
       throw err;
@@ -112,7 +125,42 @@ export class EmployeeService {
         if (balError) throw balError;
       }
 
-      await this.fetchEmployees();
+      this._employees.update(employees => {
+        const updatedList = employees.map(emp => {
+          if (emp.id === id) {
+            const balances = [...(emp.cd_employee_balances || [])];
+            if (initial_cp !== undefined || initial_rtt !== undefined || initial_exceptional !== undefined) {
+              const balanceIndex = balances.findIndex(b => b.year === year);
+              const newBalance = {
+                employee_id: id,
+                year: year,
+                initial_cp: initial_cp ?? (balanceIndex >= 0 ? balances[balanceIndex].initial_cp : 0),
+                initial_rtt: initial_rtt ?? (balanceIndex >= 0 ? balances[balanceIndex].initial_rtt : 0),
+                initial_exceptional: initial_exceptional ?? (balanceIndex >= 0 ? balances[balanceIndex].initial_exceptional : 0)
+              };
+
+              if (balanceIndex >= 0) {
+                balances[balanceIndex] = { ...balances[balanceIndex], ...newBalance };
+              } else {
+                balances.push(newBalance);
+              }
+            }
+            return {
+              ...emp,
+              ...empFields,
+              cd_employee_balances: balances
+            };
+          }
+          return emp;
+        });
+
+        return updatedList.sort((a, b) => {
+          const lnCompare = (a.last_name || "").localeCompare(b.last_name || "");
+          if (lnCompare !== 0) return lnCompare;
+          return (a.first_name || "").localeCompare(b.first_name || "");
+        });
+      });
+
       return empData;
     } catch (err) {
       console.error("Error updating employee:", err);
@@ -131,7 +179,8 @@ export class EmployeeService {
         .eq("id", id);
 
       if (error) throw error;
-      await this.fetchEmployees();
+
+      this._employees.update(employees => employees.filter(emp => emp.id !== id));
     } catch (err) {
       console.error("Error deleting employee:", err);
       throw err;
