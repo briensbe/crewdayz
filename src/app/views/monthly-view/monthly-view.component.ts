@@ -326,6 +326,18 @@ export class MonthlyViewComponent implements OnInit {
     return result;
   });
 
+  // Calculate the count of active filters
+  activeFiltersCount = computed(() => {
+    const filters = this.activeFilters();
+    let count = 0;
+    if (filters.search?.trim()) count++;
+    if (filters.service) count++;
+    if (filters.team) count++;
+    if (filters.work_site) count++;
+    if (filters.contract_type) count++;
+    return count;
+  });
+
   ngOnInit() {
     this.employeeService.fetchEmployees();
     this.fetchAbsencesForCurrentYear();

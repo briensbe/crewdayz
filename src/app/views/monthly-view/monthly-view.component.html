@@ -159,7 +159,12 @@
   <!-- Weekly Availability Recap by Profile (Condensed Table View) -->
   @if (profileWeeklyAvailability().length > 0 && filteredEmployees().length > 0) {
     <div class="weekly-recap-section animate-fade-in">
-      <h2 class="recap-title">Disponibilité par profil et par semaine</h2>
+      <div class="recap-header-container">
+        <h2 class="recap-title">Disponibilité par profil et par semaine</h2>
+        @if (activeFiltersCount() > 0) {
+          <span class="filter-count-badge">Filtres actifs : {{ activeFiltersCount() }}</span>
+        }
+      </div>
       <div class="table-container recap-table-container">
         <table class="recap-table">
           <thead>

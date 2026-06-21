@@ -544,12 +544,29 @@ tr:hover .sticky-right-1.worked-value {
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.05));
 }
 
+.recap-header-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
 .recap-title {
   font-family: 'Outfit', sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-main);
-  margin-bottom: 1rem;
+  margin-bottom: 0;
+}
+
+.filter-count-badge {
+  background-color: var(--primary-light, hsl(210, 100%, 96%));
+  color: var(--primary, hsl(210, 100%, 45%));
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm, 4px);
+  border: 1px solid var(--border);
 }
 
 .recap-table-container {
@@ -616,9 +633,9 @@ tr:hover .sticky-right-1.worked-value {
 
 .availability-cell-badges {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .no-data-dash {
