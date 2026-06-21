@@ -43,8 +43,8 @@
     } @else {
       <table class="calendar-table">
         <thead>
-          <tr class="holidays-header-row">
-            <th rowspan="3" class="sticky-col name-col" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
+          <tr class="week-header-row">
+            <th rowspan="5" class="sticky-col name-col" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
               <div class="name-header-content">
                 <span>Collaborateur</span>
                 <button type="button" class="collapse-toggle-btn" (click)="toggleColumns()" [title]="showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'">
@@ -53,43 +53,68 @@
               </div>
             </th>
             @if (showServiceCol()) {
-              <th rowspan="3" class="sticky-col service-col" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">Service</th>
+              <th rowspan="5" class="sticky-col service-col" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">Service</th>
             }
             @if (showTeamCol()) {
-              <th rowspan="3" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()">Équipe</th>
+              <th rowspan="5" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()">Équipe</th>
             }
             @if (showSiteCol()) {
-              <th rowspan="3" class="sticky-col site-col" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">Site</th>
+              <th rowspan="5" class="sticky-col site-col" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">Site</th>
             }
             @if (showTypeCol()) {
-              <th rowspan="3" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">Type</th>
+              <th rowspan="5" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">Type</th>
             }
             @if (showBalanceStartCol()) {
-              <th rowspan="3" class="sticky-col balance-col text-center" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()" title="Solde de congés (CP + RTT) restant au début de ce mois">Solde Début</th>
+              <th rowspan="5" class="sticky-col balance-col text-center" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()" title="Solde de congés (CP + RTT) restant au début de ce mois">Solde Début</th>
             }
             
-            <!-- School Holidays Row -->
-            @for (week of weeksInMonthWithHolidays(); track week.weekNum) {
-              <th [attr.colspan]="week.colSpan" class="holiday-header-cell text-center" [attr.title]="week.holidayNames">
-                <div class="week-holiday-badges">
-                  @for (zone of week.activeZones; track zone) {
-                    <span class="week-zone-badge" [class]="zone.toLowerCase().replace(' ', '-')">{{ zone.split(' ')[1] }}</span>
-                  }
-                </div>
-              </th>
-            }
-
-            <th rowspan="3" class="balance-col text-center sticky-right-2" title="Solde de congés (CP + RTT) restant à la fin de ce mois">Solde Fin</th>
-            <th rowspan="3" class="worked-col text-center sticky-right-1" title="Jours réellement travaillés dans le mois">Jours Trav.</th>
-          </tr>
-          <tr class="week-header-row">
             <!-- Calendar week headers -->
             @for (week of weeksInMonth(); track week.weekNum) {
               <th [attr.colspan]="week.colSpan" class="week-header-cell text-center">
                 S{{ week.weekNum }}
               </th>
             }
+
+            <th rowspan="5" class="balance-col text-center sticky-right-2" title="Solde de congés (CP + RTT) restant à la fin de ce mois">Solde Fin</th>
+            <th rowspan="5" class="worked-col text-center sticky-right-1" title="Jours réellement travaillés dans le mois">Jours Trav.</th>
           </tr>
+
+          <!-- Zone A Holiday Row -->
+          <tr class="zone-holiday-row zone-a-row">
+            @for (day of daysInMonth(); track day.dateStr) {
+              <th class="holiday-strip-cell zone-a-cell" 
+                  [class.active]="holidayService.isHolidayInZone(day.date, 'Zone A')"
+                  [class.week-separator]="day.isWeekEnd"
+                  [attr.title]="holidayService.isHolidayInZone(day.date, 'Zone A') ? ('Zone A : ' + holidayService.getHolidayNameInZone(day.date, 'Zone A')) : ''">
+                <div class="holiday-strip zone-a-strip"></div>
+              </th>
+            }
+          </tr>
+
+          <!-- Zone B Holiday Row -->
+          <tr class="zone-holiday-row zone-b-row">
+            @for (day of daysInMonth(); track day.dateStr) {
+              <th class="holiday-strip-cell zone-b-cell" 
+                  [class.active]="holidayService.isHolidayInZone(day.date, 'Zone B')"
+                  [class.week-separator]="day.isWeekEnd"
+                  [attr.title]="holidayService.isHolidayInZone(day.date, 'Zone B') ? ('Zone B : ' + holidayService.getHolidayNameInZone(day.date, 'Zone B')) : ''">
+                <div class="holiday-strip zone-b-strip"></div>
+              </th>
+            }
+          </tr>
+
+          <!-- Zone C Holiday Row -->
+          <tr class="zone-holiday-row zone-c-row">
+            @for (day of daysInMonth(); track day.dateStr) {
+              <th class="holiday-strip-cell zone-c-cell" 
+                  [class.active]="holidayService.isHolidayInZone(day.date, 'Zone C')"
+                  [class.week-separator]="day.isWeekEnd"
+                  [attr.title]="holidayService.isHolidayInZone(day.date, 'Zone C') ? ('Zone C : ' + holidayService.getHolidayNameInZone(day.date, 'Zone C')) : ''">
+                <div class="holiday-strip zone-c-strip"></div>
+              </th>
+            }
+          </tr>
+
           <tr class="day-header-row">
             <!-- Calendar day headers -->
             @for (day of daysInMonth(); track day.dateStr) {

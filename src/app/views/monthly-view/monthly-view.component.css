@@ -676,51 +676,51 @@ tr:hover .sticky-right-1.worked-value {
   border: 1px solid hsl(350, 89%, 88%);
 }
 
-/* School Holidays Header Row & Badges */
-.holidays-header-row {
+/* Zone Holiday Rows & Strips (Post Office style) */
+.zone-holiday-row {
+  height: 8px;
+  line-height: 0;
   background-color: var(--background);
 }
 
-.holiday-header-cell {
-  background-color: var(--background);
-  border-bottom: 1px solid var(--border-light);
-  border-right: 2px solid var(--border) !important;
-  padding: 0.15rem 0 !important;
+.zone-holiday-row th {
+  padding: 0 !important;
+  height: 8px !important;
   vertical-align: middle;
+  border-bottom: 1px solid var(--border-light) !important;
 }
 
-.week-holiday-badges {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.25rem;
-  min-height: 18px;
+.holiday-strip-cell {
+  background-color: var(--background);
+  cursor: help;
+  padding: 2px 3px !important;
 }
 
-.week-zone-badge {
-  font-size: 0.65rem;
-  font-weight: 800;
-  padding: 0.05rem 0.25rem;
-  border-radius: 3px;
-  line-height: 1;
-  text-transform: uppercase;
+.holiday-strip {
+  height: 6px;
+  width: 100%;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
-.week-zone-badge.zone-a {
-  background-color: #e0e7ff;
-  color: #4f46e5;
+/* Active states (showing colored strips) */
+.holiday-strip-cell.active .holiday-strip {
+  opacity: 1;
+}
+
+.zone-a-strip {
+  background-color: #e0e7ff; /* Light Indigo */
   border: 1px solid #c7d2fe;
 }
 
-.week-zone-badge.zone-b {
-  background-color: #d1fae5;
-  color: #065f46;
+.zone-b-strip {
+  background-color: #d1fae5; /* Light Emerald */
   border: 1px solid #a7f3d0;
 }
 
-.week-zone-badge.zone-c {
-  background-color: #fce7f3;
-  color: #9d174d;
+.zone-c-strip {
+  background-color: #fce7f3; /* Light Rose/Pink */
   border: 1px solid #fbcfe8;
 }
 

@@ -216,45 +216,7 @@ export class MonthlyViewComponent implements OnInit {
     return weeks;
   });
 
-  // Calculate active holiday zones for each week in the month
-  weeksInMonthWithHolidays = computed(() => {
-    const weeks = this.weeksInMonth();
-    const days = this.daysInMonth();
-    const holidayService = this.holidayService;
 
-    // Group days by weekNum
-    const daysByWeek: { [weekNum: number]: Date[] } = {};
-    days.forEach(d => {
-      if (!daysByWeek[d.weekNum]) {
-        daysByWeek[d.weekNum] = [];
-      }
-      daysByWeek[d.weekNum].push(d.date);
-    });
-
-    return weeks.map(w => {
-      const weekDays = daysByWeek[w.weekNum] || [];
-      const activeZonesSet = new Set<string>();
-      const holidayNamesSet = new Set<string>();
-
-      weekDays.forEach(date => {
-        ['Zone A', 'Zone B', 'Zone C'].forEach(zone => {
-          if (holidayService.isHolidayInZone(date, zone)) {
-            activeZonesSet.add(zone);
-            const name = holidayService.getHolidayNameInZone(date, zone);
-            if (name) {
-              holidayNamesSet.add(name);
-            }
-          }
-        });
-      });
-
-      return {
-        ...w,
-        activeZones: Array.from(activeZonesSet),
-        holidayNames: Array.from(holidayNamesSet).join(', ')
-      };
-    });
-  });
 
   // Calculate left sticky columns count for colspan
   leftColsCount = computed(() => {
