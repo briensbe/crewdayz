@@ -379,6 +379,30 @@
   width: 220px;
 }
 
+.toggle-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-checkbox input {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  accent-color: #2563eb;
+}
+
+.toggle-checkbox:hover {
+  color: #334155;
+}
+
 /* Tab selector */
 .zone-tabs {
   display: flex;

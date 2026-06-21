@@ -43,6 +43,7 @@ export class HolidaysViewComponent {
   selectedZone = signal<string>('All');
   searchQuery = signal<string>('');
   selectedSite = signal<string | null>(null);
+  hidePassedHolidays = signal<boolean>(true);
 
   // Get active year
   currentYear = new Date().getFullYear();
@@ -118,10 +119,15 @@ export class HolidaysViewComponent {
   filteredPeriods = computed(() => {
     const zoneFilter = this.selectedZone();
     const query = this.searchQuery().toLowerCase().trim();
+    const hidePassed = this.hidePassedHolidays();
     let periods = this.allPeriods();
 
     if (zoneFilter !== 'All') {
       periods = periods.filter(p => p.zone === zoneFilter);
+    }
+
+    if (hidePassed) {
+      periods = periods.filter(p => p.status !== 'passed');
     }
 
     if (query) {
