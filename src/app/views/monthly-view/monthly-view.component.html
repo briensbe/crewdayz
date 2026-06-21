@@ -26,31 +26,6 @@
     (filterChange)="handleFilterChange($event)"
   ></app-filters>
 
-  <!-- Legend Section -->
-  <div class="legend-card-container">
-    <div class="legend-card">
-      <button type="button" class="legend-header" (click)="toggleLegend()" [class.active]="showLegend()" [title]="showLegend() ? 'Masquer la légende' : 'Afficher la légende'">
-        <span class="legend-title">Légende</span>
-        <lucide-icon [img]="ChevronRight" size="14" class="chevron-icon"></lucide-icon>
-      </button>
-      
-      <div class="legend-items-wrapper" [class.expanded]="showLegend()">
-        <div class="legend-items-inner">
-          <div class="legend-items">
-            <div class="legend-item"><span class="legend-badge abs-other">1 / 0.5</span> Absence</div>
-            <div class="legend-item"><span class="legend-badge abs-cp">1 / 0.5</span> Congés Payés (CP)</div>
-            <div class="legend-item"><span class="legend-badge abs-rtt">1 / 0.5</span> RTT</div>
-            <div class="legend-item"><span class="legend-badge abs-maladie">1 / 0.5</span> Maladie</div>
-            <div class="legend-item"><span class="legend-badge abs-maternite">1 / 0.5</span> Maternité</div>
-            <div class="legend-item"><span class="legend-badge abs-exceptionnel">1 / 0.5</span> Exceptionnel</div>
-            <div class="legend-item"><span class="legend-badge abs-formation">F</span> Formation (Absence = 0)</div>
-            <div class="legend-item"><span class="legend-badge abs-partiel">1 / 0.5</span> Temps partiel</div>
-            <div class="legend-item"><span class="legend-badge abs-previsionnel">1 / 0.5</span> Prévisionnel (Simulation)</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Main Calendar Grid Table -->
   <div class="table-container calendar-table-container animate-fade-in">
@@ -179,6 +154,30 @@
         </tbody>
       </table>
     }
+  </div>
+
+  <!-- Legend Section at the bottom -->
+  <div class="legend-card-container">
+    <div class="legend-card" [class.expanded]="showLegend()">
+      <button type="button" class="legend-header" (click)="toggleLegend()" [class.active]="showLegend()" [title]="showLegend() ? 'Masquer la légende' : 'Afficher la légende'">
+        <span class="legend-title">Légende</span>
+        <lucide-icon [img]="ChevronRight" size="14" class="chevron-icon"></lucide-icon>
+      </button>
+      
+      @if (showLegend()) {
+        <div class="legend-items">
+          <div class="legend-item"><span class="legend-badge abs-other">1 / 0.5</span> Absence</div>
+          <div class="legend-item"><span class="legend-badge abs-cp">1 / 0.5</span> Congés Payés (CP)</div>
+          <div class="legend-item"><span class="legend-badge abs-rtt">1 / 0.5</span> RTT</div>
+          <div class="legend-item"><span class="legend-badge abs-maladie">1 / 0.5</span> Maladie</div>
+          <div class="legend-item"><span class="legend-badge abs-maternite">1 / 0.5</span> Maternité</div>
+          <div class="legend-item"><span class="legend-badge abs-exceptionnel">1 / 0.5</span> Exceptionnel</div>
+          <div class="legend-item"><span class="legend-badge abs-formation">F</span> Formation (Absence = 0)</div>
+          <div class="legend-item"><span class="legend-badge abs-partiel">1 / 0.5</span> Temps partiel</div>
+          <div class="legend-item"><span class="legend-badge abs-previsionnel">1 / 0.5</span> Prévisionnel (Simulation)</div>
+        </div>
+      }
+    </div>
   </div>
 </div>
 

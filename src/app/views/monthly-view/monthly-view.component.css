@@ -73,6 +73,7 @@
 
 .legend-card {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   background-color: var(--surface);
   border-radius: var(--radius-md);
@@ -84,6 +85,10 @@
   gap: 0.25rem;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.legend-card.expanded {
+  width: 100%;
 }
 
 .legend-header {
@@ -148,6 +153,7 @@
 
 .legend-items {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1.25rem;
   padding: 0.25rem 0.5rem 0.25rem 1rem;
