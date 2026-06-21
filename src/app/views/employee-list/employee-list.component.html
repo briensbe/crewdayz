@@ -237,7 +237,7 @@
                 }
               </td>
               <td (click)="startInlineEdit(emp, 'team', $event)">
-                <span class="team-badge">{{ emp.team }}</span>
+                <span class="team-badge" [style.background-color]="getTeamStyle(emp.team).background" [style.color]="getTeamStyle(emp.team).color" [style.border-color]="getTeamStyle(emp.team).borderColor">{{ emp.team }}</span>
                 @if (editingEmployeeId() === emp.id && editingField() === 'team') {
                   <div class="inline-edit-popover" (click)="$event.stopPropagation()">
                     <div class="custom-combobox inline-combobox">

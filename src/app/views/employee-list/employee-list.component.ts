@@ -6,6 +6,7 @@ import { EmployeeService } from '../../services/employee.service';
 import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { storageSignal } from '../../../utils/storage-signal';
+import { getTeamStyle } from '../../shared/utils/color-utils';
 
 export type EmployeeSortField = 'name' | 'contract_type' | 'profile' | 'service' | 'team' | 'work_site' | 'arrival_date';
 
@@ -17,6 +18,7 @@ export type EmployeeSortField = 'name' | 'contract_type' | 'profile' | 'service'
   styleUrl: './employee-list.component.css',
 })
 export class EmployeeListComponent implements OnInit {
+  protected readonly getTeamStyle = getTeamStyle;
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
     if (this.editingEmployeeId()) {

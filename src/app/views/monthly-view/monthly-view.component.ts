@@ -10,6 +10,7 @@ import { AbsenceModalComponent, AbsenceSavePayload } from '../../shared/absence-
 import { storageSignal } from '../../../utils/storage-signal';
 import { isFrenchPublicHoliday, getFrenchPublicHolidayName } from '../../../utils/holidays';
 import { SchoolHolidayService } from '../../services/school-holiday.service';
+import { getTeamStyle } from '../../shared/utils/color-utils';
 
 interface DayColumn {
   date: Date;
@@ -45,6 +46,7 @@ export class MonthlyViewComponent implements OnInit {
   protected readonly employeeService = inject(EmployeeService);
   protected readonly absenceService = inject(AbsenceService);
   protected readonly holidayService = inject(SchoolHolidayService);
+  protected readonly getTeamStyle = getTeamStyle;
 
   // Expose icons
   readonly ChevronLeft = ChevronLeft;

@@ -8,6 +8,7 @@ import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { storageSignal } from '../../../utils/storage-signal';
 import { isFrenchPublicHoliday } from '../../../utils/holidays';
+import { getTeamStyle } from '../../shared/utils/color-utils';
 
 interface EmployeeAnnualRow {
   employee: Employee;
@@ -27,6 +28,7 @@ export class AnnualViewComponent implements OnInit {
   // Services and dependencies
   protected readonly employeeService = inject(EmployeeService);
   protected readonly absenceService = inject(AbsenceService);
+  protected readonly getTeamStyle = getTeamStyle;
 
   // Expose icons
   readonly ChevronLeft = ChevronLeft;

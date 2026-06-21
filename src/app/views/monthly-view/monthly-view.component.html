@@ -139,7 +139,9 @@
                 <td class="sticky-col service-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">{{ emp.service }}</td>
               }
               @if (showTeamCol()) {
-                <td class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()"><span class="team-badge">{{ emp.team }}</span></td>
+                <td class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()">
+                  <span class="team-badge" [style.background-color]="getTeamStyle(emp.team).background" [style.color]="getTeamStyle(emp.team).color" [style.border-color]="getTeamStyle(emp.team).borderColor">{{ emp.team }}</span>
+                </td>
               }
               @if (showSiteCol()) {
                 <td class="sticky-col site-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">{{ emp.work_site }}</td>

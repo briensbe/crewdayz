@@ -79,7 +79,7 @@
           <tr *ngFor="let row of employeesAnnualRows()">
             <td class="sticky-col name-col font-semibold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">{{ row.employee.first_name }} {{ row.employee.last_name }}</td>
             <td *ngIf="showServiceCol()" class="sticky-col service-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">{{ row.employee.service }}</td>
-            <td *ngIf="showTeamCol()" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()"><span class="team-badge">{{ row.employee.team }}</span></td>
+            <td *ngIf="showTeamCol()" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()"><span class="team-badge" [style.background-color]="getTeamStyle(row.employee.team).background" [style.color]="getTeamStyle(row.employee.team).color" [style.border-color]="getTeamStyle(row.employee.team).borderColor">{{ row.employee.team }}</span></td>
             <td *ngIf="showSiteCol()" class="sticky-col site-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">{{ row.employee.work_site }}</td>
             <td *ngIf="showTypeCol()" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">
               <span class="type-text" [class.type-interne]="row.employee.contract_type === 'Interne'" [class.type-externe]="row.employee.contract_type === 'Externe'">
