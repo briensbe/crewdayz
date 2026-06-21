@@ -127,6 +127,7 @@ export class AuditViewComponent implements OnInit {
         const changedBy = (log.changed_by || '').toLowerCase();
         const actionStr = log.action.toLowerCase();
         const rowId = log.row_id.toLowerCase();
+        const employeeName = (this.getRelatedEmployee(log) || '').toLowerCase();
         const oldDataStr = JSON.stringify(log.old_data || {}).toLowerCase();
         const newDataStr = JSON.stringify(log.new_data || {}).toLowerCase();
 
@@ -135,6 +136,7 @@ export class AuditViewComponent implements OnInit {
                changedBy.includes(query) ||
                actionStr.includes(query) ||
                rowId.includes(query) ||
+               employeeName.includes(query) ||
                oldDataStr.includes(query) ||
                newDataStr.includes(query);
       }
