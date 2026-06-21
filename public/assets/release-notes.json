@@ -1,5 +1,59 @@
 [
   {
+    "version": "2026.06.21",
+    "date": "2026-06-21",
+    "news": [
+      {
+        "title": "Édition en ligne",
+        "imageUrl": "assets/2026-06-20-inline-edit.gif",
+        "imageMaxHeight": "200",
+        "items": ["Édition Inline des cellules pour des modifications plus rapides"]
+      },
+      {
+        "title": "Duplication",
+        "imageUrl": "assets/2026-06-21-duplication-collab.gif",
+        "imageMaxHeight": "250",
+        "items": [
+          "Possibilité de copier/dupliquer un collaborateur pour créer rapidement de nouvelles fiches"
+        ]
+      },
+      {
+        "title": "Tableau de Bord",
+        "imageUrl": "assets/2026-06-21-dashboard-crewdayz.png",
+        "items": ["Dashboard dynamique avec graphique et infos mensuels de l'effectif"]
+      },
+      {
+        "title": "Disponibilités",
+        "imageUrl": "assets/2026-06-21-disponibilites.png",
+        "items": [
+          "Tableau récapitulatif hebdomadaire des disponibilités par profil avec prise en compte des filtres actifs"
+        ]
+      },
+      {
+        "title": "Vacances Scolaires",
+        "imageUrl": "assets/2026-06-21-vacances-scolaires.png",
+        "items": [
+          "Intégration des vacances scolaires (Zone A, B, C) pour les périodes 2026-2027",
+          "Affichage ergonomique sous forme de barres temporelles"
+        ]
+      },
+      {
+        "title": "Types d'Événements & Ergonomie",
+        "items": [
+          "Ajout des types d'événements 'Temps partiel' et 'Prévisionnel'",
+          "infobulles enrichies avec le type d'évènements et info sur matin ou après-midi",
+          "Affichage compact des numéros de semaine et des noms de jours dans le calendrier"
+        ]
+      },
+      {
+        "title": "Optimisations de Performance",
+        "items": [
+          "Réduction et optimisation des appels API lors des modifications de profils ou de balances"
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.06.20",
     "date": "2026-06-20",
     "news": [
