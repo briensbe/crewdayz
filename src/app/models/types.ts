@@ -89,3 +89,18 @@ export interface SchoolHolidaysConfig {
   };
 }
 
+export interface AuditLog {
+  id: string;
+  table_name: string;
+  action: 'INSERT' | 'UPDATE' | 'DELETE' | string;
+  row_id: string;
+  old_data: any;
+  new_data: any;
+  changed_by: string | null;
+  changed_at: string;
+  profiles?: {
+    full_name: string;
+  } | null;
+}
+
+

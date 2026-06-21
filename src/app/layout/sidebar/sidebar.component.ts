@@ -10,7 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
-  Umbrella
+  Umbrella,
+  History
 } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
 import { ReleaseNotesService } from '../../services/release-notes.service';
@@ -44,6 +45,7 @@ export class SidebarComponent {
     { label: 'Vue Mensuelle', icon: Calendar, route: '/mensuel' },
     { label: 'Vue Annuelle', icon: Layers, route: '/annuel' },
     { label: 'Vacances Scolaires', icon: Umbrella, route: '/vacances' },
+    { label: 'Historique d\'Audit', icon: History, route: '/audit' },
     { label: 'Mon Profil', icon: User, route: '/profile' }
   ];
 

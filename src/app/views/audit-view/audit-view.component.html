@@ -1,0 +1,237 @@
+<div class="audit-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-title-container">
+      <lucide-icon [img]="History" class="header-icon" size="28"></lucide-icon>
+      <div>
+        <h1>Historique d'Audit</h1>
+        <p class="subtitle">Suivez et inspectez toutes les modifications apportées à la base de données</p>
+      </div>
+    </div>
+    
+    <button class="btn btn-primary btn-refresh" (click)="loadLogs()" [disabled]="auditService.loading()" id="btn-refresh-audit">
+      <lucide-icon [img]="RefreshCw" [class.spin]="auditService.loading()" size="16"></lucide-icon>
+      Actualiser
+    </button>
+  </div>
+
+  <!-- Filters Toolbar -->
+  <div class="toolbar">
+    <div class="search-box">
+      <lucide-icon [img]="Search" size="18" class="search-icon"></lucide-icon>
+      <input 
+        type="text" 
+        [ngModel]="searchQuery()" 
+        (ngModelChange)="searchQuery.set($event)" 
+        placeholder="Rechercher par utilisateur, table, valeur..."
+        id="audit-search-input"
+      />
+    </div>
+
+    <div class="filters-group">
+      <!-- Table Filter -->
+      <div class="filter-item">
+        <label for="table-filter"><lucide-icon [img]="Database" size="14"></lucide-icon> Table</label>
+        <select 
+          id="table-filter" 
+          [ngModel]="selectedTable()" 
+          (ngModelChange)="selectedTable.set($event)"
+        >
+          <option value="">Toutes les tables</option>
+          @for (tbl of tables(); track tbl) {
+            <option [value]="tbl">{{ translateTable(tbl) }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Action Filter -->
+      <div class="filter-item">
+        <label for="action-filter"><lucide-icon [img]="Filter" size="14"></lucide-icon> Action</label>
+        <select 
+          id="action-filter" 
+          [ngModel]="selectedAction()" 
+          (ngModelChange)="selectedAction.set($event)"
+        >
+          <option value="">Toutes les actions</option>
+          @for (act of actions(); track act) {
+            <option [value]="act">{{ act }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Table -->
+  <div class="table-card">
+    @if (auditService.loading() && filteredLogs().length === 0) {
+      <div class="loading-state">
+        <lucide-icon [img]="RefreshCw" class="spin" size="48"></lucide-icon>
+        <p>Chargement des logs d'audit...</p>
+      </div>
+    } @else if (filteredLogs().length === 0) {
+      <div class="empty-state">
+        <lucide-icon [img]="FileText" size="48"></lucide-icon>
+        <h3>Aucun log d'audit trouvé</h3>
+        <p>Ajustez vos filtres ou effectuez une recherche différente.</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="audit-table" id="audit-logs-table">
+          <thead>
+            <tr>
+              <th class="col-expand"></th>
+              <th class="col-date">Date & Heure</th>
+              <th class="col-table">Table</th>
+              <th class="col-action">Action</th>
+              <th class="col-user">Auteur de la modification</th>
+              <th class="col-id">Identifiant ligne (row_id)</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of filteredLogs(); track log.id) {
+              <!-- Main Log Row -->
+              <tr 
+                class="log-row" 
+                [class.expanded]="isExpanded(log.id)"
+                (click)="toggleExpand(log.id)"
+              >
+                <td>
+                  <button class="expand-btn" aria-label="Déplier les détails">
+                    <lucide-icon 
+                      [img]="isExpanded(log.id) ? ChevronUp : ChevronDown" 
+                      size="18"
+                    ></lucide-icon>
+                  </button>
+                </td>
+                <td class="font-mono text-sm">
+                  {{ formatDate(log.changed_at) }}
+                </td>
+                <td>
+                  <span class="table-badge">
+                    {{ translateTable(log.table_name) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="action-badge" [class]="log.action.toLowerCase()">
+                    {{ log.action }}
+                  </span>
+                </td>
+                <td>
+                  <div class="user-cell">
+                    <lucide-icon [img]="User" size="14" class="user-icon"></lucide-icon>
+                    @if (log.profiles?.full_name) {
+                      <span class="user-name">{{ log.profiles?.full_name }}</span>
+                    } @else if (log.changed_by === supabaseService.user()?.id) {
+                      <span class="user-name text-primary-color">Vous ({{ supabaseService.user()?.user_metadata?.['displayName'] || 'Utilisateur' }})</span>
+                    } @else if (log.changed_by) {
+                      <span class="user-name font-mono text-xs" [title]="log.changed_by">
+                        {{ log.changed_by.substring(0, 8) }}...
+                      </span>
+                    } @else {
+                      <span class="user-name text-muted">Système / Inconnu</span>
+                    }
+                  </div>
+                </td>
+                <td class="font-mono text-xs text-muted">
+                  {{ log.row_id }}
+                </td>
+              </tr>
+
+              <!-- Details/Diff Row -->
+              @if (isExpanded(log.id)) {
+                <tr class="details-row" (click)="$event.stopPropagation()">
+                  <td colspan="6">
+                    <div class="details-container">
+                      <div class="details-tabs">
+                        <button 
+                          class="tab-btn" 
+                          [class.active]="!getShowRawJson(log.id)"
+                          (click)="toggleRawJson(log.id, false)"
+                        >
+                          <lucide-icon [img]="Filter" size="14"></lucide-icon>
+                          Comparatif des modifications
+                        </button>
+                        <button 
+                          class="tab-btn" 
+                          [class.active]="getShowRawJson(log.id)"
+                          (click)="toggleRawJson(log.id, true)"
+                        >
+                          <lucide-icon [img]="Eye" size="14"></lucide-icon>
+                          Données JSON brutes
+                        </button>
+                      </div>
+
+                      <div class="tab-content">
+                        <!-- Tab 1: Diff View -->
+                        @if (!getShowRawJson(log.id)) {
+                          @if (getChangedFields(log).length === 0) {
+                            <div class="no-changes">
+                              Aucune modification détectée sur les champs suivis.
+                            </div>
+                          } @else {
+                            <table class="diff-table">
+                              <thead>
+                                <tr>
+                                  <th>Champ / Propriété</th>
+                                  <th>Ancienne Valeur</th>
+                                  <th class="col-arrow"></th>
+                                  <th>Nouvelle Valeur</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (field of getChangedFields(log); track field.key) {
+                                  <tr [class]="field.type">
+                                    <td class="diff-field">
+                                      <span class="field-label">{{ field.label }}</span>
+                                      <span class="field-key font-mono">{{ field.key }}</span>
+                                    </td>
+                                    
+                                    <td class="diff-value old">
+                                      @if (field.type === 'added') {
+                                        <span class="value-empty">(Néant)</span>
+                                      } @else {
+                                        <span class="value-text">{{ formatValue(field.key, field.oldValue) }}</span>
+                                      }
+                                    </td>
+                                    
+                                    <td class="diff-arrow-cell">
+                                      <lucide-icon [img]="ArrowRight" size="14" class="diff-arrow"></lucide-icon>
+                                    </td>
+                                    
+                                    <td class="diff-value new">
+                                      @if (field.type === 'removed') {
+                                        <span class="value-empty">(Supprimé)</span>
+                                      } @else {
+                                        <span class="value-text">{{ formatValue(field.key, field.newValue) }}</span>
+                                      }
+                                    </td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
+                          }
+                        } @else {
+                          <!-- Tab 2: Raw JSON View -->
+                          <div class="json-grid">
+                            <div class="json-panel">
+                              <span class="json-title">Anciennes Données (Avant)</span>
+                              <pre class="json-code"><code>{{ log.old_data ? (log.old_data | json) : 'null' }}</code></pre>
+                            </div>
+                            <div class="json-panel">
+                              <span class="json-title">Nouvelles Données (Après)</span>
+                              <pre class="json-code"><code>{{ log.new_data ? (log.new_data | json) : 'null' }}</code></pre>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

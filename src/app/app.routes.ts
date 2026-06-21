@@ -36,6 +36,10 @@ export const routes: Routes = [
         path: 'vacances', 
         loadComponent: () => import('./views/holidays-view/holidays-view.component').then(m => m.HolidaysViewComponent) 
       },
+      { 
+        path: 'audit', 
+        loadComponent: () => import('./views/audit-view/audit-view.component').then(m => m.AuditViewComponent) 
+      },
       { path: 'profile', component: ProfileComponent }
     ]
   },
