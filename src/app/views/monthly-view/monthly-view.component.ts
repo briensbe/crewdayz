@@ -244,6 +244,88 @@ export class MonthlyViewComponent implements OnInit {
     });
   });
 
+  // Calculate profile availability grouped by profile and week to prevent duplication of profiles
+  profileWeeklyAvailability = computed(() => {
+    const days = this.daysInMonth();
+    const employees = this.filteredEmployees();
+    const absences = this.absenceService.absences();
+    const weeksList = this.weeksInMonth();
+
+    // Group days by weekNum
+    const daysByWeek = new Map<number, DayColumn[]>();
+    for (const day of days) {
+      if (!daysByWeek.has(day.weekNum)) {
+        daysByWeek.set(day.weekNum, []);
+      }
+      daysByWeek.get(day.weekNum)!.push(day);
+    }
+
+    // Helper to get absence value on a date
+    const getAbsenceVal = (empId: string, dateStr: string): number => {
+      const list = absences.filter(a => a.employee_id === empId && a.date === dateStr);
+      let total = 0;
+      for (const a of list) {
+        if (a.category === 'Formation') continue;
+        if (a.period === 'full') {
+          total += 1.0;
+        } else {
+          total += 0.5;
+        }
+      }
+      return Math.min(total, 1.0);
+    };
+
+    // Get unique profiles alphabetically
+    const profiles = Array.from(new Set(employees.map(e => e.profile?.trim() || 'Non défini'))).sort();
+
+    const result = profiles.map(profileName => {
+      // For each profile, compute availability for each week
+      const weeksData = weeksList.map(w => {
+        const weekDays = daysByWeek.get(w.weekNum) || [];
+        const workingDays = weekDays.filter(d => !d.isWeekend && !d.isHoliday);
+
+        // Group by percentage
+        const pctGroup = new Map<number, string[]>();
+
+        const profileEmployees = employees.filter(e => (e.profile?.trim() || 'Non défini') === profileName);
+        for (const emp of profileEmployees) {
+          let percentage = 100;
+          if (workingDays.length > 0) {
+            let totalAbsence = 0;
+            for (const day of workingDays) {
+              totalAbsence += getAbsenceVal(emp.id!, day.dateStr);
+            }
+            const worked = workingDays.length - totalAbsence;
+            percentage = Math.max(0, Math.min(100, Math.round((worked / workingDays.length) * 100)));
+          }
+
+          if (!pctGroup.has(percentage)) {
+            pctGroup.set(percentage, []);
+          }
+          pctGroup.get(percentage)!.push(`${emp.first_name} ${emp.last_name}`);
+        }
+
+        const availabilities = Array.from(pctGroup.entries()).map(([percentage, names]) => ({
+          percentage,
+          count: names.length,
+          employeeNames: names.sort()
+        })).sort((a, b) => b.percentage - a.percentage);
+
+        return {
+          weekNum: w.weekNum,
+          availabilities
+        };
+      });
+
+      return {
+        profileName,
+        weeks: weeksData
+      };
+    });
+
+    return result;
+  });
+
   ngOnInit() {
     this.employeeService.fetchEmployees();
     this.fetchAbsencesForCurrentYear();

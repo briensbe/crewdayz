@@ -533,3 +533,129 @@ tr:hover .sticky-right-1.worked-value {
   user-select: none;
   -webkit-user-select: none;
 }
+
+/* Weekly Availability Recap Styles */
+.weekly-recap-section {
+  margin-top: 1.5rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.05));
+}
+
+.recap-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+}
+
+.recap-table-container {
+  overflow-x: auto;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+}
+
+.recap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.recap-table th {
+  background-color: var(--background, #f9fafb);
+  font-weight: 700;
+  color: var(--text-main);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Outfit', sans-serif;
+}
+
+.recap-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.recap-table tr:last-child td {
+  border-bottom: none;
+}
+
+.profile-header-col {
+  text-align: left;
+  min-width: 150px;
+  border-right: 2px solid var(--border);
+}
+
+.week-header-col {
+  min-width: 100px;
+  border-right: 1px solid var(--border-light);
+  text-align: center;
+}
+
+.recap-table th.week-header-col:last-child {
+  border-right: none;
+}
+
+.profile-cell {
+  color: var(--text-main);
+  font-weight: 600;
+  border-right: 2px solid var(--border);
+}
+
+.availability-cell {
+  border-right: 1px solid var(--border-light);
+}
+
+.recap-table td.availability-cell:last-child {
+  border-right: none;
+}
+
+.availability-cell-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: center;
+}
+
+.no-data-dash {
+  color: var(--text-muted);
+}
+
+.availability-badge {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  cursor: help;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.availability-badge:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
+/* Color codes for availability percentages */
+.availability-badge.avail-high {
+  background-color: hsl(142, 70%, 93%);
+  color: hsl(142, 76%, 25%);
+  border: 1px solid hsl(142, 70%, 85%);
+}
+
+.availability-badge.avail-med {
+  background-color: hsl(35, 92%, 93%);
+  color: hsl(35, 92%, 30%);
+  border: 1px solid hsl(35, 92%, 85%);
+}
+
+.availability-badge.avail-zero {
+  background-color: hsl(350, 89%, 94%);
+  color: hsl(350, 89%, 36%);
+  border: 1px solid hsl(350, 89%, 88%);
+}
+

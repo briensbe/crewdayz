@@ -156,6 +156,51 @@
     }
   </div>
 
+  <!-- Weekly Availability Recap by Profile (Condensed Table View) -->
+  @if (profileWeeklyAvailability().length > 0 && filteredEmployees().length > 0) {
+    <div class="weekly-recap-section animate-fade-in">
+      <h2 class="recap-title">Disponibilité par profil et par semaine</h2>
+      <div class="table-container recap-table-container">
+        <table class="recap-table">
+          <thead>
+            <tr>
+              <th class="profile-header-col">Profil</th>
+              @for (week of weeksInMonth(); track week.weekNum) {
+                <th class="text-center week-header-col">S{{ week.weekNum }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (prof of profileWeeklyAvailability(); track prof.profileName) {
+              <tr>
+                <td class="profile-cell font-semibold">{{ prof.profileName }}</td>
+                @for (weekData of prof.weeks; track weekData.weekNum) {
+                  <td class="text-center availability-cell">
+                    @if (weekData.availabilities.length === 0) {
+                      <span class="no-data-dash">-</span>
+                    } @else {
+                      <div class="availability-cell-badges">
+                        @for (avail of weekData.availabilities; track avail.percentage) {
+                          <span class="availability-badge" 
+                                [class.avail-high]="avail.percentage === 100"
+                                [class.avail-med]="avail.percentage < 100 && avail.percentage > 0"
+                                [class.avail-zero]="avail.percentage === 0"
+                                [title]="avail.employeeNames.join(', ')">
+                            <strong>{{ avail.count }}</strong> × {{ avail.percentage }}%
+                          </span>
+                        }
+                      </div>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
   <!-- Legend Section at the bottom -->
   <div class="legend-card-container">
     <div class="legend-card" [class.expanded]="showLegend()">
