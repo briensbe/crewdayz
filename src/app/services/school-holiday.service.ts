@@ -56,14 +56,14 @@ export class SchoolHolidayService {
    */
   public isHolidayInZone(date: Date | string, zone: string): boolean {
     const currentConfig = this._config();
-    if (!currentConfig || !currentConfig.zones || !currentConfig.zones[zone]) {
+    if (!currentConfig || !currentConfig.holidays) {
       return false;
     }
 
     const dateStr = typeof date === 'string' ? date : this.formatDateStr(date);
-    const periods = currentConfig.zones[zone];
-
-    return periods.some(period => dateStr >= period.start && dateStr <= period.end);
+    return currentConfig.holidays.some(period => 
+      period.zones.includes(zone) && dateStr >= period.start && dateStr <= period.end
+    );
   }
 
   /**
@@ -71,14 +71,14 @@ export class SchoolHolidayService {
    */
   public getHolidayNameInZone(date: Date | string, zone: string): string | null {
     const currentConfig = this._config();
-    if (!currentConfig || !currentConfig.zones || !currentConfig.zones[zone]) {
+    if (!currentConfig || !currentConfig.holidays) {
       return null;
     }
 
     const dateStr = typeof date === 'string' ? date : this.formatDateStr(date);
-    const periods = currentConfig.zones[zone];
-
-    const matchingPeriod = periods.find(period => dateStr >= period.start && dateStr <= period.end);
+    const matchingPeriod = currentConfig.holidays.find(period => 
+      period.zones.includes(zone) && dateStr >= period.start && dateStr <= period.end
+    );
     return matchingPeriod ? matchingPeriod.name : null;
   }
 

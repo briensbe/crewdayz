@@ -79,12 +79,11 @@ export interface SchoolHolidayPeriod {
   name: string;
   start: string; // YYYY-MM-DD
   end: string;   // YYYY-MM-DD
+  zones: string[];
 }
 
 export interface SchoolHolidaysConfig {
-  zones: {
-    [zoneName: string]: SchoolHolidayPeriod[];
-  };
+  holidays: SchoolHolidayPeriod[];
   siteAssociations: {
     [siteLabel: string]: string;
   };

@@ -8,11 +8,9 @@ describe('SchoolHolidayService', () => {
   let httpMock: HttpTestingController;
 
   const mockConfig: SchoolHolidaysConfig = {
-    zones: {
-      'Zone A': [
-        { name: 'Vacances de Noël', start: '2025-12-20', end: '2026-01-05' }
-      ]
-    },
+    holidays: [
+      { name: 'Vacances de Noël', start: '2025-12-20', end: '2026-01-05', zones: ['Zone A'] }
+    ],
     siteAssociations: {
       'Lyon': 'Zone A'
     }

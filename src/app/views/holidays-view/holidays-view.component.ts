@@ -51,8 +51,12 @@ export class HolidaysViewComponent {
   // Zones list helper
   zones = computed(() => {
     const config = this.holidayService.config();
-    if (!config || !config.zones) return [];
-    return Object.keys(config.zones);
+    if (!config || !config.holidays) return [];
+    const allZones = config.holidays.reduce((acc, h) => {
+      h.zones.forEach(z => acc.add(z));
+      return acc;
+    }, new Set<string>());
+    return Array.from(allZones).sort();
   });
 
   // Unique sites from configuration
@@ -84,44 +88,28 @@ export class HolidaysViewComponent {
   // Flat list of holiday periods with status and zone mapping
   allPeriods = computed<PeriodWithStatus[]>(() => {
     const config = this.holidayService.config();
-    if (!config || !config.zones) return [];
+    if (!config || !config.holidays) return [];
 
     const todayStr = this.formatDateStr(new Date());
-    const list: PeriodWithStatus[] = [];
 
-    Object.entries(config.zones).forEach(([zoneName, periods]) => {
-      periods.forEach(p => {
-        let status: 'passed' | 'current' | 'upcoming' = 'upcoming';
-        let statusLabel = 'À venir';
+    return config.holidays.map(p => {
+      let status: 'passed' | 'current' | 'upcoming' = 'upcoming';
+      let statusLabel = 'À venir';
 
-        if (todayStr > p.end) {
-          status = 'passed';
-          statusLabel = 'Passé';
-        } else if (todayStr >= p.start && todayStr <= p.end) {
-          status = 'current';
-          statusLabel = 'En cours';
-        }
+      if (todayStr > p.end) {
+        status = 'passed';
+        statusLabel = 'Passé';
+      } else if (todayStr >= p.start && todayStr <= p.end) {
+        status = 'current';
+        statusLabel = 'En cours';
+      }
 
-        const existing = list.find(item => item.name === p.name && item.start === p.start && item.end === p.end);
-        if (existing) {
-          if (!existing.zones.includes(zoneName)) {
-            existing.zones.push(zoneName);
-          }
-        } else {
-          list.push({
-            name: p.name,
-            start: p.start,
-            end: p.end,
-            zones: [zoneName],
-            status,
-            statusLabel
-          });
-        }
-      });
-    });
-
-    // Sort by start date
-    return list.sort((a, b) => a.start.localeCompare(b.start));
+      return {
+        ...p,
+        status,
+        statusLabel
+      };
+    }).sort((a, b) => a.start.localeCompare(b.start));
   });
 
   // Filtered holiday periods

@@ -136,15 +136,6 @@
               />
             </div>
 
-            <label class="toggle-checkbox">
-              <input 
-                type="checkbox" 
-                [checked]="hidePassedHolidays()" 
-                (change)="hidePassedHolidays.set(!hidePassedHolidays())"
-              />
-              <span>Masquer passées</span>
-            </label>
-
             <div class="zone-tabs">
               <button 
                 class="tab-btn" 
@@ -163,6 +154,15 @@
                 </button>
               }
             </div>
+
+            <label class="toggle-checkbox">
+              <input 
+                type="checkbox" 
+                [checked]="hidePassedHolidays()" 
+                (change)="hidePassedHolidays.set(!hidePassedHolidays())"
+              />
+              <span>Masquer passées</span>
+            </label>
           </div>
         </div>
 
