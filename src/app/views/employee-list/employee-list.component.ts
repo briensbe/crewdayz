@@ -1,11 +1,13 @@
 import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Plus, Edit, Trash2, Users, Building2, MapPin, Briefcase, DollarSign, Calendar, Check, X, Copy } from 'lucide-angular';
+import { LucideAngularModule, Plus, Edit, Trash2, Users, Building2, MapPin, Briefcase, DollarSign, Calendar, Check, X, Copy, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { storageSignal } from '../../../utils/storage-signal';
+
+export type EmployeeSortField = 'name' | 'contract_type' | 'profile' | 'service' | 'team' | 'work_site' | 'arrival_date';
 
 @Component({
   selector: 'app-employee-list',
@@ -64,6 +66,9 @@ export class EmployeeListComponent implements OnInit {
   readonly Check = Check;
   readonly X = X;
   readonly Copy = Copy;
+  readonly ArrowUpDown = ArrowUpDown;
+  readonly ArrowUp = ArrowUp;
+  readonly ArrowDown = ArrowDown;
 
   // Inline editing state
   editingEmployeeId = signal<string | null>(null);
@@ -81,6 +86,19 @@ export class EmployeeListComponent implements OnInit {
     work_site: '',
     contract_type: '',
   });
+
+  // Sort State
+  sortField = storageSignal<EmployeeSortField>('crewdayz_employee_list_sort_field', 'name');
+  sortDirection = storageSignal<'asc' | 'desc'>('crewdayz_employee_list_sort_direction', 'asc');
+
+  toggleSort(field: EmployeeSortField) {
+    if (this.sortField() === field) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDirection.set('asc');
+    }
+  }
 
   // Unique options for filters dynamically extracted from employees list
   services = computed(() => {
@@ -115,8 +133,10 @@ export class EmployeeListComponent implements OnInit {
   filteredEmployees = computed(() => {
     const filters = this.activeFilters();
     const activeYear = Number(this.selectedYear());
+    const field = this.sortField();
+    const direction = this.sortDirection();
 
-    return this.employeeService
+    const employees = this.employeeService
       .employees()
       .filter((emp) => {
         // Search filter (first name, last name, or ESN name)
@@ -146,6 +166,47 @@ export class EmployeeListComponent implements OnInit {
           initial_exceptional: balance?.initial_exceptional,
         };
       });
+
+    return [...employees].sort((a, b) => {
+      let comparison = 0;
+
+      switch (field) {
+        case 'name': {
+          const nameA = `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase();
+          const nameB = `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase();
+          comparison = nameA.localeCompare(nameB, 'fr', { sensitivity: 'base' });
+          break;
+        }
+        case 'contract_type': {
+          const valA = `${a.contract_type || ''} ${a.company_name || ''}`.toLowerCase();
+          const valB = `${b.contract_type || ''} ${b.company_name || ''}`.toLowerCase();
+          comparison = valA.localeCompare(valB, 'fr', { sensitivity: 'base' });
+          break;
+        }
+        case 'profile':
+          comparison = (a.profile || '').localeCompare(b.profile || '', 'fr', { sensitivity: 'base' });
+          break;
+        case 'service':
+          comparison = (a.service || '').localeCompare(b.service || '', 'fr', { sensitivity: 'base' });
+          break;
+        case 'team':
+          comparison = (a.team || '').localeCompare(b.team || '', 'fr', { sensitivity: 'base' });
+          break;
+        case 'work_site':
+          comparison = (a.work_site || '').localeCompare(b.work_site || '', 'fr', { sensitivity: 'base' });
+          break;
+        case 'arrival_date': {
+          const dateA = a.arrival_date ? new Date(a.arrival_date).getTime() : 0;
+          const dateB = b.arrival_date ? new Date(b.arrival_date).getTime() : 0;
+          comparison = dateA - dateB;
+          break;
+        }
+        default:
+          comparison = 0;
+      }
+
+      return direction === 'asc' ? comparison : -comparison;
+    });
   });
 
   // Modal State

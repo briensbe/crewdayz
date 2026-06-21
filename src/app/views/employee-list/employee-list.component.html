@@ -46,13 +46,62 @@
       <table>
         <thead>
           <tr>
-            <th>Nom complet</th>
-            <th>Type / Société</th>
-            <th>Profil</th>
-            <th>Service</th>
-            <th>Équipe</th>
-            <th>Site de travail</th>
-            <th>Dates d'activité</th>
+            <th (click)="toggleSort('name')" class="sortable-column">
+              <div class="header-sort-wrapper">
+                <span>Nom complet</span>
+                <lucide-icon [img]="sortField() === 'name' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
+                             [class.active]="sortField() === 'name'" 
+                             class="sort-icon" size="14"></lucide-icon>
+              </div>
+            </th>
+            <th (click)="toggleSort('contract_type')" class="sortable-column">
+              <div class="header-sort-wrapper">
+                <span>Type / Société</span>
+                <lucide-icon [img]="sortField() === 'contract_type' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
+                             [class.active]="sortField() === 'contract_type'" 
+                             class="sort-icon" size="14"></lucide-icon>
+              </div>
+            </th>
+            <th (click)="toggleSort('profile')" class="sortable-column">
+              <div class="header-sort-wrapper">
+                <span>Profil</span>
+                <lucide-icon [img]="sortField() === 'profile' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
+                             [class.active]="sortField() === 'profile'" 
+                             class="sort-icon" size="14"></lucide-icon>
+              </div>
+            </th>
+            <th (click)="toggleSort('service')" class="sortable-column">
+              <div class="header-sort-wrapper">
+                <span>Service</span>
+                <lucide-icon [img]="sortField() === 'service' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
+                             [class.active]="sortField() === 'service'" 
+                             class="sort-icon" size="14"></lucide-icon>
+              </div>
+            </th>
+            <th (click)="toggleSort('team')" class="sortable-column">
+              <div class="header-sort-wrapper">
+                <span>Équipe</span>
+                <lucide-icon [img]="sortField() === 'team' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
+                             [class.active]="sortField() === 'team'" 
+                             class="sort-icon" size="14"></lucide-icon>
+              </div>
+            </th>
+            <th (click)="toggleSort('work_site')" class="sortable-column">
+              <div class="header-sort-wrapper">
+                <span>Site de travail</span>
+                <lucide-icon [img]="sortField() === 'work_site' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
+                             [class.active]="sortField() === 'work_site'" 
+                             class="sort-icon" size="14"></lucide-icon>
+              </div>
+            </th>
+            <th (click)="toggleSort('arrival_date')" class="sortable-column">
+              <div class="header-sort-wrapper">
+                <span>Dates d'activité</span>
+                <lucide-icon [img]="sortField() === 'arrival_date' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
+                             [class.active]="sortField() === 'arrival_date'" 
+                             class="sort-icon" size="14"></lucide-icon>
+              </div>
+            </th>
             <th class="text-center">Soldes Initiaux</th>
             <th class="text-right">Actions</th>
           </tr>
