@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   LucideAngularModule,
   Users,
@@ -9,11 +9,9 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
-  LogOut,
   LayoutDashboard
 } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
-import { SupabaseService } from '../../services/supabase.service';
 import { ReleaseNotesService } from '../../services/release-notes.service';
 import { environment } from '../../../environments/environment';
 
@@ -32,14 +30,11 @@ interface NavigationItem {
 })
 export class SidebarComponent {
   protected readonly sidebarService = inject(SidebarService);
-  private readonly supabaseService = inject(SupabaseService);
   private readonly releaseNotesService = inject(ReleaseNotesService);
-  private readonly router = inject(Router);
 
   // Expose icons
   readonly ChevronLeft = ChevronLeft;
   readonly ChevronRight = ChevronRight;
-  readonly LogOut = LogOut;
   readonly version = environment.version;
 
   navigationItems: NavigationItem[] = [
@@ -56,15 +51,6 @@ export class SidebarComponent {
 
   showReleaseNotes() {
     this.releaseNotesService.openNotes();
-  }
-
-  async logout() {
-    try {
-      await this.supabaseService.signOut();
-      this.router.navigate(['/login']);
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
   }
 }
 

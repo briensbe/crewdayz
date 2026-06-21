@@ -29,12 +29,6 @@
   </div>
 
   <div class="sidebar-footer">
-    <button class="logout-btn" (click)="logout()" [title]="sidebarService.collapsed() ? 'Se déconnecter' : ''">
-      <lucide-icon [img]="LogOut" size="20"></lucide-icon>
-      @if (!sidebarService.collapsed()) {
-        <span class="logout-label">Déconnexion</span>
-      }
-    </button>
     <div class="sidebar-version" 
          [class.collapsed]="sidebarService.collapsed()" 
          (click)="showReleaseNotes()"
