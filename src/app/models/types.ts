@@ -74,3 +74,19 @@ export interface LoginPayload {
   email: string;
   password: string;
 }
+
+export interface SchoolHolidayPeriod {
+  name: string;
+  start: string; // YYYY-MM-DD
+  end: string;   // YYYY-MM-DD
+}
+
+export interface SchoolHolidaysConfig {
+  zones: {
+    [zoneName: string]: SchoolHolidayPeriod[];
+  };
+  siteAssociations: {
+    [siteLabel: string]: string;
+  };
+}
+

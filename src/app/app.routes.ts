@@ -32,6 +32,10 @@ export const routes: Routes = [
         path: 'annuel', 
         loadComponent: () => import('./views/annual-view/annual-view.component').then(m => m.AnnualViewComponent) 
       },
+      { 
+        path: 'vacances', 
+        loadComponent: () => import('./views/holidays-view/holidays-view.component').then(m => m.HolidaysViewComponent) 
+      },
       { path: 'profile', component: ProfileComponent }
     ]
   },

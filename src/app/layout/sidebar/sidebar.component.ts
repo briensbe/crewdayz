@@ -9,7 +9,8 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
-  LayoutDashboard
+  LayoutDashboard,
+  Umbrella
 } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
 import { ReleaseNotesService } from '../../services/release-notes.service';
@@ -42,6 +43,7 @@ export class SidebarComponent {
     { label: 'Collaborateurs', icon: Users, route: '/collaborateurs' },
     { label: 'Vue Mensuelle', icon: Calendar, route: '/mensuel' },
     { label: 'Vue Annuelle', icon: Layers, route: '/annuel' },
+    { label: 'Vacances Scolaires', icon: Umbrella, route: '/vacances' },
     { label: 'Mon Profil', icon: User, route: '/profile' }
   ];
 

@@ -1,0 +1,207 @@
+<div class="holidays-container">
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-title">
+      <div class="header-icon">
+        <lucide-icon [img]="Umbrella" size="28"></lucide-icon>
+      </div>
+      <div>
+        <h1>Vacances Scolaires & Sites de Travail</h1>
+        <p>Gérez et visualisez l'impact des vacances scolaires françaises (Zone A, B, C) sur vos sites et équipes.</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Statistics Quick View -->
+  <section class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon text-indigo">
+        <lucide-icon [img]="MapPin" size="24"></lucide-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats().totalSites }}</span>
+        <span class="stat-label">Sites de Travail configurés</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon text-amber">
+        <lucide-icon [img]="Umbrella" size="24"></lucide-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats().activeVacationSitesCount }}</span>
+        <span class="stat-label">Sites actuellement en vacances</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon text-emerald">
+        <lucide-icon [img]="Calendar" size="24"></lucide-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats().currentHolidaysCount }}</span>
+        <span class="stat-label">Périodes de vacances en cours</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Layout -->
+  <div class="main-layout">
+    <!-- Left Column: Sites and Associations -->
+    <aside class="sites-section">
+      <div class="section-card">
+        <div class="card-header">
+          <lucide-icon [img]="MapPin" size="18"></lucide-icon>
+          <h2>Sites et Zones Associées</h2>
+        </div>
+        
+        <div class="sites-list">
+          @if (configuredSites().length === 0) {
+            <div class="empty-state">
+              <p>Aucun site n'est encore configuré dans le fichier JSON.</p>
+            </div>
+          } @else {
+            @for (site of configuredSites(); track site.label) {
+              <div 
+                class="site-item" 
+                [class.active]="selectedSite() === site.label"
+                (click)="selectSite(site.label)"
+              >
+                <div class="site-main-info">
+                  <span class="site-name">{{ site.label }}</span>
+                  <div class="site-meta">
+                    <lucide-icon [img]="Users" size="12"></lucide-icon>
+                    <span>{{ site.employeeCount }} collaborateur(s)</span>
+                  </div>
+                </div>
+                <span class="zone-pill" [class]="getZoneColorClass(site.zone)">
+                  {{ site.zone }}
+                </span>
+              </div>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Employees Impacted (Collapsible / Dynamic on Selection) -->
+      @if (selectedSite()) {
+        <div class="section-card employee-impact-card fade-in">
+          <div class="card-header justify-between">
+            <div class="flex-align">
+              <lucide-icon [img]="Users" size="18"></lucide-icon>
+              <h2>Collaborateurs - {{ selectedSite() }}</h2>
+            </div>
+            <button class="close-btn" (click)="selectedSite.set(null)">×</button>
+          </div>
+          
+          <div class="employee-list">
+            @if (selectedSiteEmployees().length === 0) {
+              <p class="empty-text">Aucun collaborateur actif rattaché à ce site.</p>
+            } @else {
+              @for (emp of selectedSiteEmployees(); track emp.id) {
+                <div class="employee-row">
+                  <div class="emp-avatar">
+                    {{ emp.first_name[0] }}{{ emp.last_name[0] }}
+                  </div>
+                  <div class="emp-details">
+                    <span class="emp-name">{{ emp.first_name }} {{ emp.last_name }}</span>
+                    <span class="emp-role">{{ emp.profile }} • {{ emp.team }}</span>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    </aside>
+
+    <!-- Right Column: Holidays Schedule & Timeline -->
+    <main class="schedule-section">
+      <div class="section-card flex-grow">
+        <div class="card-header-actions">
+          <div class="header-title-container">
+            <lucide-icon [img]="Calendar" size="18"></lucide-icon>
+            <h2>Calendrier des Vacances Scolaires</h2>
+          </div>
+          
+          <!-- Filters Toolbar -->
+          <div class="filters-toolbar">
+            <div class="search-input-container">
+              <lucide-icon [img]="Search" class="search-icon" size="16"></lucide-icon>
+              <input 
+                type="text" 
+                placeholder="Rechercher des vacances..."
+                [ngModel]="searchQuery()"
+                (ngModelChange)="searchQuery.set($event)"
+              />
+            </div>
+
+            <div class="zone-tabs">
+              <button 
+                class="tab-btn" 
+                [class.active]="selectedZone() === 'All'"
+                (click)="selectedZone.set('All')"
+              >
+                Toutes
+              </button>
+              @for (z of zones(); track z) {
+                <button 
+                  class="tab-btn" 
+                  [class.active]="selectedZone() === z"
+                  (click)="selectedZone.set(z)"
+                >
+                  {{ z }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Holidays Timeline List -->
+        <div class="timeline-container">
+          @if (filteredPeriods().length === 0) {
+            <div class="empty-state py-8">
+              <lucide-icon [img]="Info" size="36" class="text-slate"></lucide-icon>
+              <p>Aucune période de vacances scolaires ne correspond à vos critères.</p>
+            </div>
+          } @else {
+            <div class="timeline">
+              @for (period of filteredPeriods(); track period.name + period.start) {
+                <div class="timeline-item" [class]="period.status">
+                  <div class="timeline-badge-container">
+                    <span class="zone-badge" [class]="getZoneColorClass(period.zone)">
+                      {{ period.zone }}
+                    </span>
+                  </div>
+
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <h3>{{ period.name }}</h3>
+                      <span class="status-indicator" [class]="period.status">
+                        {{ period.statusLabel }}
+                      </span>
+                    </div>
+
+                    <div class="timeline-dates">
+                      <div class="date-block">
+                        <span class="date-label">Début</span>
+                        <span class="date-value">{{ formatFrenchDate(period.start) }}</span>
+                      </div>
+                      <div class="date-divider">
+                        <lucide-icon [img]="ArrowRight" size="14"></lucide-icon>
+                      </div>
+                      <div class="date-block">
+                        <span class="date-label">Fin</span>
+                        <span class="date-value">{{ formatFrenchDate(period.end) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
