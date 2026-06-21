@@ -14,9 +14,22 @@ interface DayColumn {
   date: Date;
   dateStr: string; // YYYY-MM-DD
   dayNum: number;
+  dayName: string;
+  weekNum: number;
   isWeekend: boolean;
   isHoliday: boolean;
+  isWeekEnd: boolean;
   holidayName?: string;
+}
+
+const FRENCH_DAYS = ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'];
+
+function getISOWeek(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 }
 
 @Component({
@@ -166,12 +179,50 @@ export class MonthlyViewComponent implements OnInit {
         date,
         dateStr,
         dayNum: d,
+        dayName: FRENCH_DAYS[dayOfWeek],
+        weekNum: getISOWeek(date),
         isWeekend: dayOfWeek === 0 || dayOfWeek === 6,
         isHoliday: isFrenchPublicHoliday(date),
+        isWeekEnd: dayOfWeek === 0,
         holidayName: getFrenchPublicHolidayName(date) || undefined
       });
     }
     return list;
+  });
+
+  // Calculate weeks in the month for colspan headers
+  weeksInMonth = computed<{ weekNum: number; colSpan: number }[]>(() => {
+    const days = this.daysInMonth();
+    if (days.length === 0) return [];
+    
+    const weeks: { weekNum: number; colSpan: number }[] = [];
+    let currentWeekNum = days[0].weekNum;
+    let currentSpan = 0;
+    
+    for (const day of days) {
+      if (day.weekNum === currentWeekNum) {
+        currentSpan++;
+      } else {
+        weeks.push({ weekNum: currentWeekNum, colSpan: currentSpan });
+        currentWeekNum = day.weekNum;
+        currentSpan = 1;
+      }
+    }
+    if (currentSpan > 0) {
+      weeks.push({ weekNum: currentWeekNum, colSpan: currentSpan });
+    }
+    return weeks;
+  });
+
+  // Calculate left sticky columns count for colspan
+  leftColsCount = computed(() => {
+    let count = 1; // Name is always visible
+    if (this.showServiceCol()) count++;
+    if (this.showTeamCol()) count++;
+    if (this.showSiteCol()) count++;
+    if (this.showTypeCol()) count++;
+    if (this.showBalanceStartCol()) count++;
+    return count;
   });
 
   // List of filtered employees

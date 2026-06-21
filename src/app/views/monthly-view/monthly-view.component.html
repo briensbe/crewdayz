@@ -68,8 +68,8 @@
     } @else {
       <table class="calendar-table">
         <thead>
-          <tr>
-            <th class="sticky-col name-col" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
+          <tr class="week-header-row">
+            <th rowspan="2" class="sticky-col name-col" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
               <div class="name-header-content">
                 <span>Collaborateur</span>
                 <button type="button" class="collapse-toggle-btn" (click)="toggleColumns()" [title]="showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'">
@@ -77,68 +77,105 @@
                 </button>
               </div>
             </th>
-            <th *ngIf="showServiceCol()" class="sticky-col service-col" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">Service</th>
-            <th *ngIf="showTeamCol()" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()">Équipe</th>
-            <th *ngIf="showSiteCol()" class="sticky-col site-col" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">Site</th>
-            <th *ngIf="showTypeCol()" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">Type</th>
-            <th *ngIf="showBalanceStartCol()" class="sticky-col balance-col text-center" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()" title="Solde de congés (CP + RTT) restant au début de ce mois">Solde Début</th>
+            @if (showServiceCol()) {
+              <th rowspan="2" class="sticky-col service-col" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">Service</th>
+            }
+            @if (showTeamCol()) {
+              <th rowspan="2" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()">Équipe</th>
+            }
+            @if (showSiteCol()) {
+              <th rowspan="2" class="sticky-col site-col" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">Site</th>
+            }
+            @if (showTypeCol()) {
+              <th rowspan="2" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">Type</th>
+            }
+            @if (showBalanceStartCol()) {
+              <th rowspan="2" class="sticky-col balance-col text-center" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()" title="Solde de congés (CP + RTT) restant au début de ce mois">Solde Début</th>
+            }
             
-            <!-- Calendar headers -->
-            <th *ngFor="let day of daysInMonth()" 
-                [class.col-weekend]="day.isWeekend || day.isHoliday" 
-                [class.col-holiday]="day.isHoliday"
-                [attr.title]="day.holidayName"
-                class="day-col text-center">
-              <span class="day-number">{{ day.dayNum }}</span>
-            </th>
+            <!-- Calendar week headers -->
+            @for (week of weeksInMonth(); track week.weekNum) {
+              <th [attr.colspan]="week.colSpan" class="week-header-cell text-center">
+                S{{ week.weekNum }}
+              </th>
+            }
 
-            <th class="balance-col text-center sticky-right-2" title="Solde de congés (CP + RTT) restant à la fin de ce mois">Solde Fin</th>
-            <th class="worked-col text-center sticky-right-1" title="Jours réellement travaillés dans le mois">Jours Trav.</th>
+            <th rowspan="2" class="balance-col text-center sticky-right-2" title="Solde de congés (CP + RTT) restant à la fin de ce mois">Solde Fin</th>
+            <th rowspan="2" class="worked-col text-center sticky-right-1" title="Jours réellement travaillés dans le mois">Jours Trav.</th>
+          </tr>
+          <tr class="day-header-row">
+            <!-- Calendar day headers -->
+            @for (day of daysInMonth(); track day.dateStr) {
+              <th [class.col-weekend]="day.isWeekend || day.isHoliday" 
+                  [class.col-holiday]="day.isHoliday"
+                  [class.week-separator]="day.isWeekEnd"
+                  [attr.title]="day.holidayName"
+                  class="day-col text-center">
+                <div class="day-header-compact">
+                  <span class="day-name">{{ day.dayName }}</span>
+                  <span class="day-number">{{ day.dayNum }}</span>
+                </div>
+              </th>
+            }
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let emp of filteredEmployees()">
-            <td class="sticky-col name-col font-semibold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">{{ emp.first_name }} {{ emp.last_name }}</td>
-            <td *ngIf="showServiceCol()" class="sticky-col service-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">{{ emp.service }}</td>
-            <td *ngIf="showTeamCol()" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()"><span class="team-badge">{{ emp.team }}</span></td>
-            <td *ngIf="showSiteCol()" class="sticky-col site-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">{{ emp.work_site }}</td>
-            <td *ngIf="showTypeCol()" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">
-              <span class="type-text" [class.type-interne]="emp.contract_type === 'Interne'" [class.type-externe]="emp.contract_type === 'Externe'">
-                {{ emp.contract_type }}
-              </span>
-            </td>
-            
-            <!-- Beginning Balance -->
-            <td *ngIf="showBalanceStartCol()" class="sticky-col balance-col text-center balance-value" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()">{{ getBeginningBalance(emp) }} j</td>
-
-            <!-- Daily Calendar Grid Cells -->
-            <td *ngFor="let day of daysInMonth()"
-                [class.cell-weekend]="day.isWeekend || day.isHoliday"
-                [class.selected-cell]="isCellSelected(emp.id!, day.dateStr)"
-                (mousedown)="!(day.isWeekend || day.isHoliday) && onCellMouseDown(emp.id!, day.dateStr, $event)"
-                (mouseenter)="onCellMouseEnter(emp.id!, day.dateStr)"
-                class="day-cell text-center select-none">
-              
-              <!-- Display absence badge if registered -->
-              @let cell = getCellVal(emp.id!, day.dateStr);
-              @if (cell) {
-                <span class="absence-indicator" 
-                      [class]="cell.class"
-                      [title]="cell.tooltip">
-                  {{ cell.val }}
-                  @if (cell.comment) {
-                    <lucide-icon [img]="MessageSquare" class="comment-icon-cell" size="9"></lucide-icon>
-                  }
-                </span>
+          @for (emp of filteredEmployees(); track emp.id) {
+            <tr>
+              <td class="sticky-col name-col font-semibold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">{{ emp.first_name }} {{ emp.last_name }}</td>
+              @if (showServiceCol()) {
+                <td class="sticky-col service-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">{{ emp.service }}</td>
               }
-            </td>
+              @if (showTeamCol()) {
+                <td class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()"><span class="team-badge">{{ emp.team }}</span></td>
+              }
+              @if (showSiteCol()) {
+                <td class="sticky-col site-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">{{ emp.work_site }}</td>
+              }
+              @if (showTypeCol()) {
+                <td class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">
+                  <span class="type-text" [class.type-interne]="emp.contract_type === 'Interne'" [class.type-externe]="emp.contract_type === 'Externe'">
+                    {{ emp.contract_type }}
+                  </span>
+                </td>
+              }
+              
+              <!-- Beginning Balance -->
+              @if (showBalanceStartCol()) {
+                <td class="sticky-col balance-col text-center balance-value" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()">{{ getBeginningBalance(emp) }} j</td>
+              }
 
-            <!-- Ending Balance -->
-            <td class="balance-col text-center balance-value font-bold sticky-right-2">{{ getEndingBalance(emp) }} j</td>
-            
-            <!-- Worked Days -->
-            <td class="worked-col text-center worked-value font-bold sticky-right-1">{{ getWorkedDays(emp) }} j</td>
-          </tr>
+              <!-- Daily Calendar Grid Cells -->
+              @for (day of daysInMonth(); track day.dateStr) {
+                <td [class.cell-weekend]="day.isWeekend || day.isHoliday"
+                    [class.selected-cell]="isCellSelected(emp.id!, day.dateStr)"
+                    [class.week-separator]="day.isWeekEnd"
+                    (mousedown)="!(day.isWeekend || day.isHoliday) && onCellMouseDown(emp.id!, day.dateStr, $event)"
+                    (mouseenter)="onCellMouseEnter(emp.id!, day.dateStr)"
+                    class="day-cell text-center select-none">
+                  
+                  <!-- Display absence badge if registered -->
+                  @let cell = getCellVal(emp.id!, day.dateStr);
+                  @if (cell) {
+                    <span class="absence-indicator" 
+                          [class]="cell.class"
+                          [title]="cell.tooltip">
+                      {{ cell.val }}
+                      @if (cell.comment) {
+                        <lucide-icon [img]="MessageSquare" class="comment-icon-cell" size="9"></lucide-icon>
+                      }
+                    </span>
+                  }
+                </td>
+              }
+
+              <!-- Ending Balance -->
+              <td class="balance-col text-center balance-value font-bold sticky-right-2">{{ getEndingBalance(emp) }} j</td>
+              
+              <!-- Worked Days -->
+              <td class="worked-col text-center worked-value font-bold sticky-right-1">{{ getWorkedDays(emp) }} j</td>
+            </tr>
+          }
         </tbody>
       </table>
     }

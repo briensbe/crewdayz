@@ -361,9 +361,45 @@ tr:hover .sticky-right-1.worked-value {
   width: 38px;
 }
 
+.calendar-table thead th {
+  padding: 0.45rem 0.25rem;
+  vertical-align: middle;
+}
+
+.week-header-cell {
+  background-color: var(--background);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-light);
+  border-right: 2px solid var(--border) !important;
+  text-align: center;
+  padding: 0.25rem 0 !important;
+}
+
+.week-separator {
+  border-right: 2px solid var(--border) !important;
+}
+
+.day-header-compact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.day-name {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
 .day-number {
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .col-weekend {
