@@ -43,8 +43,8 @@
     } @else {
       <table class="calendar-table">
         <thead>
-          <tr class="week-header-row">
-            <th rowspan="2" class="sticky-col name-col" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
+          <tr class="holidays-header-row">
+            <th rowspan="3" class="sticky-col name-col" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
               <div class="name-header-content">
                 <span>Collaborateur</span>
                 <button type="button" class="collapse-toggle-btn" (click)="toggleColumns()" [title]="showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'">
@@ -53,30 +53,42 @@
               </div>
             </th>
             @if (showServiceCol()) {
-              <th rowspan="2" class="sticky-col service-col" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">Service</th>
+              <th rowspan="3" class="sticky-col service-col" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">Service</th>
             }
             @if (showTeamCol()) {
-              <th rowspan="2" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()">Équipe</th>
+              <th rowspan="3" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()">Équipe</th>
             }
             @if (showSiteCol()) {
-              <th rowspan="2" class="sticky-col site-col" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">Site</th>
+              <th rowspan="3" class="sticky-col site-col" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">Site</th>
             }
             @if (showTypeCol()) {
-              <th rowspan="2" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">Type</th>
+              <th rowspan="3" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">Type</th>
             }
             @if (showBalanceStartCol()) {
-              <th rowspan="2" class="sticky-col balance-col text-center" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()" title="Solde de congés (CP + RTT) restant au début de ce mois">Solde Début</th>
+              <th rowspan="3" class="sticky-col balance-col text-center" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()" title="Solde de congés (CP + RTT) restant au début de ce mois">Solde Début</th>
             }
             
+            <!-- School Holidays Row -->
+            @for (week of weeksInMonthWithHolidays(); track week.weekNum) {
+              <th [attr.colspan]="week.colSpan" class="holiday-header-cell text-center" [attr.title]="week.holidayNames">
+                <div class="week-holiday-badges">
+                  @for (zone of week.activeZones; track zone) {
+                    <span class="week-zone-badge" [class]="zone.toLowerCase().replace(' ', '-')">{{ zone.split(' ')[1] }}</span>
+                  }
+                </div>
+              </th>
+            }
+
+            <th rowspan="3" class="balance-col text-center sticky-right-2" title="Solde de congés (CP + RTT) restant à la fin de ce mois">Solde Fin</th>
+            <th rowspan="3" class="worked-col text-center sticky-right-1" title="Jours réellement travaillés dans le mois">Jours Trav.</th>
+          </tr>
+          <tr class="week-header-row">
             <!-- Calendar week headers -->
             @for (week of weeksInMonth(); track week.weekNum) {
               <th [attr.colspan]="week.colSpan" class="week-header-cell text-center">
                 S{{ week.weekNum }}
               </th>
             }
-
-            <th rowspan="2" class="balance-col text-center sticky-right-2" title="Solde de congés (CP + RTT) restant à la fin de ce mois">Solde Fin</th>
-            <th rowspan="2" class="worked-col text-center sticky-right-1" title="Jours réellement travaillés dans le mois">Jours Trav.</th>
           </tr>
           <tr class="day-header-row">
             <!-- Calendar day headers -->

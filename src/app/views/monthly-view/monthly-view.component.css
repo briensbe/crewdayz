@@ -676,3 +676,51 @@ tr:hover .sticky-right-1.worked-value {
   border: 1px solid hsl(350, 89%, 88%);
 }
 
+/* School Holidays Header Row & Badges */
+.holidays-header-row {
+  background-color: var(--background);
+}
+
+.holiday-header-cell {
+  background-color: var(--background);
+  border-bottom: 1px solid var(--border-light);
+  border-right: 2px solid var(--border) !important;
+  padding: 0.15rem 0 !important;
+  vertical-align: middle;
+}
+
+.week-holiday-badges {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 18px;
+}
+
+.week-zone-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.05rem 0.25rem;
+  border-radius: 3px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.week-zone-badge.zone-a {
+  background-color: #e0e7ff;
+  color: #4f46e5;
+  border: 1px solid #c7d2fe;
+}
+
+.week-zone-badge.zone-b {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.week-zone-badge.zone-c {
+  background-color: #fce7f3;
+  color: #9d174d;
+  border: 1px solid #fbcfe8;
+}
+
