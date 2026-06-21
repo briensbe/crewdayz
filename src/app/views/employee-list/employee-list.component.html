@@ -312,6 +312,9 @@
               </td>
               <td class="text-right">
                 <div class="action-buttons">
+                  <button class="action-btn duplicate-btn" (click)="openDuplicateModal(emp); $event.stopPropagation()" title="Dupliquer (créer une copie)">
+                    <lucide-icon [img]="Copy" size="16"></lucide-icon>
+                  </button>
                   <button class="action-btn edit-btn" (click)="openEditModal(emp); $event.stopPropagation()" title="Modifier via formulaire global">
                     <lucide-icon [img]="Edit" size="16"></lucide-icon>
                   </button>
@@ -333,11 +336,26 @@
   <div class="modal-overlay animate-fade-in" (click)="showModal.set(false)">
   <div class="modal-card" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>{{ isEditMode() ? 'Modifier le collaborateur' : 'Ajouter un collaborateur' }}</h2>
+      <h2>
+        @if (isEditMode()) {
+          Modifier le collaborateur
+        } @else if (duplicatedFromName()) {
+          Ajouter un collaborateur (Copie)
+        } @else {
+          Ajouter un collaborateur
+        }
+      </h2>
       <button class="close-btn" (click)="showModal.set(false)">
         <lucide-icon [img]="Plus" style="transform: rotate(45deg);" size="20"></lucide-icon>
       </button>
     </div>
+
+    @if (duplicatedFromName()) {
+      <div class="alert alert-info animate-fade-in duplicate-info-banner">
+        <lucide-icon [img]="Users" size="16" class="banner-icon"></lucide-icon>
+        <span>Pré-rempli à partir de <strong>{{ duplicatedFromName() }}</strong></span>
+      </div>
+    }
 
     @if (errorMessage()) {
       <div class="alert alert-danger animate-fade-in">

@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Plus, Edit, Trash2, Users, Building2, MapPin, Briefcase, DollarSign, Calendar, Check, X } from 'lucide-angular';
+import { LucideAngularModule, Plus, Edit, Trash2, Users, Building2, MapPin, Briefcase, DollarSign, Calendar, Check, X, Copy } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
@@ -63,6 +63,7 @@ export class EmployeeListComponent implements OnInit {
   readonly Users = Users;
   readonly Check = Check;
   readonly X = X;
+  readonly Copy = Copy;
 
   // Inline editing state
   editingEmployeeId = signal<string | null>(null);
@@ -151,6 +152,7 @@ export class EmployeeListComponent implements OnInit {
   showModal = signal(false);
   isEditMode = signal(false);
   currentEmployeeId = signal<string | null>(null);
+  duplicatedFromName = signal<string | null>(null);
 
   // Form Fields
   firstName = signal('');
@@ -395,10 +397,45 @@ export class EmployeeListComponent implements OnInit {
     this.showModal.set(true);
   }
 
+  openDuplicateModal(emp: Employee) {
+    this.isEditMode.set(false);
+    this.currentEmployeeId.set(null);
+    this.resetFormFields();
+    
+    // Fill duplicatedFromName signal to show feedback
+    this.duplicatedFromName.set(`${emp.first_name} ${emp.last_name}`);
+
+    // Pre-fill professional fields
+    this.service.set(emp.service);
+    this.team.set(emp.team);
+    this.workSite.set(emp.work_site);
+    this.contractType.set(emp.contract_type);
+    this.companyName.set(emp.company_name || '');
+    this.profile.set(emp.profile);
+
+    // Pre-fill balances for selected year
+    const activeYear = this.selectedYear();
+    const balance = emp.cd_employee_balances?.find((b) => b.year === activeYear);
+    const defaults =
+      emp.contract_type === 'Interne'
+        ? CONTRACT_DEFAULT_BALANCES.Interne
+        : CONTRACT_DEFAULT_BALANCES.Externe;
+
+    this.initialCP.set(balance ? balance.initial_cp : defaults.initial_cp);
+    this.initialRTT.set(balance ? balance.initial_rtt : defaults.initial_rtt);
+    this.initialExceptional.set(
+      balance ? balance.initial_exceptional : defaults.initial_exceptional,
+    );
+
+    this.errorMessage.set(null);
+    this.showModal.set(true);
+  }
+
   openEditModal(emp: Employee) {
     if (!emp.id) return;
     this.isEditMode.set(true);
     this.currentEmployeeId.set(emp.id);
+    this.duplicatedFromName.set(null);
 
     // Fill form
     this.firstName.set(emp.first_name);
@@ -441,6 +478,7 @@ export class EmployeeListComponent implements OnInit {
     this.profile.set('Développeur');
     this.arrivalDate.set('');
     this.departureDate.set('');
+    this.duplicatedFromName.set(null);
 
     const defaults = CONTRACT_DEFAULT_BALANCES.Interne;
     this.initialCP.set(defaults.initial_cp);

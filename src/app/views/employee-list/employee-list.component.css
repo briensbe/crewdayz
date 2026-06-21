@@ -589,6 +589,32 @@
   padding: 6px 8px;
 }
 
+/* Duplication feature styles */
+.duplicate-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--primary-light);
+}
+
+.duplicate-info-banner {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  border: 1px solid var(--primary-light);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.duplicate-info-banner .banner-icon {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+
 
 
 
