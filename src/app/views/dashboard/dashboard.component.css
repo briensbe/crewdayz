@@ -213,16 +213,30 @@
   color: var(--text-light);
 }
 
+/* Split Layout for Chart & Breakdown */
+.dashboard-split-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-split-layout {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+}
+
 /* Dashboard Chart Card */
 .dashboard-chart-card {
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 16px;
   box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   position: relative;
 }
 
@@ -231,13 +245,13 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
 }
 
 .chart-title-wrapper {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .chart-icon {
@@ -245,15 +259,16 @@
 }
 
 .chart-title-wrapper h2 {
-  font-size: 18px;
+  font-size: 16px;
   color: var(--text-main);
+  font-weight: 600;
 }
 
 .chart-hover-indicator {
-  font-size: 13px;
+  font-size: 12px;
   background-color: var(--primary-light);
   color: var(--primary-dark);
-  padding: 4px 12px;
+  padding: 2px 10px;
   border-radius: var(--radius-full);
   font-weight: 500;
 }
@@ -279,25 +294,25 @@
 
 .axis-label {
   fill: var(--text-light);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 500;
 }
 
 .x-axis-label {
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .chart-point {
   fill: var(--surface);
   stroke: var(--primary);
-  stroke-width: 2.5;
+  stroke-width: 2;
   transition: r 0.2s ease, stroke-width 0.2s ease;
 }
 
 .chart-point.active {
   fill: var(--primary);
   stroke: var(--surface);
-  stroke-width: 2;
+  stroke-width: 1.5;
   filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.4));
 }
 
@@ -315,15 +330,15 @@
 /* Premium Tooltip Styling */
 .chart-tooltip {
   position: absolute;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.15), 0 1px 1px 0 rgba(255, 255, 255, 0.5) inset;
+  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.15), 0 1px 1px 0 rgba(255, 255, 255, 0.5) inset;
   border-radius: var(--radius-md);
-  padding: 12px;
+  padding: 10px;
   z-index: 10;
-  width: 240px;
+  width: 220px;
   pointer-events: none;
   font-family: inherit;
   transition: left 0.1s ease-out, top 0.1s ease-out;
@@ -334,12 +349,12 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-light);
-  padding-bottom: 6px;
-  margin-bottom: 8px;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .tooltip-date {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-main);
 }
@@ -347,20 +362,20 @@
 .tooltip-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .tooltip-stat {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-main);
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -378,11 +393,11 @@
 }
 
 .tooltip-absences-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  margin-top: 6px;
+  margin-top: 4px;
   border-top: 1px dashed var(--border-light);
-  padding-top: 6px;
+  padding-top: 4px;
 }
 
 .tooltip-absences-title.text-success {
@@ -396,13 +411,13 @@
 .tooltip-absences-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  max-height: 100px;
+  gap: 2px;
+  max-height: 80px;
   overflow-y: auto;
 }
 
 .tooltip-absence-item {
-  font-size: 10px;
+  font-size: 9px;
   display: flex;
   flex-direction: column;
   line-height: 1.2;
@@ -423,10 +438,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px;
+  padding: 24px;
   text-align: center;
   color: var(--text-muted);
-  gap: 12px;
+  gap: 8px;
 }
 
 .empty-icon {
@@ -434,7 +449,7 @@
 }
 
 .empty-state h3 {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-main);
 }
@@ -445,21 +460,42 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  padding: 24px;
+  padding: 16px;
 }
 
-.summary-header {
+.summary-header-btn {
+  background: none;
+  border: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border-light);
-  padding-bottom: 16px;
-  margin-bottom: 16px;
+  width: 100%;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
 }
 
-.summary-header h2 {
+.summary-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.summary-header-left h2 {
   font-size: 18px;
   color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+}
+
+.summary-header-btn .chevron-icon {
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+.summary-header-btn:hover .chevron-icon {
+  color: var(--primary);
 }
 
 .summary-count {
@@ -469,6 +505,18 @@
   padding: 4px 12px;
   border-radius: var(--radius-full);
   font-weight: 500;
+}
+
+.summary-content {
+  margin-top: 16px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 16px;
+  animation: slideDown 0.25s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .table-responsive {

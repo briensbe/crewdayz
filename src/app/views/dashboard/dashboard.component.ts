@@ -12,7 +12,9 @@ import {
   CalendarDays,
   ArrowUpRight,
   ArrowDownRight,
-  X
+  X,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
@@ -72,6 +74,15 @@ export class DashboardComponent implements OnInit {
   readonly ArrowUpRight = ArrowUpRight;
   readonly ArrowDownRight = ArrowDownRight;
   readonly X = X;
+  readonly ChevronDown = ChevronDown;
+  readonly ChevronUp = ChevronUp;
+
+  // Breakdown visibility toggle
+  showBreakdown = signal<boolean>(true);
+
+  toggleBreakdown() {
+    this.showBreakdown.set(!this.showBreakdown());
+  }
 
   // Calendar State (Annual View)
   currentYear = signal<number>(new Date().getFullYear());
@@ -233,11 +244,11 @@ export class DashboardComponent implements OnInit {
 
   // SVG Chart Dimensions & Computations
   chartWidth = 800;
-  chartHeight = 300;
-  paddingTop = 20;
-  paddingBottom = 40;
-  paddingLeft = 50;
-  paddingRight = 30;
+  chartHeight = 140;
+  paddingTop = 15;
+  paddingBottom = 25;
+  paddingLeft = 30;
+  paddingRight = 15;
 
   // X Coordinate for a month index (0-11)
   getX(index: number): number {
@@ -254,12 +265,18 @@ export class DashboardComponent implements OnInit {
     return this.chartHeight - this.paddingBottom - ratio * contentHeight;
   }
 
+  // Maximum value for Y Axis (Max active + 1)
+  chartMaxY = computed(() => {
+    const maxP = this.kpis().maxPresence;
+    return maxP > 0 ? maxP + 1 : 5;
+  });
+
   // Generate SVG path for the area/line chart
   chartPath = computed(() => {
     const data = this.monthlyData();
-    const maxVal = this.kpis().totalUniqueEmployees;
+    const maxVal = this.chartMaxY();
 
-    if (maxVal === 0) return { line: '', area: '' };
+    if (this.kpis().maxPresence === 0) return { line: '', area: '' };
 
     let linePoints = '';
     let areaPoints = '';
@@ -287,19 +304,18 @@ export class DashboardComponent implements OnInit {
 
   // Y Axis Tick Marks
   yTicks = computed(() => {
-    const total = this.kpis().totalUniqueEmployees;
-    if (total <= 0) return [0, 5, 10];
-    if (total <= 5) return Array.from({ length: total + 1 }, (_, i) => i);
-    if (total <= 12) {
+    const maxVal = this.chartMaxY();
+    if (maxVal <= 5) return Array.from({ length: maxVal + 1 }, (_, i) => i);
+    if (maxVal <= 12) {
       const ticks = [];
-      for (let i = 0; i <= total; i += 2) ticks.push(i);
-      if (ticks[ticks.length - 1] !== total) ticks.push(total);
+      for (let i = 0; i <= maxVal; i += 2) ticks.push(i);
+      if (ticks[ticks.length - 1] !== maxVal) ticks.push(maxVal);
       return ticks;
     }
-    const step = total > 30 ? 10 : 5;
+    const step = maxVal > 30 ? 10 : 5;
     const ticks = [];
-    for (let i = 0; i <= total; i += step) ticks.push(i);
-    if (ticks[ticks.length - 1] !== total) ticks.push(total);
+    for (let i = 0; i <= maxVal; i += step) ticks.push(i);
+    if (ticks[ticks.length - 1] !== maxVal) ticks.push(maxVal);
     return ticks;
   });
 
