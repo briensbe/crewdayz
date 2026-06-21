@@ -436,6 +436,11 @@ tr:hover .sticky-right-1.worked-value {
   cursor: not-allowed;
 }
 
+.cell-unavailable {
+  background-color: hsl(210, 8%, 91%) !important;
+  cursor: not-allowed;
+}
+
 /* Selected cells during drag */
 .selected-cell {
   background-color: hsl(217, 91%, 90%) !important;
@@ -499,6 +504,13 @@ tr:hover .sticky-right-1.worked-value {
   background-color: var(--abs-previsionnel-bg);
   color: var(--abs-previsionnel);
   border: 1.5px dashed var(--abs-previsionnel-border) !important;
+}
+
+.abs-unavailable {
+  background-color: hsl(210, 8%, 82%) !important;
+  color: hsl(210, 8%, 40%) !important;
+  cursor: not-allowed;
+  font-weight: 700;
 }
 
 /* Text elements */

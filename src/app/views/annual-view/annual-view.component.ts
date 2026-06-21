@@ -108,7 +108,13 @@ export class AnnualViewComponent implements OnInit {
   // Filtered employees list
   filteredEmployees = computed(() => {
     const filters = this.activeFilters();
+    const currentYear = this.year();
     return this.employeeService.employees().filter(emp => {
+      // Exclude employees who departed in a previous year
+      if (emp.departure_date) {
+        const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
+        if (currentYear > departureYear) return false;
+      }
       if (filters.search) {
         const query = filters.search.toLowerCase();
         const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
@@ -139,9 +145,17 @@ export class AnnualViewComponent implements OnInit {
         const daysInMonth = new Date(y, m + 1, 0).getDate();
         let businessDaysCount = 0;
 
-        // Count Mon-Fri business days (excluding holidays)
+        // Count Mon-Fri business days (excluding holidays and days after departure)
         for (let d = 1; d <= daysInMonth; d++) {
           const date = new Date(y, m, d);
+          const mm = String(m + 1).padStart(2, '0');
+          const dd = String(d).padStart(2, '0');
+          const dateStr = `${y}-${mm}-${dd}`;
+
+          if (emp.departure_date && dateStr > emp.departure_date) {
+            continue;
+          }
+
           const dayOfWeek = date.getDay();
           if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(date)) {
             businessDaysCount++;
@@ -152,6 +166,8 @@ export class AnnualViewComponent implements OnInit {
         const absencesInMonth = abs.filter(a => {
           if (a.employee_id !== emp.id) return false;
           if (a.category === 'Formation') return false; // Formation doesn't reduce worked days
+          if (emp.departure_date && a.date > emp.departure_date) return false;
+          
           const absDate = new Date(a.date);
           if (absDate.getFullYear() !== y || absDate.getMonth() !== m) return false;
           

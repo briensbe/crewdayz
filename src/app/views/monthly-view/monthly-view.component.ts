@@ -234,7 +234,13 @@ export class MonthlyViewComponent implements OnInit {
   // List of filtered employees
   filteredEmployees = computed(() => {
     const filters = this.activeFilters();
+    const currentYear = this.year();
     return this.employeeService.employees().filter(emp => {
+      // Exclude employees who departed in a previous year
+      if (emp.departure_date) {
+        const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
+        if (currentYear > departureYear) return false;
+      }
       if (filters.search) {
         const query = filters.search.toLowerCase();
         const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
@@ -267,8 +273,12 @@ export class MonthlyViewComponent implements OnInit {
     }
 
     // Helper to get absence value on a date
-    const getAbsenceVal = (empId: string, dateStr: string): number => {
-      const list = absences.filter(a => a.employee_id === empId && a.date === dateStr);
+    const getAbsenceVal = (emp: Employee, dateStr: string): number => {
+      // If the employee is departed on this date, we treat it as 1.0 absence (unavailable)
+      if (emp.departure_date && dateStr >= emp.departure_date) {
+        return 1.0;
+      }
+      const list = absences.filter(a => a.employee_id === emp.id && a.date === dateStr);
       let total = 0;
       for (const a of list) {
         if (a.category === 'Formation') continue;
@@ -299,7 +309,7 @@ export class MonthlyViewComponent implements OnInit {
           if (workingDays.length > 0) {
             let totalAbsence = 0;
             for (const day of workingDays) {
-              totalAbsence += getAbsenceVal(emp.id!, day.dateStr);
+              totalAbsence += getAbsenceVal(emp, day.dateStr);
             }
             const worked = workingDays.length - totalAbsence;
             percentage = Math.max(0, Math.min(100, Math.round((worked / workingDays.length) * 100)));
@@ -410,6 +420,22 @@ export class MonthlyViewComponent implements OnInit {
 
   // Determine the display value for a cell: 1, 0.5, 0 or empty
   getCellVal(employeeId: string, dateStr: string): { val: string; class: string; comment?: string; absence: Absence; tooltip: string } | null {
+    const emp = this.employeeService.employees().find(e => e.id === employeeId);
+    if (emp && emp.departure_date && dateStr >= emp.departure_date) {
+      const date = new Date(dateStr);
+      const dayOfWeek = date.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isHoliday = isFrenchPublicHoliday(date);
+      if (!isWeekend && !isHoliday) {
+        return {
+          val: 'I',
+          class: 'abs-unavailable',
+          tooltip: `Indisponible (Départ le ${this.formatDepartureDateForTooltip(emp.departure_date)})`,
+          absence: null as any
+        };
+      }
+    }
+
     const list = this.absenceService.absences().filter(
       a => a.employee_id === employeeId && a.date === dateStr
     );
@@ -526,9 +552,17 @@ export class MonthlyViewComponent implements OnInit {
     const totalDays = new Date(y, m + 1, 0).getDate();
     let businessDaysCount = 0;
 
-    // Count standard Mon-Fri business days in this month (excluding holidays)
+    // Count standard Mon-Fri business days in this month (excluding holidays and days after departure)
     for (let d = 1; d <= totalDays; d++) {
       const date = new Date(y, m, d);
+      const mm = String(m + 1).padStart(2, '0');
+      const dd = String(d).padStart(2, '0');
+      const dateStr = `${y}-${mm}-${dd}`;
+
+      if (emp.departure_date && dateStr > emp.departure_date) {
+        continue;
+      }
+
       const dayOfWeek = date.getDay();
       if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(date)) {
         businessDaysCount++;
@@ -539,6 +573,8 @@ export class MonthlyViewComponent implements OnInit {
     const absencesInMonth = this.absenceService.absences().filter(a => {
       if (a.employee_id !== emp.id) return false;
       if (a.category === 'Formation') return false; // Formation counts as 0 absence (so worked day)
+      if (emp.departure_date && a.date > emp.departure_date) return false;
+
       const absDate = new Date(a.date);
       if (absDate.getFullYear() !== y || absDate.getMonth() !== m) return false;
       // Ensure the absence is on a business day and not a public holiday
@@ -563,6 +599,18 @@ export class MonthlyViewComponent implements OnInit {
     return Math.max(worked, 0);
   }
 
+  isEmployeeDeparted(emp: Employee, dateStr: string): boolean {
+    return !!(emp.departure_date && dateStr >= emp.departure_date);
+  }
+
+  formatDepartureDateForTooltip(dateStr: string): string {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  }
+
   // ----------------------------------------------------
   // Drag Selection Handlers
   // ----------------------------------------------------
@@ -579,6 +627,8 @@ export class MonthlyViewComponent implements OnInit {
 
   onCellMouseEnter(employeeId: string, dateStr: string) {
     if (!this.isSelecting() || this.selectionEmployeeId() !== employeeId) return;
+    const emp = this.employeeService.employees().find(e => e.id === employeeId);
+    if (emp && this.isEmployeeDeparted(emp, dateStr)) return;
     this.selectionEndDayStr.set(dateStr);
     this.updateSelectedDaysList();
   }

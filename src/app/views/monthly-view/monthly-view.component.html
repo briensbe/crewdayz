@@ -161,10 +161,12 @@
 
               <!-- Daily Calendar Grid Cells -->
               @for (day of daysInMonth(); track day.dateStr) {
+                @let isDeparted = isEmployeeDeparted(emp, day.dateStr);
                 <td [class.cell-weekend]="day.isWeekend || day.isHoliday"
+                    [class.cell-unavailable]="isDeparted && !day.isWeekend && !day.isHoliday"
                     [class.selected-cell]="isCellSelected(emp.id!, day.dateStr)"
                     [class.week-separator]="day.isWeekEnd"
-                    (mousedown)="!(day.isWeekend || day.isHoliday) && onCellMouseDown(emp.id!, day.dateStr, $event)"
+                    (mousedown)="!(day.isWeekend || day.isHoliday || isDeparted) && onCellMouseDown(emp.id!, day.dateStr, $event)"
                     (mouseenter)="onCellMouseEnter(emp.id!, day.dateStr)"
                     class="day-cell text-center select-none">
                   
@@ -264,6 +266,7 @@
           <div class="legend-item"><span class="legend-badge abs-formation">F</span> Formation (Absence = 0)</div>
           <div class="legend-item"><span class="legend-badge abs-partiel">1 / 0.5</span> Temps partiel</div>
           <div class="legend-item"><span class="legend-badge abs-previsionnel">1 / 0.5</span> Prévisionnel (Simulation)</div>
+          <div class="legend-item"><span class="legend-badge abs-unavailable">I</span> Indisponible (Départ)</div>
         </div>
       }
     </div>
