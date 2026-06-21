@@ -298,14 +298,14 @@ export class AbsenceModalComponent {
       endExceptional = startExceptional - currentDays;
     }
 
-    // Global balance: CP + RTT + Exceptional minus all absences except Formation, Temps partiel, and Prévisionnel
+    // Global balance: CP + RTT + Exceptional minus all absences except Formation
     const initialTotal = initialCp + initialRtt + initialExceptional;
     const usedTotal = allAbsences
-      .filter(a => a.category !== 'Formation' && a.category !== 'Temps partiel' && a.category !== 'Prévisionnel' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
+      .filter(a => a.category !== 'Formation' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
       .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
 
     const startTotal = initialTotal - usedTotal;
-    const endTotal = (selectedCategory !== 'Formation' && selectedCategory !== 'Temps partiel' && selectedCategory !== 'Prévisionnel') ? (startTotal - currentDays) : startTotal;
+    const endTotal = (selectedCategory !== 'Formation') ? (startTotal - currentDays) : startTotal;
 
     return {
       cp: { start: startCp, end: endCp },

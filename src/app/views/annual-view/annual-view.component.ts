@@ -115,6 +115,11 @@ export class AnnualViewComponent implements OnInit {
         const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
         if (currentYear > departureYear) return false;
       }
+      // Exclude employees who arrive in a future year
+      if (emp.arrival_date) {
+        const arrivalYear = parseInt(emp.arrival_date.split('-')[0], 10);
+        if (currentYear < arrivalYear) return false;
+      }
       if (filters.search) {
         const query = filters.search.toLowerCase();
         const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
@@ -145,13 +150,16 @@ export class AnnualViewComponent implements OnInit {
         const daysInMonth = new Date(y, m + 1, 0).getDate();
         let businessDaysCount = 0;
 
-        // Count Mon-Fri business days (excluding holidays and days after departure)
+        // Count Mon-Fri business days (excluding holidays, days before arrival and days after departure)
         for (let d = 1; d <= daysInMonth; d++) {
           const date = new Date(y, m, d);
           const mm = String(m + 1).padStart(2, '0');
           const dd = String(d).padStart(2, '0');
           const dateStr = `${y}-${mm}-${dd}`;
 
+          if (emp.arrival_date && dateStr < emp.arrival_date) {
+            continue;
+          }
           if (emp.departure_date && dateStr > emp.departure_date) {
             continue;
           }
@@ -166,6 +174,7 @@ export class AnnualViewComponent implements OnInit {
         const absencesInMonth = abs.filter(a => {
           if (a.employee_id !== emp.id) return false;
           if (a.category === 'Formation') return false; // Formation doesn't reduce worked days
+          if (emp.arrival_date && a.date < emp.arrival_date) return false;
           if (emp.departure_date && a.date > emp.departure_date) return false;
           
           const absDate = new Date(a.date);
@@ -200,11 +209,12 @@ export class AnnualViewComponent implements OnInit {
 
       const initialCp = balance ? balance.initial_cp : defaults.initial_cp;
       const initialRtt = balance ? balance.initial_rtt : defaults.initial_rtt;
-      const initial = initialCp + initialRtt;
+      const initialExceptional = balance ? balance.initial_exceptional : defaults.initial_exceptional;
+      const initial = initialCp + initialRtt + initialExceptional;
 
       const usedInYear = abs.filter(a => {
         if (a.employee_id !== emp.id) return false;
-        if (a.category !== 'CP' && a.category !== 'RTT') return false;
+        if (a.category === 'Formation') return false;
         const absDate = new Date(a.date);
         return absDate.getFullYear() === y;
       }).reduce((sum, a) => {

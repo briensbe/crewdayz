@@ -241,6 +241,11 @@ export class MonthlyViewComponent implements OnInit {
         const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
         if (currentYear > departureYear) return false;
       }
+      // Exclude employees who arrive in a future year
+      if (emp.arrival_date) {
+        const arrivalYear = parseInt(emp.arrival_date.split('-')[0], 10);
+        if (currentYear < arrivalYear) return false;
+      }
       if (filters.search) {
         const query = filters.search.toLowerCase();
         const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
@@ -274,7 +279,10 @@ export class MonthlyViewComponent implements OnInit {
 
     // Helper to get absence value on a date
     const getAbsenceVal = (emp: Employee, dateStr: string): number => {
-      // If the employee is departed on this date, we treat it as 1.0 absence (unavailable)
+      // If the employee is not yet arrived or has departed on this date, we treat it as 1.0 absence (unavailable)
+      if (emp.arrival_date && dateStr < emp.arrival_date) {
+        return 1.0;
+      }
       if (emp.departure_date && dateStr >= emp.departure_date) {
         return 1.0;
       }
@@ -421,18 +429,26 @@ export class MonthlyViewComponent implements OnInit {
   // Determine the display value for a cell: 1, 0.5, 0 or empty
   getCellVal(employeeId: string, dateStr: string): { val: string; class: string; comment?: string; absence: Absence; tooltip: string } | null {
     const emp = this.employeeService.employees().find(e => e.id === employeeId);
-    if (emp && emp.departure_date && dateStr >= emp.departure_date) {
-      const date = new Date(dateStr);
-      const dayOfWeek = date.getDay();
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      const isHoliday = isFrenchPublicHoliday(date);
-      if (!isWeekend && !isHoliday) {
-        return {
-          val: 'I',
-          class: 'abs-unavailable',
-          tooltip: `Indisponible (Départ le ${this.formatDepartureDateForTooltip(emp.departure_date)})`,
-          absence: null as any
-        };
+    if (emp) {
+      const isBeforeArrival = emp.arrival_date && dateStr < emp.arrival_date;
+      const isAfterDeparture = emp.departure_date && dateStr >= emp.departure_date;
+      
+      if (isBeforeArrival || isAfterDeparture) {
+        const date = new Date(dateStr);
+        const dayOfWeek = date.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const isHoliday = isFrenchPublicHoliday(date);
+        if (!isWeekend && !isHoliday) {
+          const reason = isBeforeArrival 
+            ? `Arrivée le ${this.formatDepartureDateForTooltip(emp.arrival_date!)}`
+            : `Départ le ${this.formatDepartureDateForTooltip(emp.departure_date!)}`;
+          return {
+            val: 'I',
+            class: 'abs-unavailable',
+            tooltip: `Indisponible (${reason})`,
+            absence: null as any
+          };
+        }
       }
     }
 
@@ -507,16 +523,17 @@ export class MonthlyViewComponent implements OnInit {
 
     const initialCp = balance ? balance.initial_cp : defaults.initial_cp;
     const initialRtt = balance ? balance.initial_rtt : defaults.initial_rtt;
-    const initial = initialCp + initialRtt;
+    const initialExceptional = balance ? balance.initial_exceptional : defaults.initial_exceptional;
+    const initial = initialCp + initialRtt + initialExceptional;
     const m = this.month();
     
     // Start of current month date limit
     const startOfSelectedMonth = new Date(y, m, 1);
 
-    // Sum all CP/RTT absences before the start of this month
+    // Sum all eligible absences before the start of this month (all except Formation)
     const used = this.absenceService.absences().filter(a => {
       if (a.employee_id !== emp.id) return false;
-      if (a.category !== 'CP' && a.category !== 'RTT') return false;
+      if (a.category === 'Formation') return false;
       const absDate = new Date(a.date);
       return absDate.getFullYear() === y && absDate < startOfSelectedMonth;
     }).reduce((sum, a) => {
@@ -532,10 +549,10 @@ export class MonthlyViewComponent implements OnInit {
     const y = this.year();
     const m = this.month();
 
-    // Sum CP/RTT absences in the selected month
+    // Sum eligible absences in the selected month (all except Formation)
     const usedInMonth = this.absenceService.absences().filter(a => {
       if (a.employee_id !== emp.id) return false;
-      if (a.category !== 'CP' && a.category !== 'RTT') return false;
+      if (a.category === 'Formation') return false;
       const absDate = new Date(a.date);
       return absDate.getFullYear() === y && absDate.getMonth() === m;
     }).reduce((sum, a) => {
@@ -552,13 +569,16 @@ export class MonthlyViewComponent implements OnInit {
     const totalDays = new Date(y, m + 1, 0).getDate();
     let businessDaysCount = 0;
 
-    // Count standard Mon-Fri business days in this month (excluding holidays and days after departure)
+    // Count standard Mon-Fri business days in this month (excluding holidays and days before arrival / after departure)
     for (let d = 1; d <= totalDays; d++) {
       const date = new Date(y, m, d);
       const mm = String(m + 1).padStart(2, '0');
       const dd = String(d).padStart(2, '0');
       const dateStr = `${y}-${mm}-${dd}`;
 
+      if (emp.arrival_date && dateStr < emp.arrival_date) {
+        continue;
+      }
       if (emp.departure_date && dateStr > emp.departure_date) {
         continue;
       }
@@ -573,6 +593,7 @@ export class MonthlyViewComponent implements OnInit {
     const absencesInMonth = this.absenceService.absences().filter(a => {
       if (a.employee_id !== emp.id) return false;
       if (a.category === 'Formation') return false; // Formation counts as 0 absence (so worked day)
+      if (emp.arrival_date && a.date < emp.arrival_date) return false;
       if (emp.departure_date && a.date > emp.departure_date) return false;
 
       const absDate = new Date(a.date);
@@ -599,8 +620,10 @@ export class MonthlyViewComponent implements OnInit {
     return Math.max(worked, 0);
   }
 
-  isEmployeeDeparted(emp: Employee, dateStr: string): boolean {
-    return !!(emp.departure_date && dateStr >= emp.departure_date);
+  isEmployeeUnavailable(emp: Employee, dateStr: string): boolean {
+    const isBeforeArrival = !!(emp.arrival_date && dateStr < emp.arrival_date);
+    const isAfterDeparture = !!(emp.departure_date && dateStr >= emp.departure_date);
+    return isBeforeArrival || isAfterDeparture;
   }
 
   formatDepartureDateForTooltip(dateStr: string): string {
@@ -628,7 +651,7 @@ export class MonthlyViewComponent implements OnInit {
   onCellMouseEnter(employeeId: string, dateStr: string) {
     if (!this.isSelecting() || this.selectionEmployeeId() !== employeeId) return;
     const emp = this.employeeService.employees().find(e => e.id === employeeId);
-    if (emp && this.isEmployeeDeparted(emp, dateStr)) return;
+    if (emp && this.isEmployeeUnavailable(emp, dateStr)) return;
     this.selectionEndDayStr.set(dateStr);
     this.updateSelectedDaysList();
   }
@@ -680,6 +703,8 @@ export class MonthlyViewComponent implements OnInit {
       return;
     }
 
+    const emp = this.employeeService.employees().find(e => e.id === empId);
+
     const start = new Date(startStr);
     const end = new Date(endStr);
     const sDate = start < end ? start : end;
@@ -691,7 +716,19 @@ export class MonthlyViewComponent implements OnInit {
       const y = temp.getFullYear();
       const mm = String(temp.getMonth() + 1).padStart(2, '0');
       const dd = String(temp.getDate()).padStart(2, '0');
-      list.push(`${y}-${mm}-${dd}`);
+      const dateStr = `${y}-${mm}-${dd}`;
+      
+      const dayOfWeek = temp.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isHoliday = isFrenchPublicHoliday(temp);
+      const isUnavailable = !!(emp && (
+        (emp.arrival_date && dateStr < emp.arrival_date) ||
+        (emp.departure_date && dateStr >= emp.departure_date)
+      ));
+
+      if (!isWeekend && !isHoliday && !isUnavailable) {
+        list.push(dateStr);
+      }
       temp.setDate(temp.getDate() + 1);
     }
     this.selectedDays.set(list);

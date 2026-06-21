@@ -65,7 +65,7 @@
               <th rowspan="5" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">Type</th>
             }
             @if (showBalanceStartCol()) {
-              <th rowspan="5" class="sticky-col balance-col text-center" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()" title="Solde de congés (CP + RTT) restant au début de ce mois">Solde Début</th>
+              <th rowspan="5" class="sticky-col balance-col text-center" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()" title="Solde de congés global (CP + RTT + Exceptionnel - Absences) restant au début de ce mois">Solde Début</th>
             }
             
             <!-- Calendar week headers -->
@@ -75,7 +75,7 @@
               </th>
             }
 
-            <th rowspan="5" class="balance-col text-center sticky-right-2" title="Solde de congés (CP + RTT) restant à la fin de ce mois">Solde Fin</th>
+            <th rowspan="5" class="balance-col text-center sticky-right-2" title="Solde de congés global (CP + RTT + Exceptionnel - Absences) restant à la fin de ce mois">Solde Fin</th>
             <th rowspan="5" class="worked-col text-center sticky-right-1" title="Jours réellement travaillés dans le mois">Jours Trav.</th>
           </tr>
 
@@ -161,12 +161,12 @@
 
               <!-- Daily Calendar Grid Cells -->
               @for (day of daysInMonth(); track day.dateStr) {
-                @let isDeparted = isEmployeeDeparted(emp, day.dateStr);
+                @let isUnavailable = isEmployeeUnavailable(emp, day.dateStr);
                 <td [class.cell-weekend]="day.isWeekend || day.isHoliday"
-                    [class.cell-unavailable]="isDeparted && !day.isWeekend && !day.isHoliday"
+                    [class.cell-unavailable]="isUnavailable && !day.isWeekend && !day.isHoliday"
                     [class.selected-cell]="isCellSelected(emp.id!, day.dateStr)"
                     [class.week-separator]="day.isWeekEnd"
-                    (mousedown)="!(day.isWeekend || day.isHoliday || isDeparted) && onCellMouseDown(emp.id!, day.dateStr, $event)"
+                    (mousedown)="!(day.isWeekend || day.isHoliday || isUnavailable) && onCellMouseDown(emp.id!, day.dateStr, $event)"
                     (mouseenter)="onCellMouseEnter(emp.id!, day.dateStr)"
                     class="day-cell text-center select-none">
                   
