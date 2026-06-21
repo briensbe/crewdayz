@@ -178,9 +178,11 @@
               @for (period of filteredPeriods(); track period.name + period.start) {
                 <div class="timeline-item" [class]="period.status">
                   <div class="timeline-badge-container">
-                    <span class="zone-badge" [class]="getZoneColorClass(period.zone)">
-                      {{ period.zone }}
-                    </span>
+                    @for (zone of period.zones; track zone) {
+                      <span class="zone-badge" [class]="getZoneColorClass(zone)">
+                        {{ zone }}
+                      </span>
+                    }
                   </div>
 
                   <div class="timeline-content">

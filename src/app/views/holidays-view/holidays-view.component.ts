@@ -13,7 +13,7 @@ interface SiteStats {
 }
 
 interface PeriodWithStatus extends SchoolHolidayPeriod {
-  zone: string;
+  zones: string[];
   status: 'passed' | 'current' | 'upcoming';
   statusLabel: string;
 }
@@ -102,12 +102,21 @@ export class HolidaysViewComponent {
           statusLabel = 'En cours';
         }
 
-        list.push({
-          ...p,
-          zone: zoneName,
-          status,
-          statusLabel
-        });
+        const existing = list.find(item => item.name === p.name && item.start === p.start && item.end === p.end);
+        if (existing) {
+          if (!existing.zones.includes(zoneName)) {
+            existing.zones.push(zoneName);
+          }
+        } else {
+          list.push({
+            name: p.name,
+            start: p.start,
+            end: p.end,
+            zones: [zoneName],
+            status,
+            statusLabel
+          });
+        }
       });
     });
 
@@ -123,7 +132,7 @@ export class HolidaysViewComponent {
     let periods = this.allPeriods();
 
     if (zoneFilter !== 'All') {
-      periods = periods.filter(p => p.zone === zoneFilter);
+      periods = periods.filter(p => p.zones.includes(zoneFilter));
     }
 
     if (hidePassed) {
@@ -133,7 +142,7 @@ export class HolidaysViewComponent {
     if (query) {
       periods = periods.filter(p => 
         p.name.toLowerCase().includes(query) ||
-        p.zone.toLowerCase().includes(query) ||
+        p.zones.some(z => z.toLowerCase().includes(query)) ||
         p.start.includes(query) ||
         p.end.includes(query)
       );
