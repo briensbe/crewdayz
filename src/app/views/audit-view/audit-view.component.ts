@@ -18,6 +18,7 @@ import {
 } from 'lucide-angular';
 import { AuditService } from '../../services/audit.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { EmployeeService } from '../../services/employee.service';
 import { AuditLog } from '../../models/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -40,6 +41,7 @@ interface ChangedField {
 export class AuditViewComponent implements OnInit {
   protected readonly auditService = inject(AuditService);
   protected readonly supabaseService = inject(SupabaseService);
+  protected readonly employeeService = inject(EmployeeService);
 
   // Expose icons
   readonly History = History;
@@ -143,6 +145,7 @@ export class AuditViewComponent implements OnInit {
 
   ngOnInit() {
     this.loadLogs();
+    this.employeeService.fetchEmployees().catch(err => console.error("Failed to load employees:", err));
   }
 
   async loadLogs() {
@@ -178,6 +181,22 @@ export class AuditViewComponent implements OnInit {
     return !!this.showJsonRaw()[logId];
   }
 
+  getEmployeeName(id: string): string | null {
+    const emp = this.employeeService.employees().find(e => e.id === id);
+    return emp ? `${emp.first_name} ${emp.last_name}` : null;
+  }
+
+  getRelatedEmployee(log: AuditLog): string | null {
+    if (log.table_name === 'cd_employees') {
+      return this.getEmployeeName(log.row_id);
+    }
+    const empId = log.new_data?.employee_id || log.old_data?.employee_id;
+    if (empId) {
+      return this.getEmployeeName(empId);
+    }
+    return null;
+  }
+
   translateTable(table: string): string {
     return this.tableTranslations[table] || table;
   }
@@ -189,6 +208,11 @@ export class AuditViewComponent implements OnInit {
   formatValue(key: string, val: any): string {
     if (val === null || val === undefined) return '-';
     if (typeof val === 'boolean') return val ? 'Oui' : 'Non';
+
+    if (key === 'employee_id') {
+      const name = this.getEmployeeName(val);
+      return name ? `${name} (ID: ${val.substring(0, 8)}...)` : String(val);
+    }
 
     if (key === 'period') {
       if (val === 'full') return 'Journée entière';

@@ -110,6 +110,11 @@
                   <span class="table-badge">
                     {{ translateTable(log.table_name) }}
                   </span>
+                  @if (getRelatedEmployee(log); as empName) {
+                    <div class="employee-context" [title]="empName">
+                      Pour : <strong>{{ empName }}</strong>
+                    </div>
+                  }
                 </td>
                 <td>
                   <span class="action-badge" [class]="log.action.toLowerCase()">
