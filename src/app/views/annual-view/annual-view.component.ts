@@ -221,7 +221,13 @@ export class AnnualViewComponent implements OnInit {
         return sum + (a.period === 'full' ? 1.0 : 0.5);
       }, 0);
 
-      const decemberBalance = initial - usedInYear;
+      let decemberBalance = initial - usedInYear;
+      if (emp.departure_date) {
+        const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
+        if (departureYear <= y) {
+          decemberBalance = 0;
+        }
+      }
       const annualTotal = workedDaysSum - decemberBalance;
 
       return {

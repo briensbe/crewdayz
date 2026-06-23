@@ -282,9 +282,9 @@ export class AbsenceModalComponent {
       .filter(a => a.category === 'Exceptionnel' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
       .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
 
-    const startCp = initialCp - usedCp;
-    const startRtt = initialRtt - usedRtt;
-    const startExceptional = initialExceptional - usedExceptional;
+    let startCp = initialCp - usedCp;
+    let startRtt = initialRtt - usedRtt;
+    let startExceptional = initialExceptional - usedExceptional;
 
     let endCp = startCp;
     let endRtt = startRtt;
@@ -304,8 +304,26 @@ export class AbsenceModalComponent {
       .filter(a => a.category !== 'Formation' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
       .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
 
-    const startTotal = initialTotal - usedTotal;
-    const endTotal = (selectedCategory !== 'Formation') ? (startTotal - currentDays) : startTotal;
+    let startTotal = initialTotal - usedTotal;
+    let endTotal = (selectedCategory !== 'Formation') ? (startTotal - currentDays) : startTotal;
+
+    if (emp.departure_date) {
+      if (startStr >= emp.departure_date) {
+        startCp = 0;
+        endCp = 0;
+        startRtt = 0;
+        endRtt = 0;
+        startExceptional = 0;
+        endExceptional = 0;
+        startTotal = 0;
+        endTotal = 0;
+      } else if (endStr >= emp.departure_date) {
+        endCp = 0;
+        endRtt = 0;
+        endExceptional = 0;
+        endTotal = 0;
+      }
+    }
 
     return {
       cp: { start: startCp, end: endCp },

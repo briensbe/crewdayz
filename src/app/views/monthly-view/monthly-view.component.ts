@@ -516,6 +516,17 @@ export class MonthlyViewComponent implements OnInit {
   // Calculate beginning of month balance (Initial - used in active year before this month)
   getBeginningBalance(emp: Employee): number {
     const y = this.year();
+    const m = this.month();
+
+    // If the employee departed in a previous month, the balance is 0
+    if (emp.departure_date) {
+      const mm = String(m + 1).padStart(2, '0');
+      const firstDayStr = `${y}-${mm}-01`;
+      if (emp.departure_date < firstDayStr) {
+        return 0;
+      }
+    }
+
     const balance = emp.cd_employee_balances?.find(b => b.year === y);
     const defaults = emp.contract_type === 'Interne'
       ? CONTRACT_DEFAULT_BALANCES.Interne
@@ -525,7 +536,6 @@ export class MonthlyViewComponent implements OnInit {
     const initialRtt = balance ? balance.initial_rtt : defaults.initial_rtt;
     const initialExceptional = balance ? balance.initial_exceptional : defaults.initial_exceptional;
     const initial = initialCp + initialRtt + initialExceptional;
-    const m = this.month();
     
     // Start of current month date limit
     const startOfSelectedMonth = new Date(y, m, 1);
@@ -545,9 +555,20 @@ export class MonthlyViewComponent implements OnInit {
 
   // Calculate end of month balance (Beginning balance - used in selected month)
   getEndingBalance(emp: Employee): number {
-    const startBalance = this.getBeginningBalance(emp);
     const y = this.year();
     const m = this.month();
+
+    // If the employee departs in this month or has already departed, the balance is 0
+    if (emp.departure_date) {
+      const totalDays = new Date(y, m + 1, 0).getDate();
+      const mm = String(m + 1).padStart(2, '0');
+      const lastDayStr = `${y}-${mm}-${String(totalDays).padStart(2, '0')}`;
+      if (emp.departure_date <= lastDayStr) {
+        return 0;
+      }
+    }
+
+    const startBalance = this.getBeginningBalance(emp);
 
     // Sum eligible absences in the selected month (all except Formation)
     const usedInMonth = this.absenceService.absences().filter(a => {
