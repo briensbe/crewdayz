@@ -44,10 +44,15 @@
       <table class="calendar-table">
         <thead>
           <tr class="week-header-row">
-            <th rowspan="5" class="sticky-col name-col" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
+            <th rowspan="5" (click)="toggleCollaboratorSort()" class="sticky-col name-col sortable-column" [class.last-sticky]="lastVisibleStickyCol() === 'name'" title="Trier par collaborateur">
               <div class="name-header-content">
-                <span>Collaborateur</span>
-                <button type="button" class="collapse-toggle-btn" (click)="toggleColumns()" [title]="showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'">
+                <div class="header-sort-wrapper">
+                  <span>Collaborateur</span>
+                  <lucide-icon [img]="collaboratorSortOrder() === 'asc' ? ArrowUp : ArrowDown" 
+                               [class.active]="true" 
+                               class="sort-icon" size="14"></lucide-icon>
+                </div>
+                <button type="button" class="collapse-toggle-btn" (click)="toggleColumns(); $event.stopPropagation()" [title]="showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'">
                   <lucide-icon [img]="showColumns() ? ChevronLeft : ChevronRight" size="14"></lucide-icon>
                 </button>
               </div>

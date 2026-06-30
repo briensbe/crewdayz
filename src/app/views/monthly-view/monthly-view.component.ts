@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, ChevronLeft, ChevronRight, MessageSquare, Info, Filter, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-angular';
+import { LucideAngularModule, ChevronLeft, ChevronRight, MessageSquare, Info, Filter, Eye, EyeOff, ChevronDown, ChevronUp, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
 import { Employee, Absence, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
@@ -57,6 +57,9 @@ export class MonthlyViewComponent implements OnInit {
   readonly EyeOff = EyeOff;
   readonly ChevronDown = ChevronDown;
   readonly ChevronUp = ChevronUp;
+  readonly ArrowUp = ArrowUp;
+  readonly ArrowDown = ArrowDown;
+  readonly ArrowUpDown = ArrowUpDown;
 
   // Legend State
   showLegend = signal<boolean>(false);
@@ -231,11 +234,20 @@ export class MonthlyViewComponent implements OnInit {
     return count;
   });
 
+  // Sort State
+  collaboratorSortOrder = signal<'asc' | 'desc'>('asc');
+
+  toggleCollaboratorSort() {
+    this.collaboratorSortOrder.update(order => order === 'asc' ? 'desc' : 'asc');
+  }
+
   // List of filtered employees
   filteredEmployees = computed(() => {
     const filters = this.activeFilters();
     const currentYear = this.year();
-    return this.employeeService.employees().filter(emp => {
+    const sortOrder = this.collaboratorSortOrder();
+
+    const list = this.employeeService.employees().filter(emp => {
       // Exclude employees who departed in a previous year
       if (emp.departure_date) {
         const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
@@ -258,6 +270,16 @@ export class MonthlyViewComponent implements OnInit {
       if (filters.work_site && emp.work_site !== filters.work_site) return false;
       if (filters.contract_type && emp.contract_type !== filters.contract_type) return false;
       return true;
+    });
+
+    return list.sort((a, b) => {
+      const nameA = `${a.last_name} ${a.first_name}`.toLowerCase();
+      const nameB = `${b.last_name} ${b.first_name}`.toLowerCase();
+      if (sortOrder === 'asc') {
+        return nameA.localeCompare(nameB);
+      } else {
+        return nameB.localeCompare(nameA);
+      }
     });
   });
 
