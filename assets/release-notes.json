@@ -1,5 +1,38 @@
 [
   {
+    "version": "2026.07.01",
+    "date": "2026-07-01",
+    "news": [
+      {
+        "title": "Filtres Multi-Sélection",
+        "items": [
+          "Les filtres Service, Équipe, Site et Type de contrat permettent désormais de sélectionner plusieurs valeurs simultanément",
+          "Affichage sous forme de chips avec compteur de sélections actives",
+          "Bouton 'Effacer' pour réinitialiser rapidement chaque filtre"
+        ]
+      },
+      {
+        "title": "Tri des Collaborateurs",
+        "items": [
+          "Possibilité de trier la liste des collaborateurs par ordre alphabétique croissant ou décroissant en cliquant sur l'en-tête de colonne"
+        ]
+      },
+      {
+        "title": "En-têtes Sticky",
+        "items": [
+          "Le bloc d'en-têtes du calendrier (semaines, vacances scolaires, jours) reste désormais fixe en haut lors du défilement vertical",
+          "Les lignes des collaborateurs glissent sous les en-têtes pour une lecture facilitée"
+        ]
+      },
+      {
+        "title": "Rappel du Mois",
+        "items": [
+          "Affichage d'un badge rappelant le mois et l'année en cours dans les en-têtes des tableaux de la vue mensuelle et du récapitulatif de disponibilité"
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.06.21",
     "date": "2026-06-21",
     "news": [
