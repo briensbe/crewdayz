@@ -21,42 +21,162 @@
 
     <!-- Service Dropdown -->
     <div class="filter-item">
-      <select [ngModel]="selectedService()" (ngModelChange)="selectedService.set($event); onFilterChange()">
-        <option value="">Tous les services</option>
-        @for (s of services(); track s) {
-          <option [value]="s">{{ s }}</option>
-        }
-      </select>
+      <div class="custom-select-trigger" (click)="toggleDropdown('service', $event)" [class.active]="openServiceDropdown()">
+        <span class="filter-title">Service</span>
+        <span class="chip-list">
+          @if (selectedService().length === 0) {
+            <span class="chip placeholder">Tous</span>
+          } @else if (selectedService().length === 1) {
+            <span class="chip">{{ selectedService()[0] }}</span>
+          } @else {
+            <span class="chip">{{ selectedService().length }} sél.</span>
+          }
+        </span>
+      </div>
+      @if (openServiceDropdown()) {
+        <div class="filters-dropdown" (click)="$event.stopPropagation()">
+          <div class="dropdown-header">
+            <span>{{ selectedService().length }} sélectionné(s)</span>
+            @if (selectedService().length > 0) {
+              <button class="btn-clear" type="button" (click)="selectedService.set([]); onFilterChange(); $event.stopPropagation()">
+                Effacer
+              </button>
+            }
+          </div>
+          <div class="dropdown-list">
+            @for (s of services(); track s) {
+              <label class="dropdown-item">
+                <input
+                  type="checkbox"
+                  [checked]="selectedService().includes(s)"
+                  (change)="toggleService(s, $event)"
+                />
+                <span class="item-label">{{ s }}</span>
+              </label>
+            }
+          </div>
+        </div>
+      }
     </div>
 
-    <!-- Team (Ilot) Dropdown -->
+    <!-- Team Dropdown -->
     <div class="filter-item">
-      <select [ngModel]="selectedTeam()" (ngModelChange)="selectedTeam.set($event); onFilterChange()">
-        <option value="">Toutes les équipes</option>
-        @for (t of teams(); track t) {
-          <option [value]="t">{{ t }}</option>
-        }
-      </select>
+      <div class="custom-select-trigger" (click)="toggleDropdown('team', $event)" [class.active]="openTeamDropdown()">
+        <span class="filter-title">Équipe</span>
+        <span class="chip-list">
+          @if (selectedTeam().length === 0) {
+            <span class="chip placeholder">Tous</span>
+          } @else if (selectedTeam().length === 1) {
+            <span class="chip">{{ selectedTeam()[0] }}</span>
+          } @else {
+            <span class="chip">{{ selectedTeam().length }} sél.</span>
+          }
+        </span>
+      </div>
+      @if (openTeamDropdown()) {
+        <div class="filters-dropdown" (click)="$event.stopPropagation()">
+          <div class="dropdown-header">
+            <span>{{ selectedTeam().length }} sélectionné(s)</span>
+            @if (selectedTeam().length > 0) {
+              <button class="btn-clear" type="button" (click)="selectedTeam.set([]); onFilterChange(); $event.stopPropagation()">
+                Effacer
+              </button>
+            }
+          </div>
+          <div class="dropdown-list">
+            @for (t of teams(); track t) {
+              <label class="dropdown-item">
+                <input
+                  type="checkbox"
+                  [checked]="selectedTeam().includes(t)"
+                  (change)="toggleTeam(t, $event)"
+                />
+                <span class="item-label">{{ t }}</span>
+              </label>
+            }
+          </div>
+        </div>
+      }
     </div>
 
     <!-- Work Site Dropdown -->
     <div class="filter-item">
-      <select [ngModel]="selectedWorkSite()" (ngModelChange)="selectedWorkSite.set($event); onFilterChange()">
-        <option value="">Tous les sites</option>
-        @for (ws of workSites(); track ws) {
-          <option [value]="ws">{{ ws }}</option>
-        }
-      </select>
+      <div class="custom-select-trigger" (click)="toggleDropdown('work_site', $event)" [class.active]="openWorkSiteDropdown()">
+        <span class="filter-title">Site</span>
+        <span class="chip-list">
+          @if (selectedWorkSite().length === 0) {
+            <span class="chip placeholder">Tous</span>
+          } @else if (selectedWorkSite().length === 1) {
+            <span class="chip">{{ selectedWorkSite()[0] }}</span>
+          } @else {
+            <span class="chip">{{ selectedWorkSite().length }} sél.</span>
+          }
+        </span>
+      </div>
+      @if (openWorkSiteDropdown()) {
+        <div class="filters-dropdown" (click)="$event.stopPropagation()">
+          <div class="dropdown-header">
+            <span>{{ selectedWorkSite().length }} sélectionné(s)</span>
+            @if (selectedWorkSite().length > 0) {
+              <button class="btn-clear" type="button" (click)="selectedWorkSite.set([]); onFilterChange(); $event.stopPropagation()">
+                Effacer
+              </button>
+            }
+          </div>
+          <div class="dropdown-list">
+            @for (ws of workSites(); track ws) {
+              <label class="dropdown-item">
+                <input
+                  type="checkbox"
+                  [checked]="selectedWorkSite().includes(ws)"
+                  (change)="toggleWorkSite(ws, $event)"
+                />
+                <span class="item-label">{{ ws }}</span>
+              </label>
+            }
+          </div>
+        </div>
+      }
     </div>
 
     <!-- Contract Type Dropdown -->
     <div class="filter-item">
-      <select [ngModel]="selectedContractType()" (ngModelChange)="selectedContractType.set($event); onFilterChange()">
-        <option value="">Tous les types</option>
-        @for (ct of contractTypes(); track ct) {
-          <option [value]="ct">{{ ct }}</option>
-        }
-      </select>
+      <div class="custom-select-trigger" (click)="toggleDropdown('contract_type', $event)" [class.active]="openContractTypeDropdown()">
+        <span class="filter-title">Type</span>
+        <span class="chip-list">
+          @if (selectedContractType().length === 0) {
+            <span class="chip placeholder">Tous</span>
+          } @else if (selectedContractType().length === 1) {
+            <span class="chip">{{ selectedContractType()[0] }}</span>
+          } @else {
+            <span class="chip">{{ selectedContractType().length }} sél.</span>
+          }
+        </span>
+      </div>
+      @if (openContractTypeDropdown()) {
+        <div class="filters-dropdown" (click)="$event.stopPropagation()">
+          <div class="dropdown-header">
+            <span>{{ selectedContractType().length }} sélectionné(s)</span>
+            @if (selectedContractType().length > 0) {
+              <button class="btn-clear" type="button" (click)="selectedContractType.set([]); onFilterChange(); $event.stopPropagation()">
+                Effacer
+              </button>
+            }
+          </div>
+          <div class="dropdown-list">
+            @for (ct of contractTypes(); track ct) {
+              <label class="dropdown-item">
+                <input
+                  type="checkbox"
+                  [checked]="selectedContractType().includes(ct)"
+                  (change)="toggleContractType(ct, $event)"
+                />
+                <span class="item-label">{{ ct }}</span>
+              </label>
+            }
+          </div>
+        </div>
+      }
     </div>
 
     <!-- Reset Button -->

@@ -83,10 +83,10 @@ export class EmployeeListComponent implements OnInit {
   // Filter State
   activeFilters = storageSignal<FilterState>('crewdayz_employee_list_filters', {
     search: '',
-    service: '',
-    team: '',
-    work_site: '',
-    contract_type: '',
+    service: [],
+    team: [],
+    work_site: [],
+    contract_type: [],
   });
 
   // Sort State
@@ -150,10 +150,10 @@ export class EmployeeListComponent implements OnInit {
           if (!matchesName && !matchesCompany) return false;
         }
         // Dropdown filters
-        if (filters.service && emp.service !== filters.service) return false;
-        if (filters.team && emp.team !== filters.team) return false;
-        if (filters.work_site && emp.work_site !== filters.work_site) return false;
-        if (filters.contract_type && emp.contract_type !== filters.contract_type) return false;
+        if (filters.service && filters.service.length > 0 && !filters.service.includes(emp.service)) return false;
+        if (filters.team && filters.team.length > 0 && !filters.team.includes(emp.team)) return false;
+        if (filters.work_site && filters.work_site.length > 0 && !filters.work_site.includes(emp.work_site)) return false;
+        if (filters.contract_type && filters.contract_type.length > 0 && !filters.contract_type.includes(emp.contract_type)) return false;
 
         return true;
       })
