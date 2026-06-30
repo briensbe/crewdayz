@@ -267,8 +267,9 @@
 
 /* Calendar Table styling */
 .calendar-table-container {
-  overflow-x: auto;
+  overflow: auto;
   max-width: 100%;
+  max-height: calc(100vh - 180px);
 }
 
 .calendar-table {
@@ -320,10 +321,39 @@ tr:hover .sticky-col {
   min-width: 80px;
 }
 
-/* Make header matching sticky backgrounds */
+/* Make header matching sticky backgrounds and handle vertical sticky position */
+.calendar-table thead th {
+  position: sticky;
+  z-index: 20;
+}
+
+/* Offset top for each row in the 5-row table header */
+.calendar-table thead tr.week-header-row th {
+  top: 0;
+}
+
+.calendar-table thead tr.zone-a-row th {
+  top: 26px;
+}
+
+.calendar-table thead tr.zone-b-row th {
+  top: 34px;
+}
+
+.calendar-table thead tr.zone-c-row th {
+  top: 42px;
+}
+
+.calendar-table thead tr.day-header-row th {
+  top: 50px;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Header sticky columns need higher z-index to stay above normal headers when horizontal scrolling */
 .calendar-table thead th.sticky-col {
   background-color: var(--background);
-  z-index: 20;
+  z-index: 30;
+  top: 0;
 }
 
 /* Balance and Worked columns styling */
@@ -372,13 +402,15 @@ tr:hover .sticky-col {
 /* Header sticky-right background matching */
 .calendar-table thead th.sticky-right-2 {
   background-color: var(--background);
-  z-index: 20;
+  z-index: 30;
+  top: 0;
   border-left: 1px solid var(--border-light);
 }
 
 .calendar-table thead th.sticky-right-1 {
   background-color: var(--background);
-  z-index: 20;
+  z-index: 30;
+  top: 0;
 }
 
 /* Hover effects for sticky-right */
@@ -422,6 +454,8 @@ tr:hover .sticky-right-1.worked-value {
   border-right: 2px solid var(--border) !important;
   text-align: center;
   padding: 0.25rem 0 !important;
+  height: 26px;
+  box-sizing: border-box;
 }
 
 .week-separator {
@@ -740,6 +774,7 @@ tr:hover .sticky-right-1.worked-value {
   height: 8px !important;
   vertical-align: middle;
   border-bottom: 1px solid var(--border-light) !important;
+  box-sizing: border-box;
 }
 
 .holiday-strip-cell {
