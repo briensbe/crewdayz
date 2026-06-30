@@ -45,16 +45,21 @@
         <thead>
           <tr class="week-header-row">
             <th rowspan="5" (click)="toggleCollaboratorSort()" class="sticky-col name-col sortable-column" [class.last-sticky]="lastVisibleStickyCol() === 'name'" title="Trier par collaborateur">
-              <div class="name-header-content">
-                <div class="header-sort-wrapper">
-                  <span>Collaborateur</span>
-                  <lucide-icon [img]="collaboratorSortOrder() === 'asc' ? ArrowUp : ArrowDown" 
-                               [class.active]="true" 
-                               class="sort-icon" size="14"></lucide-icon>
+              <div class="name-header-container-wrapper">
+                <div class="month-recall-badge">
+                  {{ months[month()] }} {{ year() }}
                 </div>
-                <button type="button" class="collapse-toggle-btn" (click)="toggleColumns(); $event.stopPropagation()" [title]="showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'">
-                  <lucide-icon [img]="showColumns() ? ChevronLeft : ChevronRight" size="14"></lucide-icon>
-                </button>
+                <div class="name-header-content">
+                  <div class="header-sort-wrapper">
+                    <span>Collaborateur</span>
+                    <lucide-icon [img]="collaboratorSortOrder() === 'asc' ? ArrowUp : ArrowDown" 
+                                 [class.active]="true" 
+                                 class="sort-icon" size="14"></lucide-icon>
+                  </div>
+                  <button type="button" class="collapse-toggle-btn" (click)="toggleColumns(); $event.stopPropagation()" [title]="showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'">
+                    <lucide-icon [img]="showColumns() ? ChevronLeft : ChevronRight" size="14"></lucide-icon>
+                  </button>
+                </div>
               </div>
             </th>
             @if (showServiceCol()) {
@@ -206,10 +211,17 @@
   @if (profileWeeklyAvailability().length > 0 && filteredEmployees().length > 0) {
     <div class="weekly-recap-section animate-fade-in">
       <div class="recap-header-container">
-        <h2 class="recap-title">Disponibilité par profil et par semaine</h2>
-        @if (activeFiltersCount() > 0) {
-          <span class="filter-count-badge">Filtres actifs : {{ activeFiltersCount() }}</span>
-        }
+        <div class="recap-title-wrapper">
+          <div class="recap-title-row">
+            <h2 class="recap-title">Disponibilité par profil et par semaine</h2>
+            @if (activeFiltersCount() > 0) {
+              <span class="filter-count-badge">Filtres actifs : {{ activeFiltersCount() }}</span>
+            }
+          </div>
+          <div>
+            <span class="month-recap-badge">{{ months[month()] }} {{ year() }}</span>
+          </div>
+        </div>
       </div>
       <div class="table-container recap-table-container">
         <table class="recap-table">
