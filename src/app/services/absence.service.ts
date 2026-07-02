@@ -15,24 +15,44 @@ export class AbsenceService {
   constructor(private supabase: SupabaseService) {}
 
   /**
-   * Fetch absences for a specific employee or all employees in a given year
+   * Fetch absences for a specific employee or all employees in a given year.
+   * Uses paginated requests (PAGE_SIZE rows each) to bypass Supabase's default
+   * 1000-row response limit.
    */
   async fetchAbsencesForYear(year: number): Promise<Absence[]> {
     this._loading.set(true);
+    const PAGE_SIZE = 1000;
+    const allAbsences: Absence[] = [];
+
     try {
       const startOfYear = `${year}-01-01`;
       const endOfYear = `${year}-12-31`;
 
-      const { data, error } = await this.supabase.client
-        .from("cd_absences")
-        .select("*")
-        .gte("date", startOfYear)
-        .lte("date", endOfYear);
+      let from = 0;
+      let hasMore = true;
 
-      if (error) throw error;
-      const list = data || [];
-      this._absences.set(list);
-      return list;
+      do {
+        const to = from + PAGE_SIZE - 1;
+        const { data, error } = await this.supabase.client
+          .from("cd_absences")
+          .select("*")
+          .gte("date", startOfYear)
+          .lte("date", endOfYear)
+          .range(from, to);
+
+        if (error) throw error;
+
+        const page = data || [];
+        allAbsences.push(...page);
+
+        // If we received fewer rows than PAGE_SIZE, we've reached the last page
+        hasMore = page.length === PAGE_SIZE;
+        from += PAGE_SIZE;
+      } while (hasMore);
+
+      console.log(`[AbsenceService] Fetched ${allAbsences.length} absences for ${year}`);
+      this._absences.set(allAbsences);
+      return allAbsences;
     } catch (err) {
       console.error("Error fetching absences:", err);
       throw err;
