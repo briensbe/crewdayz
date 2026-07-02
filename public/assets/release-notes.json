@@ -1,5 +1,19 @@
 [
   {
+    "version": "2026.07.02",
+    "date": "2026-07-02",
+    "news": [
+      {
+        "title": "Correction : Absences manquantes",
+        "items": [
+          "Correction d'un bug silencieux où certaines absences n'apparaissaient pas dans les vues annuelle et mensuelle",
+          "La cause était la limite par défaut de 1000 lignes imposée par Supabase : toute équipe dépassant ce seuil voyait des absences tronquées sans message d'erreur",
+          "Le chargement des absences utilise désormais une pagination automatique qui récupère l'intégralité des données, quelle que soit la taille de l'effectif"
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.07.01",
     "date": "2026-07-01",
     "news": [
