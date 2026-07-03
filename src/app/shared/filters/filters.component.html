@@ -151,96 +151,112 @@
       }
     </div>
 
-    <!-- Contract Type Dropdown -->
-    <div class="filter-item">
-      <div
-        class="custom-select-trigger"
-        (click)="toggleDropdown('contract_type', $event)"
-        [class.active]="openContractTypeDropdown()"
-      >
-        <span class="filter-title">Type</span>
-        <span class="chip-list">
-          @if (selectedContractType().length === 0) {
-            <span class="chip placeholder">Tous</span>
-          } @else if (selectedContractType().length === 1) {
-            <span class="chip">{{ selectedContractType()[0] }}</span>
-          } @else {
-            <span class="chip">{{ selectedContractType().length }} sél.</span>
-          }
-        </span>
-      </div>
-      @if (openContractTypeDropdown()) {
-        <div class="filters-dropdown" (click)="$event.stopPropagation()">
-          <div class="dropdown-header">
-            <span>{{ selectedContractType().length }} sélectionné(s)</span>
-            @if (selectedContractType().length > 0) {
-              <button
-                class="btn-clear"
-                type="button"
-                (click)="selectedContractType.set([]); onFilterChange(); $event.stopPropagation()"
-              >
-                Effacer
-              </button>
-            }
-          </div>
-          <div class="dropdown-list">
-            @for (ct of contractTypes(); track ct) {
-              <label class="dropdown-item">
-                <input
-                  type="checkbox"
-                  [checked]="selectedContractType().includes(ct)"
-                  (change)="toggleContractType(ct, $event)"
-                />
-                <span class="item-label">{{ ct }}</span>
-              </label>
-            }
-          </div>
-        </div>
-      }
-    </div>
-
-    <!-- Profile Dropdown -->
+    <!-- Combined Type & Profil Dropdown or Contract Type Dropdown -->
     @if (profiles().length > 0) {
       <div class="filter-item">
         <div
           class="custom-select-trigger"
-          (click)="toggleDropdown('profile', $event)"
-          [class.active]="openProfileDropdown()"
+          (click)="toggleDropdown('contract_type', $event)"
+          [class.active]="openContractTypeDropdown()"
         >
-          <span class="filter-title">Profil</span>
+          <span class="filter-title">Type & Profil</span>
           <span class="chip-list">
-            @if (selectedProfile().length === 0) {
+            @if (selectedContractType().length + selectedProfile().length === 0) {
               <span class="chip placeholder">Tous</span>
-            } @else if (selectedProfile().length === 1) {
-              <span class="chip">{{ selectedProfile()[0] }}</span>
+            } @else if (selectedContractType().length + selectedProfile().length === 1) {
+              <span class="chip">
+                {{ selectedContractType().length > 0 ? selectedContractType()[0] : selectedProfile()[0] }}
+              </span>
             } @else {
-              <span class="chip">{{ selectedProfile().length }} sél.</span>
+              <span class="chip">{{ selectedContractType().length + selectedProfile().length }} sél.</span>
             }
           </span>
         </div>
-        @if (openProfileDropdown()) {
+        @if (openContractTypeDropdown()) {
           <div class="filters-dropdown" (click)="$event.stopPropagation()">
             <div class="dropdown-header">
-              <span>{{ selectedProfile().length }} sélectionné(s)</span>
-              @if (selectedProfile().length > 0) {
+              <span>{{ selectedContractType().length + selectedProfile().length }} sélectionné(s)</span>
+              @if (selectedContractType().length > 0 || selectedProfile().length > 0) {
                 <button
                   class="btn-clear"
                   type="button"
-                  (click)="selectedProfile.set([]); onFilterChange(); $event.stopPropagation()"
+                  (click)="selectedContractType.set([]); selectedProfile.set([]); onFilterChange(); $event.stopPropagation()"
+                >
+                  Effacer
+                </button>
+              }
+            </div>
+            <div class="dropdown-list combined-dropdown-list">
+              <div class="dropdown-section">
+                @for (ct of contractTypes(); track ct) {
+                  <label class="dropdown-item">
+                    <input
+                      type="checkbox"
+                      [checked]="selectedContractType().includes(ct)"
+                      (change)="toggleContractType(ct, $event)"
+                    />
+                    <span class="item-label">{{ ct }}</span>
+                  </label>
+                }
+              </div>
+              <div class="dropdown-divider"></div>
+              <div class="dropdown-section">
+                @for (p of profiles(); track p) {
+                  <label class="dropdown-item">
+                    <input
+                      type="checkbox"
+                      [checked]="selectedProfile().includes(p)"
+                      (change)="toggleProfile(p, $event)"
+                    />
+                    <span class="item-label">{{ p }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="filter-item">
+        <div
+          class="custom-select-trigger"
+          (click)="toggleDropdown('contract_type', $event)"
+          [class.active]="openContractTypeDropdown()"
+        >
+          <span class="filter-title">Type</span>
+          <span class="chip-list">
+            @if (selectedContractType().length === 0) {
+              <span class="chip placeholder">Tous</span>
+            } @else if (selectedContractType().length === 1) {
+              <span class="chip">{{ selectedContractType()[0] }}</span>
+            } @else {
+              <span class="chip">{{ selectedContractType().length }} sél.</span>
+            }
+          </span>
+        </div>
+        @if (openContractTypeDropdown()) {
+          <div class="filters-dropdown" (click)="$event.stopPropagation()">
+            <div class="dropdown-header">
+              <span>{{ selectedContractType().length }} sélectionné(s)</span>
+              @if (selectedContractType().length > 0) {
+                <button
+                  class="btn-clear"
+                  type="button"
+                  (click)="selectedContractType.set([]); onFilterChange(); $event.stopPropagation()"
                 >
                   Effacer
                 </button>
               }
             </div>
             <div class="dropdown-list">
-              @for (p of profiles(); track p) {
+              @for (ct of contractTypes(); track ct) {
                 <label class="dropdown-item">
                   <input
                     type="checkbox"
-                    [checked]="selectedProfile().includes(p)"
-                    (change)="toggleProfile(p, $event)"
+                    [checked]="selectedContractType().includes(ct)"
+                    (change)="toggleContractType(ct, $event)"
                   />
-                  <span class="item-label">{{ p }}</span>
+                  <span class="item-label">{{ ct }}</span>
                 </label>
               }
             </div>
