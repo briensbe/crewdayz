@@ -4,6 +4,15 @@
     "date": "2026-07-03",
     "news": [
       {
+        "title": "Approche par Diffing des absences plutot qu'un simple delete/insert",
+        "items": [
+          "Récupération des absences existantes en mémoire.",
+          "Identification précise des absences à supprimer par leur id unique (plutôt que de vider toute la plage de dates).",
+          "Identification des nouvelles absences et de celles modifiées (changement de catégorie ou de commentaire).",
+          "Exclusion des écritures (upserts) pour les absences strictement inchangées."
+        ]
+      },
+      {
         "title": "Synchronisation en Temps Réel",
         "items": [
           "Mise en place de Supabase Realtime pour synchroniser instantanément les modifications des absences et de la liste des collaborateurs entre tous les utilisateurs connectés"
