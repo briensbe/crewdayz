@@ -60,6 +60,14 @@ export class EmployeeListComponent implements OnInit {
       return;
     }
 
+    if (this.showConfirmDelete()) {
+      if (event.key === 'Escape' || event.key === 'Esc') {
+        event.preventDefault();
+        this.cancelDelete();
+      }
+      return;
+    }
+
     if (!this.showModal()) return;
 
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
@@ -249,6 +257,10 @@ export class EmployeeListComponent implements OnInit {
   isEditMode = signal(false);
   currentEmployeeId = signal<string | null>(null);
   duplicatedFromName = signal<string | null>(null);
+
+  // Delete Confirmation Modal State
+  showConfirmDelete = signal(false);
+  employeeToDelete = signal<Employee | null>(null);
 
   // Form Fields
   firstName = signal('');
@@ -716,18 +728,40 @@ export class EmployeeListComponent implements OnInit {
     this.editingField.set(null);
   }
 
-  async deleteEmployee(emp: Employee) {
+  deleteEmployee(emp: Employee) {
     if (!emp.id) return;
-    if (
-      confirm(
-        `Êtes-vous sûr de vouloir supprimer ${emp.first_name} ${emp.last_name} ? Cette action supprimera également toutes ses absences.`,
-      )
-    ) {
-      try {
-        await this.employeeService.deleteEmployee(emp.id);
-      } catch (err: any) {
-        alert('Erreur lors de la suppression : ' + err.message);
-      }
+    this.employeeToDelete.set(emp);
+    this.showConfirmDelete.set(true);
+  }
+
+  async confirmDelete() {
+    const emp = this.employeeToDelete();
+    if (!emp || !emp.id) return;
+    this.showConfirmDelete.set(false);
+    try {
+      await this.employeeService.deleteEmployee(emp.id);
+    } catch (err: any) {
+      alert('Erreur lors de la suppression : ' + err.message);
+    } finally {
+      this.employeeToDelete.set(null);
     }
+  }
+
+  cancelDelete() {
+    this.showConfirmDelete.set(false);
+    this.employeeToDelete.set(null);
+  }
+
+  private mousedownOnDeleteOverlay = false;
+
+  onDeleteOverlayMouseDown(event: MouseEvent) {
+    this.mousedownOnDeleteOverlay = event.target === event.currentTarget;
+  }
+
+  onDeleteOverlayMouseUp(event: MouseEvent) {
+    if (this.mousedownOnDeleteOverlay && event.target === event.currentTarget) {
+      this.cancelDelete();
+    }
+    this.mousedownOnDeleteOverlay = false;
   }
 }
