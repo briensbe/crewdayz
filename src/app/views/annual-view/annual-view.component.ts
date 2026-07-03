@@ -88,6 +88,7 @@ export class AnnualViewComponent implements OnInit {
     team: [],
     work_site: [],
     contract_type: [],
+    profile: [],
   });
 
   // Extract filter options dynamically
@@ -103,6 +104,11 @@ export class AnnualViewComponent implements OnInit {
 
   workSites = computed(() => {
     const list = this.employeeService.employees().map((e) => e.work_site);
+    return Array.from(new Set(list)).filter(Boolean).sort();
+  });
+
+  profiles = computed(() => {
+    const list = this.employeeService.employees().map((e) => e.profile);
     return Array.from(new Set(list)).filter(Boolean).sort();
   });
 
@@ -137,6 +143,7 @@ export class AnnualViewComponent implements OnInit {
         !filters.contract_type.includes(emp.contract_type)
       )
         return false;
+      if (filters.profile && filters.profile.length > 0 && !filters.profile.includes(emp.profile)) return false;
       return true;
     });
   });

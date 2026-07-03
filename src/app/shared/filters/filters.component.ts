@@ -9,6 +9,7 @@ export interface FilterState {
   team: string[];
   work_site: string[];
   contract_type: string[];
+  profile?: string[];
 }
 
 @Component({
@@ -26,6 +27,7 @@ export class FiltersComponent implements OnInit {
   teams = input<string[]>([]);
   workSites = input<string[]>([]);
   contractTypes = input<string[]>(['Interne', 'Externe']);
+  profiles = input<string[]>([]);
 
   // Initial filter state passed from parent
   initialFilters = input<FilterState>();
@@ -44,12 +46,14 @@ export class FiltersComponent implements OnInit {
   selectedTeam = signal<string[]>([]);
   selectedWorkSite = signal<string[]>([]);
   selectedContractType = signal<string[]>([]);
+  selectedProfile = signal<string[]>([]);
 
   // Dropdown states
   openServiceDropdown = signal(false);
   openTeamDropdown = signal(false);
   openWorkSiteDropdown = signal(false);
   openContractTypeDropdown = signal(false);
+  openProfileDropdown = signal(false);
 
   // Active filter helper labels
   activeFilterLabels = computed(() => {
@@ -63,6 +67,8 @@ export class FiltersComponent implements OnInit {
       labels.push({ key: 'work_site', label: 'Site', value: this.selectedWorkSite().join(', ') });
     if (this.selectedContractType().length > 0)
       labels.push({ key: 'contract_type', label: 'Contrat', value: this.selectedContractType().join(', ') });
+    if (this.selectedProfile().length > 0)
+      labels.push({ key: 'profile', label: 'Profil', value: this.selectedProfile().join(', ') });
     return labels;
   });
 
@@ -78,30 +84,41 @@ export class FiltersComponent implements OnInit {
     this.openTeamDropdown.set(false);
     this.openWorkSiteDropdown.set(false);
     this.openContractTypeDropdown.set(false);
+    this.openProfileDropdown.set(false);
   }
 
-  toggleDropdown(dropdown: 'service' | 'team' | 'work_site' | 'contract_type', event: MouseEvent) {
+  toggleDropdown(dropdown: 'service' | 'team' | 'work_site' | 'contract_type' | 'profile', event: MouseEvent) {
     event.stopPropagation();
     if (dropdown === 'service') {
       this.openServiceDropdown.update((val) => !val);
       this.openTeamDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
       this.openContractTypeDropdown.set(false);
+      this.openProfileDropdown.set(false);
     } else if (dropdown === 'team') {
       this.openTeamDropdown.update((val) => !val);
       this.openServiceDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
       this.openContractTypeDropdown.set(false);
+      this.openProfileDropdown.set(false);
     } else if (dropdown === 'work_site') {
       this.openWorkSiteDropdown.update((val) => !val);
       this.openServiceDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openContractTypeDropdown.set(false);
+      this.openProfileDropdown.set(false);
     } else if (dropdown === 'contract_type') {
       this.openContractTypeDropdown.update((val) => !val);
       this.openServiceDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
+      this.openProfileDropdown.set(false);
+    } else if (dropdown === 'profile') {
+      this.openProfileDropdown.update((val) => !val);
+      this.openServiceDropdown.set(false);
+      this.openTeamDropdown.set(false);
+      this.openWorkSiteDropdown.set(false);
+      this.openContractTypeDropdown.set(false);
     }
   }
 
@@ -113,6 +130,7 @@ export class FiltersComponent implements OnInit {
       this.selectedTeam.set(initial.team || []);
       this.selectedWorkSite.set(initial.work_site || []);
       this.selectedContractType.set(initial.contract_type || []);
+      this.selectedProfile.set(initial.profile || []);
     }
   }
 
@@ -123,6 +141,7 @@ export class FiltersComponent implements OnInit {
       team: this.selectedTeam(),
       work_site: this.selectedWorkSite(),
       contract_type: this.selectedContractType(),
+      profile: this.selectedProfile(),
     });
   }
 
@@ -150,12 +169,19 @@ export class FiltersComponent implements OnInit {
     this.onFilterChange();
   }
 
+  toggleProfile(val: string, event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.selectedProfile.update((vals) => (checked ? [...vals, val] : vals.filter((v) => v !== val)));
+    this.onFilterChange();
+  }
+
   clearFilter(key: keyof FilterState) {
     if (key === 'search') this.search.set('');
     if (key === 'service') this.selectedService.set([]);
     if (key === 'team') this.selectedTeam.set([]);
     if (key === 'work_site') this.selectedWorkSite.set([]);
     if (key === 'contract_type') this.selectedContractType.set([]);
+    if (key === 'profile') this.selectedProfile.set([]);
     this.onFilterChange();
   }
 
@@ -165,6 +191,7 @@ export class FiltersComponent implements OnInit {
     this.selectedTeam.set([]);
     this.selectedWorkSite.set([]);
     this.selectedContractType.set([]);
+    this.selectedProfile.set([]);
     this.onFilterChange();
   }
 }
