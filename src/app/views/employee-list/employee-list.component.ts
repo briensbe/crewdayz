@@ -120,6 +120,7 @@ export class EmployeeListComponent implements OnInit {
     team: [],
     work_site: [],
     contract_type: [],
+    profile: [],
   });
 
   // Sort State
@@ -195,6 +196,7 @@ export class EmployeeListComponent implements OnInit {
           !filters.contract_type.includes(emp.contract_type)
         )
           return false;
+        if (filters.profile && filters.profile.length > 0 && !filters.profile.includes(emp.profile)) return false;
 
         return true;
       })

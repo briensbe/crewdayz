@@ -159,6 +159,7 @@ export class MonthlyViewComponent implements OnInit {
     team: [],
     work_site: [],
     contract_type: [],
+    profile: [],
   });
 
   // Mouse Selection State
@@ -188,6 +189,11 @@ export class MonthlyViewComponent implements OnInit {
 
   workSites = computed(() => {
     const list = this.employeeService.employees().map((e) => e.work_site);
+    return Array.from(new Set(list)).filter(Boolean).sort();
+  });
+
+  profiles = computed(() => {
+    const list = this.employeeService.employees().map((e) => e.profile);
     return Array.from(new Set(list)).filter(Boolean).sort();
   });
 
@@ -300,6 +306,7 @@ export class MonthlyViewComponent implements OnInit {
         !filters.contract_type.includes(emp.contract_type)
       )
         return false;
+      if (filters.profile && filters.profile.length > 0 && !filters.profile.includes(emp.profile)) return false;
       return true;
     });
 
