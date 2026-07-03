@@ -1,18 +1,102 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, OnDestroy } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { Absence } from '../models/types';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AbsenceService {
+export class AbsenceService implements OnDestroy {
   private _absences = signal<Absence[]>([]);
   public absences = this._absences.asReadonly();
 
   private _loading = signal<boolean>(false);
   public loading = this._loading.asReadonly();
 
-  constructor(private supabase: SupabaseService) {}
+  private realtimeChannel: RealtimeChannel | null = null;
+  private currentYear: number | null = null;
+
+  constructor(private supabase: SupabaseService) {
+    this.setupRealtimeSubscription();
+  }
+
+  /**
+   * Set up the Supabase Realtime subscription for the 'cd_absences' table.
+   * Listens to INSERT, UPDATE, and DELETE events in the 'crewdayz' schema.
+   */
+  private setupRealtimeSubscription() {
+    this.realtimeChannel = this.supabase.client
+      .channel('cd-absences-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'crewdayz',
+          table: 'cd_absences',
+        },
+        (payload) => {
+          const { eventType, new: newRecord, old: oldRecord } = payload;
+          console.log(`[AbsenceService] Realtime event received: ${eventType}`, payload);
+
+          this._absences.update((currentAbsences) => {
+            if (eventType === 'INSERT') {
+              const record = newRecord as Absence;
+              const recordYear = parseInt(record.date.split('-')[0], 10);
+              
+              // Only insert if it matches the currently active year (if set)
+              if (this.currentYear !== null && recordYear !== this.currentYear) {
+                return currentAbsences;
+              }
+
+              // Avoid duplicate additions
+              const exists = currentAbsences.some(
+                (abs) => abs.id === record.id || 
+                         (abs.employee_id === record.employee_id && abs.date === record.date && abs.period === record.period)
+              );
+              if (exists) return currentAbsences;
+
+              return [...currentAbsences, record];
+            } 
+            
+            if (eventType === 'UPDATE') {
+              const record = newRecord as Absence;
+              const recordYear = parseInt(record.date.split('-')[0], 10);
+
+              // If the updated year is no longer our current year, remove it
+              if (this.currentYear !== null && recordYear !== this.currentYear) {
+                return currentAbsences.filter((abs) => abs.id !== record.id);
+              }
+
+              const index = currentAbsences.findIndex((abs) => abs.id === record.id);
+              if (index !== -1) {
+                const updated = [...currentAbsences];
+                updated[index] = record;
+                return updated;
+              } else {
+                // If it wasn't present, check if we should add it
+                return [...currentAbsences, record];
+              }
+            } 
+            
+            if (eventType === 'DELETE') {
+              const idToDelete = (oldRecord as { id: string }).id;
+              return currentAbsences.filter((abs) => abs.id !== idToDelete);
+            }
+
+            return currentAbsences;
+          });
+        }
+      )
+      .subscribe((status) => {
+        console.log(`[AbsenceService] Realtime connection status: ${status}`);
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.realtimeChannel) {
+      this.supabase.client.removeChannel(this.realtimeChannel);
+    }
+  }
 
   /**
    * Fetch absences for a specific employee or all employees in a given year.
@@ -20,6 +104,7 @@ export class AbsenceService {
    * 1000-row response limit.
    */
   async fetchAbsencesForYear(year: number): Promise<Absence[]> {
+    this.currentYear = year;
     this._loading.set(true);
     const PAGE_SIZE = 1000;
     const allAbsences: Absence[] = [];
