@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { AuditLog } from '../models/types';
+import { paginateQuery } from '../../utils/supabase-pagination';
 
 @Injectable({
   providedIn: 'root',
@@ -20,21 +21,19 @@ export class AuditService {
   async fetchAuditLogs(): Promise<AuditLog[]> {
     this._loading.set(true);
     try {
-      const { data, error } = await this.supabase.client
-        .from('audit_logs')
-        .select(
-          `
-          *,
-          profiles:changed_by (
-            full_name
+      const list = await paginateQuery<AuditLog>(() =>
+        this.supabase.client
+          .from('audit_logs')
+          .select(
+            `
+            *,
+            profiles:changed_by (
+              full_name
+            )
+          `,
           )
-        `,
-        )
-        .order('changed_at', { ascending: false });
-
-      if (error) throw error;
-
-      const list = (data || []) as AuditLog[];
+          .order('changed_at', { ascending: false })
+      );
       this._logs.set(list);
       return list;
     } catch (err) {

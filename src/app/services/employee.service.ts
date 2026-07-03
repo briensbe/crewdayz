@@ -2,6 +2,7 @@ import { Injectable, signal, OnDestroy } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { Employee, EmployeeBalance } from '../models/types';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { paginateQuery } from '../../utils/supabase-pagination';
 
 @Injectable({
   providedIn: 'root',
@@ -143,19 +144,18 @@ export class EmployeeService implements OnDestroy {
   async fetchEmployees(): Promise<Employee[]> {
     this._loading.set(true);
     try {
-      const { data, error } = await this.supabase.client
-        .from('cd_employees')
-        .select(
-          `
-          *,
-          cd_employee_balances (*)
-        `,
-        )
-        .order('last_name', { ascending: true })
-        .order('first_name', { ascending: true });
-
-      if (error) throw error;
-      const list = (data || []) as Employee[];
+      const list = await paginateQuery<Employee>(() =>
+        this.supabase.client
+          .from('cd_employees')
+          .select(
+            `
+            *,
+            cd_employee_balances (*)
+          `,
+          )
+          .order('last_name', { ascending: true })
+          .order('first_name', { ascending: true })
+      );
       this._employees.set(list);
       return list;
     } catch (err) {

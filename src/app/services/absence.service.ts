@@ -2,6 +2,7 @@ import { Injectable, signal, OnDestroy } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { Absence } from '../models/types';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { paginateQuery } from '../../utils/supabase-pagination';
 
 @Injectable({
   providedIn: 'root',
@@ -106,34 +107,18 @@ export class AbsenceService implements OnDestroy {
   async fetchAbsencesForYear(year: number): Promise<Absence[]> {
     this.currentYear = year;
     this._loading.set(true);
-    const PAGE_SIZE = 1000;
-    const allAbsences: Absence[] = [];
 
     try {
       const startOfYear = `${year}-01-01`;
       const endOfYear = `${year}-12-31`;
 
-      let from = 0;
-      let hasMore = true;
-
-      do {
-        const to = from + PAGE_SIZE - 1;
-        const { data, error } = await this.supabase.client
+      const allAbsences = await paginateQuery<Absence>(() =>
+        this.supabase.client
           .from('cd_absences')
           .select('*')
           .gte('date', startOfYear)
           .lte('date', endOfYear)
-          .range(from, to);
-
-        if (error) throw error;
-
-        const page = data || [];
-        allAbsences.push(...page);
-
-        // If we received fewer rows than PAGE_SIZE, we've reached the last page
-        hasMore = page.length === PAGE_SIZE;
-        from += PAGE_SIZE;
-      } while (hasMore);
+      );
 
       console.log(`[AbsenceService] Fetched ${allAbsences.length} absences for ${year}`);
       this._absences.set(allAbsences);
