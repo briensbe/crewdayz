@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, ChevronLeft, ChevronRight, BarChart3, Info } from 'lucide-angular';
+import { LucideAngularModule, ChevronLeft, ChevronRight, BarChart3, Info, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
 import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
@@ -17,6 +17,8 @@ interface EmployeeAnnualRow {
   decemberBalance: number;
   annualTotal: number;
 }
+
+export type EmployeeSortField = 'name' | 'contract_type' | 'service' | 'team' | 'work_site';
 
 @Component({
   selector: 'app-annual-view',
@@ -35,6 +37,22 @@ export class AnnualViewComponent implements OnInit {
   readonly ChevronLeft = ChevronLeft;
   readonly ChevronRight = ChevronRight;
   readonly Info = Info;
+  readonly ArrowUp = ArrowUp;
+  readonly ArrowDown = ArrowDown;
+  readonly ArrowUpDown = ArrowUpDown;
+
+  // Sort State
+  sortField = storageSignal<EmployeeSortField>('crewdayz_annual_list_sort_field', 'name');
+  sortDirection = storageSignal<'asc' | 'desc'>('crewdayz_annual_list_sort_direction', 'asc');
+
+  toggleSort(field: EmployeeSortField) {
+    if (this.sortField() === field) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDirection.set('asc');
+    }
+  }
 
   // Column Visibility State
   showColumns = storageSignal<boolean>('crewdayz_annual_show_columns', true);
@@ -116,7 +134,10 @@ export class AnnualViewComponent implements OnInit {
   filteredEmployees = computed(() => {
     const filters = this.activeFilters();
     const currentYear = this.year();
-    return this.employeeService.employees().filter((emp) => {
+    const field = this.sortField();
+    const direction = this.sortDirection();
+
+    const list = this.employeeService.employees().filter((emp) => {
       // Exclude employees who departed in a previous year
       if (emp.departure_date) {
         const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
@@ -145,6 +166,36 @@ export class AnnualViewComponent implements OnInit {
         return false;
       if (filters.profile && filters.profile.length > 0 && !filters.profile.includes(emp.profile)) return false;
       return true;
+    });
+
+    return [...list].sort((a, b) => {
+      let comparison = 0;
+      switch (field) {
+        case 'name': {
+          const nameA = `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase();
+          const nameB = `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase();
+          comparison = nameA.localeCompare(nameB, 'fr', { sensitivity: 'base' });
+          break;
+        }
+        case 'contract_type': {
+          const valA = `${a.contract_type || ''} ${a.company_name || ''}`.toLowerCase();
+          const valB = `${b.contract_type || ''} ${b.company_name || ''}`.toLowerCase();
+          comparison = valA.localeCompare(valB, 'fr', { sensitivity: 'base' });
+          break;
+        }
+        case 'service':
+          comparison = (a.service || '').localeCompare(b.service || '', 'fr', { sensitivity: 'base' });
+          break;
+        case 'team':
+          comparison = (a.team || '').localeCompare(b.team || '', 'fr', { sensitivity: 'base' });
+          break;
+        case 'work_site':
+          comparison = (a.work_site || '').localeCompare(b.work_site || '', 'fr', { sensitivity: 'base' });
+          break;
+        default:
+          comparison = 0;
+      }
+      return direction === 'asc' ? comparison : -comparison;
     });
   });
 

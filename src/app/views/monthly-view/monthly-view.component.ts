@@ -49,6 +49,8 @@ function getISOWeek(date: Date): number {
   return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
+export type EmployeeSortField = 'name' | 'contract_type' | 'service' | 'team' | 'work_site';
+
 @Component({
   selector: 'app-monthly-view',
   standalone: true,
@@ -267,17 +269,24 @@ export class MonthlyViewComponent implements OnInit {
   });
 
   // Sort State
-  collaboratorSortOrder = signal<'asc' | 'desc'>('asc');
+  sortField = storageSignal<EmployeeSortField>('crewdayz_monthly_list_sort_field', 'name');
+  sortDirection = storageSignal<'asc' | 'desc'>('crewdayz_monthly_list_sort_direction', 'asc');
 
-  toggleCollaboratorSort() {
-    this.collaboratorSortOrder.update((order) => (order === 'asc' ? 'desc' : 'asc'));
+  toggleSort(field: EmployeeSortField) {
+    if (this.sortField() === field) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDirection.set('asc');
+    }
   }
 
   // List of filtered employees
   filteredEmployees = computed(() => {
     const filters = this.activeFilters();
     const currentYear = this.year();
-    const sortOrder = this.collaboratorSortOrder();
+    const field = this.sortField();
+    const direction = this.sortDirection();
 
     const list = this.employeeService.employees().filter((emp) => {
       // Exclude employees who departed in a previous year
@@ -310,14 +319,34 @@ export class MonthlyViewComponent implements OnInit {
       return true;
     });
 
-    return list.sort((a, b) => {
-      const nameA = `${a.last_name} ${a.first_name}`.toLowerCase();
-      const nameB = `${b.last_name} ${b.first_name}`.toLowerCase();
-      if (sortOrder === 'asc') {
-        return nameA.localeCompare(nameB);
-      } else {
-        return nameB.localeCompare(nameA);
+    return [...list].sort((a, b) => {
+      let comparison = 0;
+      switch (field) {
+        case 'name': {
+          const nameA = `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase();
+          const nameB = `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase();
+          comparison = nameA.localeCompare(nameB, 'fr', { sensitivity: 'base' });
+          break;
+        }
+        case 'contract_type': {
+          const valA = `${a.contract_type || ''} ${a.company_name || ''}`.toLowerCase();
+          const valB = `${b.contract_type || ''} ${b.company_name || ''}`.toLowerCase();
+          comparison = valA.localeCompare(valB, 'fr', { sensitivity: 'base' });
+          break;
+        }
+        case 'service':
+          comparison = (a.service || '').localeCompare(b.service || '', 'fr', { sensitivity: 'base' });
+          break;
+        case 'team':
+          comparison = (a.team || '').localeCompare(b.team || '', 'fr', { sensitivity: 'base' });
+          break;
+        case 'work_site':
+          comparison = (a.work_site || '').localeCompare(b.work_site || '', 'fr', { sensitivity: 'base' });
+          break;
+        default:
+          comparison = 0;
       }
+      return direction === 'asc' ? comparison : -comparison;
     });
   });
 

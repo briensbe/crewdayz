@@ -46,7 +46,6 @@
           <tr class="week-header-row">
             <th
               rowspan="5"
-              (click)="toggleCollaboratorSort()"
               class="sticky-col name-col sortable-column"
               [class.last-sticky]="lastVisibleStickyCol() === 'name'"
               title="Trier par collaborateur"
@@ -54,11 +53,11 @@
               <div class="name-header-container-wrapper">
                 <div class="month-recall-badge">{{ months[month()] }} {{ year() }}</div>
                 <div class="name-header-content">
-                  <div class="header-sort-wrapper">
+                  <div class="header-sort-wrapper" (click)="toggleSort('name')">
                     <span>Collaborateur</span>
                     <lucide-icon
-                      [img]="collaboratorSortOrder() === 'asc' ? ArrowUp : ArrowDown"
-                      [class.active]="true"
+                      [img]="sortField() === 'name' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                      [class.active]="sortField() === 'name'"
                       class="sort-icon"
                       size="14"
                     ></lucide-icon>
@@ -79,41 +78,77 @@
             @if (showServiceCol()) {
               <th
                 rowspan="5"
-                class="sticky-col service-col"
+                class="sticky-col service-col sortable-column"
                 [class.last-sticky]="lastVisibleStickyCol() === 'service'"
                 [style.left]="'150px'"
+                (click)="toggleSort('service')"
               >
-                Service
+                <div class="header-sort-wrapper">
+                  <span>Service</span>
+                  <lucide-icon
+                    [img]="sortField() === 'service' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                    [class.active]="sortField() === 'service'"
+                    class="sort-icon"
+                    size="14"
+                  ></lucide-icon>
+                </div>
               </th>
             }
             @if (showTeamCol()) {
               <th
                 rowspan="5"
-                class="sticky-col team-col"
+                class="sticky-col team-col sortable-column"
                 [class.last-sticky]="lastVisibleStickyCol() === 'team'"
                 [style.left]="teamColLeft()"
+                (click)="toggleSort('team')"
               >
-                Équipe
+                <div class="header-sort-wrapper">
+                  <span>Équipe</span>
+                  <lucide-icon
+                    [img]="sortField() === 'team' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                    [class.active]="sortField() === 'team'"
+                    class="sort-icon"
+                    size="14"
+                  ></lucide-icon>
+                </div>
               </th>
             }
             @if (showSiteCol()) {
               <th
                 rowspan="5"
-                class="sticky-col site-col"
+                class="sticky-col site-col sortable-column"
                 [class.last-sticky]="lastVisibleStickyCol() === 'site'"
                 [style.left]="siteColLeft()"
+                (click)="toggleSort('work_site')"
               >
-                Site
+                <div class="header-sort-wrapper">
+                  <span>Site</span>
+                  <lucide-icon
+                    [img]="sortField() === 'work_site' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                    [class.active]="sortField() === 'work_site'"
+                    class="sort-icon"
+                    size="14"
+                  ></lucide-icon>
+                </div>
               </th>
             }
             @if (showTypeCol()) {
               <th
                 rowspan="5"
-                class="sticky-col type-col"
+                class="sticky-col type-col sortable-column"
                 [class.last-sticky]="lastVisibleStickyCol() === 'type'"
                 [style.left]="typeColLeft()"
+                (click)="toggleSort('contract_type')"
               >
-                Type
+                <div class="header-sort-wrapper">
+                  <span>Type</span>
+                  <lucide-icon
+                    [img]="sortField() === 'contract_type' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                    [class.active]="sortField() === 'contract_type'"
+                    class="sort-icon"
+                    size="14"
+                  ></lucide-icon>
+                </div>
               </th>
             }
             @if (showBalanceStartCol()) {
