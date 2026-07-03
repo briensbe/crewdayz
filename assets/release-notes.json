@@ -1,5 +1,43 @@
 [
   {
+    "version": "2026.07.03",
+    "date": "2026-07-03",
+    "news": [
+      {
+        "title": "Approche par Diffing des absences plutot qu'un simple delete/insert",
+        "items": [
+          "Récupération des absences existantes en mémoire.",
+          "Identification précise des absences à supprimer par leur id unique (plutôt que de vider toute la plage de dates).",
+          "Identification des nouvelles absences et de celles modifiées (changement de catégorie ou de commentaire).",
+          "Exclusion des écritures (upserts) pour les absences strictement inchangées."
+        ]
+      },
+      {
+        "title": "Synchronisation en Temps Réel",
+        "items": [
+          "Mise en place de Supabase Realtime pour synchroniser instantanément les modifications des absences et de la liste des collaborateurs entre tous les utilisateurs connectés"
+        ]
+      },
+      {
+        "title": "Historique d'Audit complet",
+        "items": [
+          "L'historique d'audit suit désormais toutes les modifications apportées aux collaborateurs ainsi qu'à leurs soldes de congés initiaux"
+        ]
+      },
+      {
+        "title": "Corrections & Ergonomie",
+        "items": [
+          "Filtre unique 'Type & Profil' (avec une séparation visuelle dans la liste déroulante) sur toutes les vues",
+          "Tri Multi-Colonnes sur les vues Annuelle et Mensuelle",
+          "Filtres textuels insensibles à la casse et aux accents (diacritiques)",
+          "Amélioration de la popup de suppression d'un collaborateur",
+          "Correction de la modale de saisie d'absences qui pouvait se fermer accidentellement lors d'une sélection de texte",
+          "Ajustement du calcul des jours travaillés pour exclure la date de départ d'un collaborateur"
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.07.02",
     "date": "2026-07-02",
     "news": [
@@ -60,9 +98,7 @@
         "title": "Duplication",
         "imageUrl": "assets/2026-06-21-duplication-collab.gif",
         "imageMaxHeight": "250",
-        "items": [
-          "Possibilité de copier/dupliquer un collaborateur pour créer rapidement de nouvelles fiches"
-        ]
+        "items": ["Possibilité de copier/dupliquer un collaborateur pour créer rapidement de nouvelles fiches"]
       },
       {
         "title": "Tableau de Bord",
@@ -94,9 +130,7 @@
       },
       {
         "title": "Optimisations de Performance",
-        "items": [
-          "Réduction et optimisation des appels API lors des modifications de profils ou de balances"
-        ]
+        "items": ["Réduction et optimisation des appels API lors des modifications de profils ou de balances"]
       }
     ]
   },
