@@ -688,7 +688,7 @@ export class MonthlyViewComponent implements OnInit {
       if (emp.arrival_date && dateStr < emp.arrival_date) {
         continue;
       }
-      if (emp.departure_date && dateStr > emp.departure_date) {
+      if (emp.departure_date && dateStr >= emp.departure_date) {
         continue;
       }
 
@@ -703,7 +703,7 @@ export class MonthlyViewComponent implements OnInit {
       if (a.employee_id !== emp.id) return false;
       if (a.category === 'Formation') return false; // Formation counts as 0 absence (so worked day)
       if (emp.arrival_date && a.date < emp.arrival_date) return false;
-      if (emp.departure_date && a.date > emp.departure_date) return false;
+      if (emp.departure_date && a.date >= emp.departure_date) return false;
 
       const absDate = new Date(a.date);
       if (absDate.getFullYear() !== y || absDate.getMonth() !== m) return false;
