@@ -520,6 +520,19 @@ export class AbsenceModalComponent {
     this.showConfirmDelete.set(false);
   }
 
+  private mousedownOnOverlay = false;
+
+  onOverlayMouseDown(event: MouseEvent) {
+    this.mousedownOnOverlay = event.target === event.currentTarget;
+  }
+
+  onOverlayMouseUp(event: MouseEvent) {
+    if (this.mousedownOnOverlay && event.target === event.currentTarget) {
+      this.onClose();
+    }
+    this.mousedownOnOverlay = false;
+  }
+
   onClose() {
     this.close.emit();
   }

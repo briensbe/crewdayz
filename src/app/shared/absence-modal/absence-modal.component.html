@@ -1,4 +1,4 @@
-<div class="modal-overlay animate-fade-in" (click)="onClose()">
+<div class="modal-overlay animate-fade-in" (mousedown)="onOverlayMouseDown($event)" (mouseup)="onOverlayMouseUp($event)">
   <div class="modal-card" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>{{ existingAbsence() ? "Modifier l'absence" : 'Déclarer une absence' }}</h2>
