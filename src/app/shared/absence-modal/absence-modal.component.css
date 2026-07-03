@@ -211,7 +211,7 @@
   user-select: none;
 }
 
-.radio-label input[type="radio"] {
+.radio-label input[type='radio'] {
   width: auto;
   cursor: pointer;
   accent-color: var(--primary);

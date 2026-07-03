@@ -1,9 +1,9 @@
-import { Injectable, signal } from "@angular/core";
-import { SupabaseService } from "./supabase.service";
-import { AuditLog } from "../models/types";
+import { Injectable, signal } from '@angular/core';
+import { SupabaseService } from './supabase.service';
+import { AuditLog } from '../models/types';
 
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root',
 })
 export class AuditService {
   private _logs = signal<AuditLog[]>([]);
@@ -21,14 +21,16 @@ export class AuditService {
     this._loading.set(true);
     try {
       const { data, error } = await this.supabase.client
-        .from("audit_logs")
-        .select(`
+        .from('audit_logs')
+        .select(
+          `
           *,
           profiles:changed_by (
             full_name
           )
-        `)
-        .order("changed_at", { ascending: false });
+        `,
+        )
+        .order('changed_at', { ascending: false });
 
       if (error) throw error;
 
@@ -36,7 +38,7 @@ export class AuditService {
       this._logs.set(list);
       return list;
     } catch (err) {
-      console.error("Error fetching audit logs:", err);
+      console.error('Error fetching audit logs:', err);
       throw err;
     } finally {
       this._loading.set(false);

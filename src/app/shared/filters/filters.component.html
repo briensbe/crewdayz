@@ -21,7 +21,11 @@
 
     <!-- Service Dropdown -->
     <div class="filter-item">
-      <div class="custom-select-trigger" (click)="toggleDropdown('service', $event)" [class.active]="openServiceDropdown()">
+      <div
+        class="custom-select-trigger"
+        (click)="toggleDropdown('service', $event)"
+        [class.active]="openServiceDropdown()"
+      >
         <span class="filter-title">Service</span>
         <span class="chip-list">
           @if (selectedService().length === 0) {
@@ -38,7 +42,11 @@
           <div class="dropdown-header">
             <span>{{ selectedService().length }} sélectionné(s)</span>
             @if (selectedService().length > 0) {
-              <button class="btn-clear" type="button" (click)="selectedService.set([]); onFilterChange(); $event.stopPropagation()">
+              <button
+                class="btn-clear"
+                type="button"
+                (click)="selectedService.set([]); onFilterChange(); $event.stopPropagation()"
+              >
                 Effacer
               </button>
             }
@@ -46,11 +54,7 @@
           <div class="dropdown-list">
             @for (s of services(); track s) {
               <label class="dropdown-item">
-                <input
-                  type="checkbox"
-                  [checked]="selectedService().includes(s)"
-                  (change)="toggleService(s, $event)"
-                />
+                <input type="checkbox" [checked]="selectedService().includes(s)" (change)="toggleService(s, $event)" />
                 <span class="item-label">{{ s }}</span>
               </label>
             }
@@ -78,7 +82,11 @@
           <div class="dropdown-header">
             <span>{{ selectedTeam().length }} sélectionné(s)</span>
             @if (selectedTeam().length > 0) {
-              <button class="btn-clear" type="button" (click)="selectedTeam.set([]); onFilterChange(); $event.stopPropagation()">
+              <button
+                class="btn-clear"
+                type="button"
+                (click)="selectedTeam.set([]); onFilterChange(); $event.stopPropagation()"
+              >
                 Effacer
               </button>
             }
@@ -86,11 +94,7 @@
           <div class="dropdown-list">
             @for (t of teams(); track t) {
               <label class="dropdown-item">
-                <input
-                  type="checkbox"
-                  [checked]="selectedTeam().includes(t)"
-                  (change)="toggleTeam(t, $event)"
-                />
+                <input type="checkbox" [checked]="selectedTeam().includes(t)" (change)="toggleTeam(t, $event)" />
                 <span class="item-label">{{ t }}</span>
               </label>
             }
@@ -101,7 +105,11 @@
 
     <!-- Work Site Dropdown -->
     <div class="filter-item">
-      <div class="custom-select-trigger" (click)="toggleDropdown('work_site', $event)" [class.active]="openWorkSiteDropdown()">
+      <div
+        class="custom-select-trigger"
+        (click)="toggleDropdown('work_site', $event)"
+        [class.active]="openWorkSiteDropdown()"
+      >
         <span class="filter-title">Site</span>
         <span class="chip-list">
           @if (selectedWorkSite().length === 0) {
@@ -118,7 +126,11 @@
           <div class="dropdown-header">
             <span>{{ selectedWorkSite().length }} sélectionné(s)</span>
             @if (selectedWorkSite().length > 0) {
-              <button class="btn-clear" type="button" (click)="selectedWorkSite.set([]); onFilterChange(); $event.stopPropagation()">
+              <button
+                class="btn-clear"
+                type="button"
+                (click)="selectedWorkSite.set([]); onFilterChange(); $event.stopPropagation()"
+              >
                 Effacer
               </button>
             }
@@ -141,7 +153,11 @@
 
     <!-- Contract Type Dropdown -->
     <div class="filter-item">
-      <div class="custom-select-trigger" (click)="toggleDropdown('contract_type', $event)" [class.active]="openContractTypeDropdown()">
+      <div
+        class="custom-select-trigger"
+        (click)="toggleDropdown('contract_type', $event)"
+        [class.active]="openContractTypeDropdown()"
+      >
         <span class="filter-title">Type</span>
         <span class="chip-list">
           @if (selectedContractType().length === 0) {
@@ -158,7 +174,11 @@
           <div class="dropdown-header">
             <span>{{ selectedContractType().length }} sélectionné(s)</span>
             @if (selectedContractType().length > 0) {
-              <button class="btn-clear" type="button" (click)="selectedContractType.set([]); onFilterChange(); $event.stopPropagation()">
+              <button
+                class="btn-clear"
+                type="button"
+                (click)="selectedContractType.set([]); onFilterChange(); $event.stopPropagation()"
+              >
                 Effacer
               </button>
             }

@@ -23,7 +23,7 @@ interface PeriodWithStatus extends SchoolHolidayPeriod {
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './holidays-view.component.html',
-  styleUrl: './holidays-view.component.css'
+  styleUrl: './holidays-view.component.css',
 })
 export class HolidaysViewComponent {
   // Services
@@ -53,7 +53,7 @@ export class HolidaysViewComponent {
     const config = this.holidayService.config();
     if (!config || !config.holidays) return [];
     const allZones = config.holidays.reduce((acc, h) => {
-      h.zones.forEach(z => acc.add(z));
+      h.zones.forEach((z) => acc.add(z));
       return acc;
     }, new Set<string>());
     return Array.from(allZones).sort();
@@ -66,22 +66,25 @@ export class HolidaysViewComponent {
     if (!config) return [];
 
     const associations = config.siteAssociations || {};
-    return Object.entries(associations).map(([site, zone]) => {
-      const count = employees.filter(emp => emp.work_site === site).length;
-      return {
-        label: site,
-        zone,
-        employeeCount: count
-      };
-    }).sort((a, b) => a.label.localeCompare(b.label));
+    return Object.entries(associations)
+      .map(([site, zone]) => {
+        const count = employees.filter((emp) => emp.work_site === site).length;
+        return {
+          label: site,
+          zone,
+          employeeCount: count,
+        };
+      })
+      .sort((a, b) => a.label.localeCompare(b.label));
   });
 
   // Employees for the selected site
   selectedSiteEmployees = computed(() => {
     const site = this.selectedSite();
     if (!site) return [];
-    return this.employeeService.employees()
-      .filter(emp => emp.work_site === site)
+    return this.employeeService
+      .employees()
+      .filter((emp) => emp.work_site === site)
       .sort((a, b) => `${a.last_name} ${a.first_name}`.localeCompare(`${b.last_name} ${b.first_name}`));
   });
 
@@ -92,24 +95,26 @@ export class HolidaysViewComponent {
 
     const todayStr = this.formatDateStr(new Date());
 
-    return config.holidays.map(p => {
-      let status: 'passed' | 'current' | 'upcoming' = 'upcoming';
-      let statusLabel = 'À venir';
+    return config.holidays
+      .map((p) => {
+        let status: 'passed' | 'current' | 'upcoming' = 'upcoming';
+        let statusLabel = 'À venir';
 
-      if (todayStr > p.end) {
-        status = 'passed';
-        statusLabel = 'Passé';
-      } else if (todayStr >= p.start && todayStr <= p.end) {
-        status = 'current';
-        statusLabel = 'En cours';
-      }
+        if (todayStr > p.end) {
+          status = 'passed';
+          statusLabel = 'Passé';
+        } else if (todayStr >= p.start && todayStr <= p.end) {
+          status = 'current';
+          statusLabel = 'En cours';
+        }
 
-      return {
-        ...p,
-        status,
-        statusLabel
-      };
-    }).sort((a, b) => a.start.localeCompare(b.start));
+        return {
+          ...p,
+          status,
+          statusLabel,
+        };
+      })
+      .sort((a, b) => a.start.localeCompare(b.start));
   });
 
   // Filtered holiday periods
@@ -120,19 +125,20 @@ export class HolidaysViewComponent {
     let periods = this.allPeriods();
 
     if (zoneFilter !== 'All') {
-      periods = periods.filter(p => p.zones.includes(zoneFilter));
+      periods = periods.filter((p) => p.zones.includes(zoneFilter));
     }
 
     if (hidePassed) {
-      periods = periods.filter(p => p.status !== 'passed');
+      periods = periods.filter((p) => p.status !== 'passed');
     }
 
     if (query) {
-      periods = periods.filter(p => 
-        p.name.toLowerCase().includes(query) ||
-        p.zones.some(z => z.toLowerCase().includes(query)) ||
-        p.start.includes(query) ||
-        p.end.includes(query)
+      periods = periods.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.zones.some((z) => z.toLowerCase().includes(query)) ||
+          p.start.includes(query) ||
+          p.end.includes(query),
       );
     }
 
@@ -143,17 +149,17 @@ export class HolidaysViewComponent {
   stats = computed(() => {
     const sites = this.configuredSites();
     const periods = this.allPeriods();
-    
-    const activeVacationSitesCount = sites.filter(site => 
-      this.holidayService.isHolidayForSite(new Date(), site.label)
+
+    const activeVacationSitesCount = sites.filter((site) =>
+      this.holidayService.isHolidayForSite(new Date(), site.label),
     ).length;
 
-    const currentHolidaysCount = periods.filter(p => p.status === 'current').length;
+    const currentHolidaysCount = periods.filter((p) => p.status === 'current').length;
 
     return {
       totalSites: sites.length,
       activeVacationSitesCount,
-      currentHolidaysCount
+      currentHolidaysCount,
     };
   });
 
@@ -167,10 +173,14 @@ export class HolidaysViewComponent {
 
   getZoneColorClass(zone: string): string {
     switch (zone) {
-      case 'Zone A': return 'zone-a';
-      case 'Zone B': return 'zone-b';
-      case 'Zone C': return 'zone-c';
-      default: return '';
+      case 'Zone A':
+        return 'zone-a';
+      case 'Zone B':
+        return 'zone-b';
+      case 'Zone C':
+        return 'zone-c';
+      default:
+        return '';
     }
   }
 

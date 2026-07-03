@@ -1,9 +1,9 @@
-import { Injectable, signal } from "@angular/core";
-import { SupabaseService } from "./supabase.service";
-import { Absence } from "../models/types";
+import { Injectable, signal } from '@angular/core';
+import { SupabaseService } from './supabase.service';
+import { Absence } from '../models/types';
 
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root',
 })
 export class AbsenceService {
   private _absences = signal<Absence[]>([]);
@@ -34,10 +34,10 @@ export class AbsenceService {
       do {
         const to = from + PAGE_SIZE - 1;
         const { data, error } = await this.supabase.client
-          .from("cd_absences")
-          .select("*")
-          .gte("date", startOfYear)
-          .lte("date", endOfYear)
+          .from('cd_absences')
+          .select('*')
+          .gte('date', startOfYear)
+          .lte('date', endOfYear)
           .range(from, to);
 
         if (error) throw error;
@@ -54,7 +54,7 @@ export class AbsenceService {
       this._absences.set(allAbsences);
       return allAbsences;
     } catch (err) {
-      console.error("Error fetching absences:", err);
+      console.error('Error fetching absences:', err);
       throw err;
     } finally {
       this._loading.set(false);
@@ -67,15 +67,15 @@ export class AbsenceService {
   async upsertAbsences(absences: Absence[], yearToRefresh: number): Promise<Absence[]> {
     try {
       const { data, error } = await this.supabase.client
-        .from("cd_absences")
-        .upsert(absences, { onConflict: "employee_id,date,period" })
+        .from('cd_absences')
+        .upsert(absences, { onConflict: 'employee_id,date,period' })
         .select();
 
       if (error) throw error;
       await this.fetchAbsencesForYear(yearToRefresh);
       return data || [];
     } catch (err) {
-      console.error("Error upserting absences:", err);
+      console.error('Error upserting absences:', err);
       throw err;
     }
   }
@@ -87,24 +87,24 @@ export class AbsenceService {
     employeeId: string,
     datesToDelete: string[],
     newAbsences: Absence[],
-    yearToRefresh: number
+    yearToRefresh: number,
   ): Promise<Absence[]> {
     try {
       if (datesToDelete.length > 0) {
         const { error: deleteError } = await this.supabase.client
-          .from("cd_absences")
+          .from('cd_absences')
           .delete()
-          .eq("employee_id", employeeId)
-          .in("date", datesToDelete);
-        
+          .eq('employee_id', employeeId)
+          .in('date', datesToDelete);
+
         if (deleteError) throw deleteError;
       }
 
       let data: Absence[] = [];
       if (newAbsences.length > 0) {
         const { data: upsertData, error: upsertError } = await this.supabase.client
-          .from("cd_absences")
-          .upsert(newAbsences, { onConflict: "employee_id,date,period" })
+          .from('cd_absences')
+          .upsert(newAbsences, { onConflict: 'employee_id,date,period' })
           .select();
 
         if (upsertError) throw upsertError;
@@ -114,7 +114,7 @@ export class AbsenceService {
       await this.fetchAbsencesForYear(yearToRefresh);
       return data;
     } catch (err) {
-      console.error("Error replacing employee absences:", err);
+      console.error('Error replacing employee absences:', err);
       throw err;
     }
   }
@@ -125,15 +125,12 @@ export class AbsenceService {
   async deleteAbsences(ids: string[], yearToRefresh: number): Promise<void> {
     if (ids.length === 0) return;
     try {
-      const { error } = await this.supabase.client
-        .from("cd_absences")
-        .delete()
-        .in("id", ids);
+      const { error } = await this.supabase.client.from('cd_absences').delete().in('id', ids);
 
       if (error) throw error;
       await this.fetchAbsencesForYear(yearToRefresh);
     } catch (err) {
-      console.error("Error deleting absences:", err);
+      console.error('Error deleting absences:', err);
       throw err;
     }
   }
@@ -142,9 +139,9 @@ export class AbsenceService {
    * Delete absences for a specific employee and specific dates/periods
    */
   async deleteEmployeeAbsencesForDates(
-    employeeId: string, 
-    datePeriods: { date: string; period: 'full' | 'morning' | 'afternoon' }[], 
-    yearToRefresh: number
+    employeeId: string,
+    datePeriods: { date: string; period: 'full' | 'morning' | 'afternoon' }[],
+    yearToRefresh: number,
   ): Promise<void> {
     if (datePeriods.length === 0) return;
     try {
@@ -152,24 +149,22 @@ export class AbsenceService {
       // For simplicity and safety, we can delete them in a single query by generating the combinations
       // or querying the IDs first and deleting by ID.
       // Let's query matching records first
-      const orConditions = datePeriods.map(dp => 
-        `and(date.eq.${dp.date},period.eq.${dp.period})`
-      ).join(",");
-      
+      const orConditions = datePeriods.map((dp) => `and(date.eq.${dp.date},period.eq.${dp.period})`).join(',');
+
       const { data, error: selectError } = await this.supabase.client
-        .from("cd_absences")
-        .select("id")
-        .eq("employee_id", employeeId)
+        .from('cd_absences')
+        .select('id')
+        .eq('employee_id', employeeId)
         .or(orConditions);
 
       if (selectError) throw selectError;
-      
+
       if (data && data.length > 0) {
-        const ids = data.map(item => item.id);
+        const ids = data.map((item) => item.id);
         await this.deleteAbsences(ids, yearToRefresh);
       }
     } catch (err) {
-      console.error("Error deleting employee absences for dates:", err);
+      console.error('Error deleting employee absences for dates:', err);
       throw err;
     }
   }

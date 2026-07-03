@@ -1,7 +1,7 @@
-import { inject } from "@angular/core";
-import { CanActivateFn, Router } from "@angular/router";
-import { SupabaseService } from "../services/supabase.service";
-import { environment } from "../../environments/environment";
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { SupabaseService } from '../services/supabase.service';
+import { environment } from '../../environments/environment';
 
 export const AuthGuard: CanActivateFn = async (route, state) => {
   // If authentication is disabled for development, allow access
@@ -21,7 +21,7 @@ export const AuthGuard: CanActivateFn = async (route, state) => {
 
   if (!data?.user) {
     // Redirect to login page and keep track of return URL
-    router.navigate(["/login"], { queryParams: { returnUrl: state.url } });
+    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
     return false;
   }
   return true;

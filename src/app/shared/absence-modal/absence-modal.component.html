@@ -1,7 +1,7 @@
 <div class="modal-overlay animate-fade-in" (click)="onClose()">
   <div class="modal-card" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>{{ existingAbsence() ? 'Modifier l\'absence' : 'Déclarer une absence' }}</h2>
+      <h2>{{ existingAbsence() ? "Modifier l'absence" : 'Déclarer une absence' }}</h2>
       <button class="close-btn" (click)="onClose()">
         <lucide-icon [img]="XIcon" size="20"></lucide-icon>
       </button>
@@ -17,10 +17,14 @@
 
         @if (balances(); as b) {
           <!-- Solde Global -->
-          <span class="balance-item balance-global" title="Solde globalisé restant (CP + RTT + Exceptionnel - Absences)">
+          <span
+            class="balance-item balance-global"
+            title="Solde globalisé restant (CP + RTT + Exceptionnel - Absences)"
+          >
             <span class="balance-label">Total :</span>
             <span class="balance-values">
-              {{ b.total.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.total.end < 0">{{ b.total.end }}j</span>
+              {{ b.total.start }}j <span class="balance-arrow">➔</span>
+              <span class="balance-end-value" [class.balance-negative]="b.total.end < 0">{{ b.total.end }}j</span>
             </span>
           </span>
         }
@@ -35,7 +39,8 @@
                 <span class="balance-label">CP :</span>
                 <span class="balance-values">
                   @if (b.category === 'CP') {
-                    {{ b.cp.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.cp.end < 0">{{ b.cp.end }}j</span>
+                    {{ b.cp.start }}j <span class="balance-arrow">➔</span>
+                    <span class="balance-end-value" [class.balance-negative]="b.cp.end < 0">{{ b.cp.end }}j</span>
                   } @else {
                     {{ b.cp.start }}j
                   }
@@ -47,7 +52,8 @@
                 <span class="balance-label">RTT :</span>
                 <span class="balance-values">
                   @if (b.category === 'RTT') {
-                    {{ b.rtt.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.rtt.end < 0">{{ b.rtt.end }}j</span>
+                    {{ b.rtt.start }}j <span class="balance-arrow">➔</span>
+                    <span class="balance-end-value" [class.balance-negative]="b.rtt.end < 0">{{ b.rtt.end }}j</span>
                   } @else {
                     {{ b.rtt.start }}j
                   }
@@ -59,7 +65,10 @@
                 <span class="balance-label">Exceptionnel :</span>
                 <span class="balance-values">
                   @if (b.category === 'Exceptionnel') {
-                    {{ b.exceptional.start }}j <span class="balance-arrow">➔</span> <span class="balance-end-value" [class.balance-negative]="b.exceptional.end < 0">{{ b.exceptional.end }}j</span>
+                    {{ b.exceptional.start }}j <span class="balance-arrow">➔</span>
+                    <span class="balance-end-value" [class.balance-negative]="b.exceptional.end < 0"
+                      >{{ b.exceptional.end }}j</span
+                    >
                   } @else {
                     {{ b.exceptional.start }}j
                   }
@@ -116,11 +125,23 @@
           </div>
           <div class="period-toggle-group">
             <label class="radio-label">
-              <input type="radio" name="startPeriod" value="morning" [ngModel]="startPeriod()" (ngModelChange)="startPeriod.set($event)" />
+              <input
+                type="radio"
+                name="startPeriod"
+                value="morning"
+                [ngModel]="startPeriod()"
+                (ngModelChange)="startPeriod.set($event)"
+              />
               Matin
             </label>
             <label class="radio-label">
-              <input type="radio" name="startPeriod" value="afternoon" [ngModel]="startPeriod()" (ngModelChange)="startPeriod.set($event)" />
+              <input
+                type="radio"
+                name="startPeriod"
+                value="afternoon"
+                [ngModel]="startPeriod()"
+                (ngModelChange)="startPeriod.set($event)"
+              />
               Après-midi
             </label>
           </div>
@@ -141,11 +162,23 @@
           </div>
           <div class="period-toggle-group">
             <label class="radio-label">
-              <input type="radio" name="endPeriod" value="morning" [ngModel]="endPeriod()" (ngModelChange)="endPeriod.set($event)" />
+              <input
+                type="radio"
+                name="endPeriod"
+                value="morning"
+                [ngModel]="endPeriod()"
+                (ngModelChange)="endPeriod.set($event)"
+              />
               Matin
             </label>
             <label class="radio-label">
-              <input type="radio" name="endPeriod" value="afternoon" [ngModel]="endPeriod()" (ngModelChange)="endPeriod.set($event)" />
+              <input
+                type="radio"
+                name="endPeriod"
+                value="afternoon"
+                [ngModel]="endPeriod()"
+                (ngModelChange)="endPeriod.set($event)"
+              />
               Après-midi
             </label>
           </div>
@@ -155,13 +188,7 @@
       <!-- Category Selector -->
       <div class="form-group">
         <label for="category">Catégorie d'absence</label>
-        <select
-          id="category"
-          [ngModel]="category()"
-          (ngModelChange)="category.set($event)"
-          name="category"
-          required
-        >
+        <select id="category" [ngModel]="category()" (ngModelChange)="category.set($event)" name="category" required>
           <option value="Autre">Absence</option>
           <option value="CP">Congé Payé (CP)</option>
           <option value="RTT">Réduction du Temps de Travail (RTT)</option>
@@ -178,7 +205,12 @@
       <div class="form-group">
         <div class="comment-label-container">
           <label for="comment">Commentaire (facultatif)</label>
-          <button type="button" class="btn-toggle-comment" (click)="toggleCommentInput()" [title]="showCommentInput() ? 'Masquer le commentaire' : 'Ajouter un commentaire'">
+          <button
+            type="button"
+            class="btn-toggle-comment"
+            (click)="toggleCommentInput()"
+            [title]="showCommentInput() ? 'Masquer le commentaire' : 'Ajouter un commentaire'"
+          >
             <lucide-icon [img]="showCommentInput() ? MinusIcon : PlusIcon" size="14"></lucide-icon>
           </button>
         </div>
@@ -204,7 +236,7 @@
             Supprimer
           </button>
         }
-        
+
         <div class="right-actions">
           <button type="button" class="btn btn-outline" (click)="onClose()">Annuler</button>
           <div class="submit-container">
@@ -227,10 +259,10 @@
           <lucide-icon [img]="XIcon" size="20"></lucide-icon>
         </button>
       </div>
-      
+
       <div class="confirm-body">
         <p>Êtes-vous sûr de vouloir supprimer les événements déjà planifiés sur cette période ?</p>
-        
+
         <div class="existing-absences-container">
           <div class="existing-absences-list">
             @for (item of existingAbsencesInPeriod(); track item.dateText + item.category) {
@@ -247,7 +279,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="modal-actions confirm-actions">
         <button type="button" class="btn btn-outline" (click)="cancelDelete()">Annuler</button>
         <button type="button" class="btn btn-primary btn-delete-confirm" (click)="confirmDelete()">

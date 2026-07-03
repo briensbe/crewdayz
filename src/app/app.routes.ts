@@ -16,32 +16,34 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-      { 
-        path: 'dashboard', 
-        loadComponent: () => import('./views/dashboard/dashboard.component').then(m => m.DashboardComponent) 
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./views/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
-      { 
-        path: 'collaborateurs', 
-        loadComponent: () => import('./views/employee-list/employee-list.component').then(m => m.EmployeeListComponent) 
+      {
+        path: 'collaborateurs',
+        loadComponent: () =>
+          import('./views/employee-list/employee-list.component').then((m) => m.EmployeeListComponent),
       },
-      { 
-        path: 'mensuel', 
-        loadComponent: () => import('./views/monthly-view/monthly-view.component').then(m => m.MonthlyViewComponent) 
+      {
+        path: 'mensuel',
+        loadComponent: () => import('./views/monthly-view/monthly-view.component').then((m) => m.MonthlyViewComponent),
       },
-      { 
-        path: 'annuel', 
-        loadComponent: () => import('./views/annual-view/annual-view.component').then(m => m.AnnualViewComponent) 
+      {
+        path: 'annuel',
+        loadComponent: () => import('./views/annual-view/annual-view.component').then((m) => m.AnnualViewComponent),
       },
-      { 
-        path: 'vacances', 
-        loadComponent: () => import('./views/holidays-view/holidays-view.component').then(m => m.HolidaysViewComponent) 
+      {
+        path: 'vacances',
+        loadComponent: () =>
+          import('./views/holidays-view/holidays-view.component').then((m) => m.HolidaysViewComponent),
       },
-      { 
-        path: 'audit', 
-        loadComponent: () => import('./views/audit-view/audit-view.component').then(m => m.AuditViewComponent) 
+      {
+        path: 'audit',
+        loadComponent: () => import('./views/audit-view/audit-view.component').then((m) => m.AuditViewComponent),
       },
-      { path: 'profile', component: ProfileComponent }
-    ]
+      { path: 'profile', component: ProfileComponent },
+    ],
   },
-  { path: '**', redirectTo: 'login' }
+  { path: '**', redirectTo: 'login' },
 ];

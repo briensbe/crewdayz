@@ -16,7 +16,7 @@ export interface FilterState {
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './filters.component.html',
-  styleUrl: './filters.component.css'
+  styleUrl: './filters.component.css',
 })
 export class FiltersComponent implements OnInit {
   private elementRef = inject(ElementRef);
@@ -55,10 +55,14 @@ export class FiltersComponent implements OnInit {
   activeFilterLabels = computed(() => {
     const labels: { key: keyof FilterState; label: string; value: string }[] = [];
     if (this.search()) labels.push({ key: 'search', label: 'Recherche', value: this.search() });
-    if (this.selectedService().length > 0) labels.push({ key: 'service', label: 'Service', value: this.selectedService().join(', ') });
-    if (this.selectedTeam().length > 0) labels.push({ key: 'team', label: 'Équipe', value: this.selectedTeam().join(', ') });
-    if (this.selectedWorkSite().length > 0) labels.push({ key: 'work_site', label: 'Site', value: this.selectedWorkSite().join(', ') });
-    if (this.selectedContractType().length > 0) labels.push({ key: 'contract_type', label: 'Contrat', value: this.selectedContractType().join(', ') });
+    if (this.selectedService().length > 0)
+      labels.push({ key: 'service', label: 'Service', value: this.selectedService().join(', ') });
+    if (this.selectedTeam().length > 0)
+      labels.push({ key: 'team', label: 'Équipe', value: this.selectedTeam().join(', ') });
+    if (this.selectedWorkSite().length > 0)
+      labels.push({ key: 'work_site', label: 'Site', value: this.selectedWorkSite().join(', ') });
+    if (this.selectedContractType().length > 0)
+      labels.push({ key: 'contract_type', label: 'Contrat', value: this.selectedContractType().join(', ') });
     return labels;
   });
 
@@ -79,22 +83,22 @@ export class FiltersComponent implements OnInit {
   toggleDropdown(dropdown: 'service' | 'team' | 'work_site' | 'contract_type', event: MouseEvent) {
     event.stopPropagation();
     if (dropdown === 'service') {
-      this.openServiceDropdown.update(val => !val);
+      this.openServiceDropdown.update((val) => !val);
       this.openTeamDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
       this.openContractTypeDropdown.set(false);
     } else if (dropdown === 'team') {
-      this.openTeamDropdown.update(val => !val);
+      this.openTeamDropdown.update((val) => !val);
       this.openServiceDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
       this.openContractTypeDropdown.set(false);
     } else if (dropdown === 'work_site') {
-      this.openWorkSiteDropdown.update(val => !val);
+      this.openWorkSiteDropdown.update((val) => !val);
       this.openServiceDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openContractTypeDropdown.set(false);
     } else if (dropdown === 'contract_type') {
-      this.openContractTypeDropdown.update(val => !val);
+      this.openContractTypeDropdown.update((val) => !val);
       this.openServiceDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
@@ -118,39 +122,31 @@ export class FiltersComponent implements OnInit {
       service: this.selectedService(),
       team: this.selectedTeam(),
       work_site: this.selectedWorkSite(),
-      contract_type: this.selectedContractType()
+      contract_type: this.selectedContractType(),
     });
   }
 
   toggleService(val: string, event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
-    this.selectedService.update(vals => 
-      checked ? [...vals, val] : vals.filter(v => v !== val)
-    );
+    this.selectedService.update((vals) => (checked ? [...vals, val] : vals.filter((v) => v !== val)));
     this.onFilterChange();
   }
 
   toggleTeam(val: string, event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
-    this.selectedTeam.update(vals => 
-      checked ? [...vals, val] : vals.filter(v => v !== val)
-    );
+    this.selectedTeam.update((vals) => (checked ? [...vals, val] : vals.filter((v) => v !== val)));
     this.onFilterChange();
   }
 
   toggleWorkSite(val: string, event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
-    this.selectedWorkSite.update(vals => 
-      checked ? [...vals, val] : vals.filter(v => v !== val)
-    );
+    this.selectedWorkSite.update((vals) => (checked ? [...vals, val] : vals.filter((v) => v !== val)));
     this.onFilterChange();
   }
 
   toggleContractType(val: string, event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
-    this.selectedContractType.update(vals => 
-      checked ? [...vals, val] : vals.filter(v => v !== val)
-    );
+    this.selectedContractType.update((vals) => (checked ? [...vals, val] : vals.filter((v) => v !== val)));
     this.onFilterChange();
   }
 

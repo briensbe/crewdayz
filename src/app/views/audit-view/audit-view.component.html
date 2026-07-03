@@ -8,8 +8,13 @@
         <p class="subtitle">Suivez et inspectez toutes les modifications apportées à la base de données</p>
       </div>
     </div>
-    
-    <button class="btn btn-primary btn-refresh" (click)="loadLogs()" [disabled]="auditService.loading()" id="btn-refresh-audit">
+
+    <button
+      class="btn btn-primary btn-refresh"
+      (click)="loadLogs()"
+      [disabled]="auditService.loading()"
+      id="btn-refresh-audit"
+    >
       <lucide-icon [img]="RefreshCw" [class.spin]="auditService.loading()" size="16"></lucide-icon>
       Actualiser
     </button>
@@ -19,10 +24,10 @@
   <div class="toolbar">
     <div class="search-box">
       <lucide-icon [img]="Search" size="18" class="search-icon"></lucide-icon>
-      <input 
-        type="text" 
-        [ngModel]="searchQuery()" 
-        (ngModelChange)="searchQuery.set($event)" 
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
         placeholder="Rechercher par utilisateur, table, valeur..."
         id="audit-search-input"
       />
@@ -32,11 +37,7 @@
       <!-- Table Filter -->
       <div class="filter-item">
         <label for="table-filter"><lucide-icon [img]="Database" size="14"></lucide-icon> Table</label>
-        <select 
-          id="table-filter" 
-          [ngModel]="selectedTable()" 
-          (ngModelChange)="selectedTable.set($event)"
-        >
+        <select id="table-filter" [ngModel]="selectedTable()" (ngModelChange)="selectedTable.set($event)">
           <option value="">Toutes les tables</option>
           @for (tbl of tables(); track tbl) {
             <option [value]="tbl">{{ translateTable(tbl) }}</option>
@@ -47,11 +48,7 @@
       <!-- Action Filter -->
       <div class="filter-item">
         <label for="action-filter"><lucide-icon [img]="Filter" size="14"></lucide-icon> Action</label>
-        <select 
-          id="action-filter" 
-          [ngModel]="selectedAction()" 
-          (ngModelChange)="selectedAction.set($event)"
-        >
+        <select id="action-filter" [ngModel]="selectedAction()" (ngModelChange)="selectedAction.set($event)">
           <option value="">Toutes les actions</option>
           @for (act of actions(); track act) {
             <option [value]="act">{{ act }}</option>
@@ -90,17 +87,10 @@
           <tbody>
             @for (log of filteredLogs(); track log.id) {
               <!-- Main Log Row -->
-              <tr 
-                class="log-row" 
-                [class.expanded]="isExpanded(log.id)"
-                (click)="toggleExpand(log.id)"
-              >
+              <tr class="log-row" [class.expanded]="isExpanded(log.id)" (click)="toggleExpand(log.id)">
                 <td>
                   <button class="expand-btn" aria-label="Déplier les détails">
-                    <lucide-icon 
-                      [img]="isExpanded(log.id) ? ChevronUp : ChevronDown" 
-                      size="18"
-                    ></lucide-icon>
+                    <lucide-icon [img]="isExpanded(log.id) ? ChevronUp : ChevronDown" size="18"></lucide-icon>
                   </button>
                 </td>
                 <td class="font-mono text-sm">
@@ -127,7 +117,9 @@
                     @if (log.profiles?.full_name) {
                       <span class="user-name">{{ log.profiles?.full_name }}</span>
                     } @else if (log.changed_by === supabaseService.user()?.id) {
-                      <span class="user-name text-primary-color">Vous ({{ supabaseService.user()?.user_metadata?.['displayName'] || 'Utilisateur' }})</span>
+                      <span class="user-name text-primary-color"
+                        >Vous ({{ supabaseService.user()?.user_metadata?.['displayName'] || 'Utilisateur' }})</span
+                      >
                     } @else if (log.changed_by) {
                       <span class="user-name font-mono text-xs" [title]="log.changed_by">
                         {{ log.changed_by.substring(0, 8) }}...
@@ -148,16 +140,16 @@
                   <td colspan="6">
                     <div class="details-container">
                       <div class="details-tabs">
-                        <button 
-                          class="tab-btn" 
+                        <button
+                          class="tab-btn"
                           [class.active]="!getShowRawJson(log.id)"
                           (click)="toggleRawJson(log.id, false)"
                         >
                           <lucide-icon [img]="Filter" size="14"></lucide-icon>
                           Comparatif des modifications
                         </button>
-                        <button 
-                          class="tab-btn" 
+                        <button
+                          class="tab-btn"
                           [class.active]="getShowRawJson(log.id)"
                           (click)="toggleRawJson(log.id, true)"
                         >
@@ -170,9 +162,7 @@
                         <!-- Tab 1: Diff View -->
                         @if (!getShowRawJson(log.id)) {
                           @if (getChangedFields(log).length === 0) {
-                            <div class="no-changes">
-                              Aucune modification détectée sur les champs suivis.
-                            </div>
+                            <div class="no-changes">Aucune modification détectée sur les champs suivis.</div>
                           } @else {
                             <table class="diff-table">
                               <thead>
@@ -190,7 +180,7 @@
                                       <span class="field-label">{{ field.label }}</span>
                                       <span class="field-key font-mono">{{ field.key }}</span>
                                     </td>
-                                    
+
                                     <td class="diff-value old">
                                       @if (field.type === 'added') {
                                         <span class="value-empty">(Néant)</span>
@@ -198,11 +188,11 @@
                                         <span class="value-text">{{ formatValue(field.key, field.oldValue) }}</span>
                                       }
                                     </td>
-                                    
+
                                     <td class="diff-arrow-cell">
                                       <lucide-icon [img]="ArrowRight" size="14" class="diff-arrow"></lucide-icon>
                                     </td>
-                                    
+
                                     <td class="diff-value new">
                                       @if (field.type === 'removed') {
                                         <span class="value-empty">(Supprimé)</span>
@@ -220,11 +210,15 @@
                           <div class="json-grid">
                             <div class="json-panel">
                               <span class="json-title">Anciennes Données (Avant)</span>
-                              <pre class="json-code"><code>{{ log.old_data ? (log.old_data | json) : 'null' }}</code></pre>
+                              <pre
+                                class="json-code"
+                              ><code>{{ log.old_data ? (log.old_data | json) : 'null' }}</code></pre>
                             </div>
                             <div class="json-panel">
                               <span class="json-title">Nouvelles Données (Après)</span>
-                              <pre class="json-code"><code>{{ log.new_data ? (log.new_data | json) : 'null' }}</code></pre>
+                              <pre
+                                class="json-code"
+                              ><code>{{ log.new_data ? (log.new_data | json) : 'null' }}</code></pre>
                             </div>
                           </div>
                         }

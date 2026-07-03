@@ -1,12 +1,12 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  LucideAngularModule, 
-  ChevronLeft, 
-  ChevronRight, 
-  Users, 
-  UserCheck, 
+import {
+  LucideAngularModule,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+  UserCheck,
   TrendingUp,
   AlertCircle,
   CalendarDays,
@@ -14,7 +14,7 @@ import {
   ArrowDownRight,
   X,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
 } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
@@ -36,7 +36,7 @@ interface MonthHeadcount {
 function parseDateOnly(dateStr: any): Date | null {
   if (!dateStr) return null;
   if (dateStr instanceof Date) return dateStr;
-  
+
   const cleanStr = String(dateStr).split('T')[0];
   const parts = cleanStr.split('-');
   if (parts.length === 3) {
@@ -56,7 +56,7 @@ function parseDateOnly(dateStr: any): Date | null {
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, FiltersComponent],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
   // Services
@@ -86,7 +86,20 @@ export class DashboardComponent implements OnInit {
 
   // Calendar State (Annual View)
   currentYear = signal<number>(new Date().getFullYear());
-  months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  months = [
+    'Janvier',
+    'Février',
+    'Mars',
+    'Avril',
+    'Mai',
+    'Juin',
+    'Juillet',
+    'Août',
+    'Septembre',
+    'Octobre',
+    'Novembre',
+    'Décembre',
+  ];
 
   // Filter State (persisted per view)
   activeFilters = storageSignal<FilterState>('crewdayz_dashboard_view_filters', {
@@ -94,7 +107,7 @@ export class DashboardComponent implements OnInit {
     service: [],
     team: [],
     work_site: [],
-    contract_type: []
+    contract_type: [],
   });
 
   // Hovered Chart Month Index
@@ -102,26 +115,24 @@ export class DashboardComponent implements OnInit {
 
   // Unique options for filters
   services = computed(() => {
-    const list = this.employeeService.employees().map(e => e.service);
+    const list = this.employeeService.employees().map((e) => e.service);
     return Array.from(new Set(list)).filter(Boolean).sort();
   });
 
   teams = computed(() => {
-    const list = this.employeeService.employees().map(e => e.team);
+    const list = this.employeeService.employees().map((e) => e.team);
     return Array.from(new Set(list)).filter(Boolean).sort();
   });
 
   workSites = computed(() => {
-    const list = this.employeeService.employees().map(e => e.work_site);
+    const list = this.employeeService.employees().map((e) => e.work_site);
     return Array.from(new Set(list)).filter(Boolean).sort();
   });
-
-
 
   // Filtered employees list
   filteredEmployees = computed(() => {
     const filters = this.activeFilters();
-    return this.employeeService.employees().filter(emp => {
+    return this.employeeService.employees().filter((emp) => {
       if (filters.search) {
         const query = filters.search.toLowerCase();
         const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
@@ -132,7 +143,12 @@ export class DashboardComponent implements OnInit {
       if (filters.service && filters.service.length > 0 && !filters.service.includes(emp.service)) return false;
       if (filters.team && filters.team.length > 0 && !filters.team.includes(emp.team)) return false;
       if (filters.work_site && filters.work_site.length > 0 && !filters.work_site.includes(emp.work_site)) return false;
-      if (filters.contract_type && filters.contract_type.length > 0 && !filters.contract_type.includes(emp.contract_type)) return false;
+      if (
+        filters.contract_type &&
+        filters.contract_type.length > 0 &&
+        !filters.contract_type.includes(emp.contract_type)
+      )
+        return false;
       return true;
     });
   });
@@ -156,7 +172,7 @@ export class DashboardComponent implements OnInit {
       const arrivals: Employee[] = [];
       const departures: Employee[] = [];
 
-      employees.forEach(emp => {
+      employees.forEach((emp) => {
         const arrivalDateObj = parseDateOnly(emp.arrival_date);
         const departureDateObj = parseDateOnly(emp.departure_date);
 
@@ -187,7 +203,7 @@ export class DashboardComponent implements OnInit {
         presentCount: activeEmployees.length,
         activeEmployees,
         arrivals,
-        departures
+        departures,
       });
     }
 
@@ -201,7 +217,7 @@ export class DashboardComponent implements OnInit {
     const employees = this.filteredEmployees();
 
     // Total unique employees present at some point during the year
-    const uniqueYearlyEmployees = employees.filter(emp => {
+    const uniqueYearlyEmployees = employees.filter((emp) => {
       const arrivalDateObj = parseDateOnly(emp.arrival_date);
       const departureDateObj = parseDateOnly(emp.departure_date);
       const yearStart = new Date(year, 0, 1);
@@ -216,7 +232,7 @@ export class DashboardComponent implements OnInit {
     let minPresence = uniqueYearlyEmployees.length;
     let sumPresence = 0;
 
-    data.forEach(d => {
+    data.forEach((d) => {
       sumPresence += d.presentCount;
       if (d.presentCount > maxPresence) maxPresence = d.presentCount;
       if (d.presentCount < minPresence) minPresence = d.presentCount;
@@ -227,7 +243,7 @@ export class DashboardComponent implements OnInit {
     // Total arrivals and departures over the year
     let totalArrivals = 0;
     let totalDepartures = 0;
-    data.forEach(d => {
+    data.forEach((d) => {
       totalArrivals += d.arrivals.length;
       totalDepartures += d.departures.length;
     });
@@ -238,7 +254,7 @@ export class DashboardComponent implements OnInit {
       maxPresence,
       minPresence: uniqueYearlyEmployees.length === 0 ? 0 : minPresence,
       totalArrivals,
-      totalDepartures
+      totalDepartures,
     };
   });
 
@@ -298,7 +314,7 @@ export class DashboardComponent implements OnInit {
 
     return {
       line: linePoints,
-      area: areaPoints
+      area: areaPoints,
     };
   });
 
@@ -325,18 +341,16 @@ export class DashboardComponent implements OnInit {
 
   // Year navigation
   prevYear() {
-    this.currentYear.update(y => y - 1);
+    this.currentYear.update((y) => y - 1);
   }
 
   nextYear() {
-    this.currentYear.update(y => y + 1);
+    this.currentYear.update((y) => y + 1);
   }
 
   handleFilterChange(newFilters: FilterState) {
     this.activeFilters.set(newFilters);
   }
-
-
 
   setHoveredIndex(index: number | null) {
     this.hoveredIndex.set(index);

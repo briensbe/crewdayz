@@ -1,14 +1,38 @@
 import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Plus, Edit, Trash2, Users, Building2, MapPin, Briefcase, DollarSign, Calendar, Check, X, Copy, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  Plus,
+  Edit,
+  Trash2,
+  Users,
+  Building2,
+  MapPin,
+  Briefcase,
+  DollarSign,
+  Calendar,
+  Check,
+  X,
+  Copy,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { storageSignal } from '../../../utils/storage-signal';
 import { getTeamStyle } from '../../shared/utils/color-utils';
 
-export type EmployeeSortField = 'name' | 'contract_type' | 'profile' | 'service' | 'team' | 'work_site' | 'arrival_date';
+export type EmployeeSortField =
+  | 'name'
+  | 'contract_type'
+  | 'profile'
+  | 'service'
+  | 'team'
+  | 'work_site'
+  | 'arrival_date';
 
 @Component({
   selector: 'app-employee-list',
@@ -128,7 +152,9 @@ export class EmployeeListComponent implements OnInit {
 
   companyNames = computed(() => {
     const list = this.employeeService.employees().map((e) => e.company_name);
-    return Array.from(new Set(list)).filter((c): c is string => !!c).sort();
+    return Array.from(new Set(list))
+      .filter((c): c is string => !!c)
+      .sort();
   });
 
   // Filtered employees list mapped with active year balances (returns undefined if not in DB)
@@ -152,8 +178,14 @@ export class EmployeeListComponent implements OnInit {
         // Dropdown filters
         if (filters.service && filters.service.length > 0 && !filters.service.includes(emp.service)) return false;
         if (filters.team && filters.team.length > 0 && !filters.team.includes(emp.team)) return false;
-        if (filters.work_site && filters.work_site.length > 0 && !filters.work_site.includes(emp.work_site)) return false;
-        if (filters.contract_type && filters.contract_type.length > 0 && !filters.contract_type.includes(emp.contract_type)) return false;
+        if (filters.work_site && filters.work_site.length > 0 && !filters.work_site.includes(emp.work_site))
+          return false;
+        if (
+          filters.contract_type &&
+          filters.contract_type.length > 0 &&
+          !filters.contract_type.includes(emp.contract_type)
+        )
+          return false;
 
         return true;
       })
@@ -363,22 +395,22 @@ export class EmployeeListComponent implements OnInit {
 
   // Combobox custom state for workSites
   showWorkSiteDropdown = signal(false);
-  
+
   // Computes filtered list based on typed value in "workSite" field
   filteredWorkSites = computed(() => {
     const query = this.workSite().toLowerCase().trim();
     // If query is empty OR if it matches exactly an existing site, show all sites
-    if (!query || this.workSites().some(w => w.toLowerCase() === query)) {
+    if (!query || this.workSites().some((w) => w.toLowerCase() === query)) {
       return this.workSites();
     }
-    return this.workSites().filter(w => w.toLowerCase().includes(query));
+    return this.workSites().filter((w) => w.toLowerCase().includes(query));
   });
 
   // Determines if the entered text is a new site that doesn't exist yet
   isNewWorkSite = computed(() => {
     const current = this.workSite().trim();
     if (!current) return false;
-    return !this.workSites().some(w => w.toLowerCase() === current.toLowerCase());
+    return !this.workSites().some((w) => w.toLowerCase() === current.toLowerCase());
   });
 
   onWorkSiteSearch(val: string) {
@@ -393,7 +425,7 @@ export class EmployeeListComponent implements OnInit {
 
   toggleWorkSiteDropdown(event: Event) {
     event.stopPropagation();
-    this.showWorkSiteDropdown.update(v => !v);
+    this.showWorkSiteDropdown.update((v) => !v);
   }
 
   closeWorkSiteDropdown() {
@@ -405,22 +437,22 @@ export class EmployeeListComponent implements OnInit {
 
   // Combobox custom state for profiles
   showProfileDropdown = signal(false);
-  
+
   // Computes filtered list based on typed value in "profile" field
   filteredProfiles = computed(() => {
     const query = this.profile().toLowerCase().trim();
     // If query is empty OR if it matches exactly an existing profile, show all profiles
-    if (!query || this.profiles().some(p => p.toLowerCase() === query)) {
+    if (!query || this.profiles().some((p) => p.toLowerCase() === query)) {
       return this.profiles();
     }
-    return this.profiles().filter(p => p.toLowerCase().includes(query));
+    return this.profiles().filter((p) => p.toLowerCase().includes(query));
   });
 
   // Determines if the entered text is a new profile that doesn't exist yet
   isNewProfile = computed(() => {
     const current = this.profile().trim();
     if (!current) return false;
-    return !this.profiles().some(p => p.toLowerCase() === current.toLowerCase());
+    return !this.profiles().some((p) => p.toLowerCase() === current.toLowerCase());
   });
 
   onProfileSearch(val: string) {
@@ -435,7 +467,7 @@ export class EmployeeListComponent implements OnInit {
 
   toggleProfileDropdown(event: Event) {
     event.stopPropagation();
-    this.showProfileDropdown.update(v => !v);
+    this.showProfileDropdown.update((v) => !v);
   }
 
   closeProfileDropdown() {
@@ -464,7 +496,7 @@ export class EmployeeListComponent implements OnInit {
     this.isEditMode.set(false);
     this.currentEmployeeId.set(null);
     this.resetFormFields();
-    
+
     // Fill duplicatedFromName signal to show feedback
     this.duplicatedFromName.set(`${emp.first_name} ${emp.last_name}`);
 
@@ -480,15 +512,11 @@ export class EmployeeListComponent implements OnInit {
     const activeYear = this.selectedYear();
     const balance = emp.cd_employee_balances?.find((b) => b.year === activeYear);
     const defaults =
-      emp.contract_type === 'Interne'
-        ? CONTRACT_DEFAULT_BALANCES.Interne
-        : CONTRACT_DEFAULT_BALANCES.Externe;
+      emp.contract_type === 'Interne' ? CONTRACT_DEFAULT_BALANCES.Interne : CONTRACT_DEFAULT_BALANCES.Externe;
 
     this.initialCP.set(balance ? balance.initial_cp : defaults.initial_cp);
     this.initialRTT.set(balance ? balance.initial_rtt : defaults.initial_rtt);
-    this.initialExceptional.set(
-      balance ? balance.initial_exceptional : defaults.initial_exceptional,
-    );
+    this.initialExceptional.set(balance ? balance.initial_exceptional : defaults.initial_exceptional);
 
     this.errorMessage.set(null);
     this.showModal.set(true);
@@ -516,15 +544,11 @@ export class EmployeeListComponent implements OnInit {
     const activeYear = this.selectedYear();
     const balance = emp.cd_employee_balances?.find((b) => b.year === activeYear);
     const defaults =
-      emp.contract_type === 'Interne'
-        ? CONTRACT_DEFAULT_BALANCES.Interne
-        : CONTRACT_DEFAULT_BALANCES.Externe;
+      emp.contract_type === 'Interne' ? CONTRACT_DEFAULT_BALANCES.Interne : CONTRACT_DEFAULT_BALANCES.Externe;
 
     this.initialCP.set(balance ? balance.initial_cp : defaults.initial_cp);
     this.initialRTT.set(balance ? balance.initial_rtt : defaults.initial_rtt);
-    this.initialExceptional.set(
-      balance ? balance.initial_exceptional : defaults.initial_exceptional,
-    );
+    this.initialExceptional.set(balance ? balance.initial_exceptional : defaults.initial_exceptional);
 
     this.errorMessage.set(null);
     this.showModal.set(true);
@@ -569,13 +593,7 @@ export class EmployeeListComponent implements OnInit {
     this.errorMessage.set(null);
 
     // Validation
-    if (
-      !this.firstName() ||
-      !this.lastName() ||
-      !this.service() ||
-      !this.team() ||
-      !this.workSite()
-    ) {
+    if (!this.firstName() || !this.lastName() || !this.service() || !this.team() || !this.workSite()) {
       this.errorMessage.set('Veuillez remplir tous les champs obligatoires.');
       return;
     }
@@ -623,7 +641,7 @@ export class EmployeeListComponent implements OnInit {
   startInlineEdit(emp: Employee, field: string, event: Event) {
     event.stopPropagation();
     if (!emp.id) return;
-    
+
     this.editingEmployeeId.set(emp.id);
     this.editingField.set(field);
 
@@ -642,15 +660,11 @@ export class EmployeeListComponent implements OnInit {
     const activeYear = this.selectedYear();
     const balance = emp.cd_employee_balances?.find((b) => b.year === activeYear);
     const defaults =
-      emp.contract_type === 'Interne'
-        ? CONTRACT_DEFAULT_BALANCES.Interne
-        : CONTRACT_DEFAULT_BALANCES.Externe;
+      emp.contract_type === 'Interne' ? CONTRACT_DEFAULT_BALANCES.Interne : CONTRACT_DEFAULT_BALANCES.Externe;
 
     this.initialCP.set(balance ? balance.initial_cp : defaults.initial_cp);
     this.initialRTT.set(balance ? balance.initial_rtt : defaults.initial_rtt);
-    this.initialExceptional.set(
-      balance ? balance.initial_exceptional : defaults.initial_exceptional,
-    );
+    this.initialExceptional.set(balance ? balance.initial_exceptional : defaults.initial_exceptional);
   }
 
   async saveInlineEdit() {
@@ -658,13 +672,7 @@ export class EmployeeListComponent implements OnInit {
     if (!id) return;
 
     // Validation
-    if (
-      !this.firstName() ||
-      !this.lastName() ||
-      !this.service() ||
-      !this.team() ||
-      !this.workSite()
-    ) {
+    if (!this.firstName() || !this.lastName() || !this.service() || !this.team() || !this.workSite()) {
       alert('Veuillez remplir tous les champs obligatoires.');
       return;
     }

@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (params['reason'] === 'session_expired') {
         this.sessionExpired.set(true);
       }
@@ -51,7 +51,7 @@ export class LoginComponent implements OnInit {
         email: this.email(),
         password: this.password(),
       });
-      
+
       if (error) {
         this.errorMessage.set(error.message);
       } else {

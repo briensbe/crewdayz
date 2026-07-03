@@ -1,14 +1,14 @@
 import { Injectable, signal } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SidebarService {
   private _collapsed = signal<boolean>(false);
   public collapsed = this._collapsed.asReadonly();
 
   toggleCollapsed() {
-    this._collapsed.update(val => !val);
+    this._collapsed.update((val) => !val);
   }
 
   setCollapsed(val: boolean) {

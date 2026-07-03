@@ -4,7 +4,7 @@
       <h1>Vue Mensuelle</h1>
       <p class="subtitle">Planification des absences et calcul des jours travaillés</p>
     </div>
-    
+
     <!-- Month Navigation -->
     <div class="month-navigator">
       <button class="nav-arrow-btn" (click)="prevMonth()" title="Mois précédent">
@@ -26,7 +26,6 @@
     (filterChange)="handleFilterChange($event)"
   ></app-filters>
 
-
   <!-- Main Calendar Grid Table -->
   <div class="table-container calendar-table-container animate-fade-in">
     @if (employeeService.loading() && filteredEmployees().length === 0) {
@@ -44,58 +43,124 @@
       <table class="calendar-table">
         <thead>
           <tr class="week-header-row">
-            <th rowspan="5" (click)="toggleCollaboratorSort()" class="sticky-col name-col sortable-column" [class.last-sticky]="lastVisibleStickyCol() === 'name'" title="Trier par collaborateur">
+            <th
+              rowspan="5"
+              (click)="toggleCollaboratorSort()"
+              class="sticky-col name-col sortable-column"
+              [class.last-sticky]="lastVisibleStickyCol() === 'name'"
+              title="Trier par collaborateur"
+            >
               <div class="name-header-container-wrapper">
-                <div class="month-recall-badge">
-                  {{ months[month()] }} {{ year() }}
-                </div>
+                <div class="month-recall-badge">{{ months[month()] }} {{ year() }}</div>
                 <div class="name-header-content">
                   <div class="header-sort-wrapper">
                     <span>Collaborateur</span>
-                    <lucide-icon [img]="collaboratorSortOrder() === 'asc' ? ArrowUp : ArrowDown" 
-                                 [class.active]="true" 
-                                 class="sort-icon" size="14"></lucide-icon>
+                    <lucide-icon
+                      [img]="collaboratorSortOrder() === 'asc' ? ArrowUp : ArrowDown"
+                      [class.active]="true"
+                      class="sort-icon"
+                      size="14"
+                    ></lucide-icon>
                   </div>
-                  <button type="button" class="collapse-toggle-btn" (click)="toggleColumns(); $event.stopPropagation()" [title]="showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'">
+                  <button
+                    type="button"
+                    class="collapse-toggle-btn"
+                    (click)="toggleColumns(); $event.stopPropagation()"
+                    [title]="
+                      showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'
+                    "
+                  >
                     <lucide-icon [img]="showColumns() ? ChevronLeft : ChevronRight" size="14"></lucide-icon>
                   </button>
                 </div>
               </div>
             </th>
             @if (showServiceCol()) {
-              <th rowspan="5" class="sticky-col service-col" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">Service</th>
+              <th
+                rowspan="5"
+                class="sticky-col service-col"
+                [class.last-sticky]="lastVisibleStickyCol() === 'service'"
+                [style.left]="'150px'"
+              >
+                Service
+              </th>
             }
             @if (showTeamCol()) {
-              <th rowspan="5" class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()">Équipe</th>
+              <th
+                rowspan="5"
+                class="sticky-col team-col"
+                [class.last-sticky]="lastVisibleStickyCol() === 'team'"
+                [style.left]="teamColLeft()"
+              >
+                Équipe
+              </th>
             }
             @if (showSiteCol()) {
-              <th rowspan="5" class="sticky-col site-col" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">Site</th>
+              <th
+                rowspan="5"
+                class="sticky-col site-col"
+                [class.last-sticky]="lastVisibleStickyCol() === 'site'"
+                [style.left]="siteColLeft()"
+              >
+                Site
+              </th>
             }
             @if (showTypeCol()) {
-              <th rowspan="5" class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">Type</th>
+              <th
+                rowspan="5"
+                class="sticky-col type-col"
+                [class.last-sticky]="lastVisibleStickyCol() === 'type'"
+                [style.left]="typeColLeft()"
+              >
+                Type
+              </th>
             }
             @if (showBalanceStartCol()) {
-              <th rowspan="5" class="sticky-col balance-col text-center" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()" title="Solde de congés global (CP + RTT + Exceptionnel - Absences) restant au début de ce mois">Solde Début</th>
-            }
-            
-            <!-- Calendar week headers -->
-            @for (week of weeksInMonth(); track week.weekNum) {
-              <th [attr.colspan]="week.colSpan" class="week-header-cell text-center">
-                S{{ week.weekNum }}
+              <th
+                rowspan="5"
+                class="sticky-col balance-col text-center"
+                [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'"
+                [style.left]="balanceStartColLeft()"
+                title="Solde de congés global (CP + RTT + Exceptionnel - Absences) restant au début de ce mois"
+              >
+                Solde Début
               </th>
             }
 
-            <th rowspan="5" class="balance-col text-center sticky-right-2" title="Solde de congés global (CP + RTT + Exceptionnel - Absences) restant à la fin de ce mois">Solde Fin</th>
-            <th rowspan="5" class="worked-col text-center sticky-right-1" title="Jours réellement travaillés dans le mois">Jours Trav.</th>
+            <!-- Calendar week headers -->
+            @for (week of weeksInMonth(); track week.weekNum) {
+              <th [attr.colspan]="week.colSpan" class="week-header-cell text-center">S{{ week.weekNum }}</th>
+            }
+
+            <th
+              rowspan="5"
+              class="balance-col text-center sticky-right-2"
+              title="Solde de congés global (CP + RTT + Exceptionnel - Absences) restant à la fin de ce mois"
+            >
+              Solde Fin
+            </th>
+            <th
+              rowspan="5"
+              class="worked-col text-center sticky-right-1"
+              title="Jours réellement travaillés dans le mois"
+            >
+              Jours Trav.
+            </th>
           </tr>
 
           <!-- Zone A Holiday Row -->
           <tr class="zone-holiday-row zone-a-row">
             @for (day of daysInMonth(); track day.dateStr) {
-              <th class="holiday-strip-cell zone-a-cell" 
-                  [class.active]="holidayService.isHolidayInZone(day.date, 'Zone A')"
-                  [class.week-separator]="day.isWeekEnd"
-                  [attr.title]="holidayService.isHolidayInZone(day.date, 'Zone A') ? ('Zone A : ' + holidayService.getHolidayNameInZone(day.date, 'Zone A')) : ''">
+              <th
+                class="holiday-strip-cell zone-a-cell"
+                [class.active]="holidayService.isHolidayInZone(day.date, 'Zone A')"
+                [class.week-separator]="day.isWeekEnd"
+                [attr.title]="
+                  holidayService.isHolidayInZone(day.date, 'Zone A')
+                    ? 'Zone A : ' + holidayService.getHolidayNameInZone(day.date, 'Zone A')
+                    : ''
+                "
+              >
                 <div class="holiday-strip zone-a-strip"></div>
               </th>
             }
@@ -104,10 +169,16 @@
           <!-- Zone B Holiday Row -->
           <tr class="zone-holiday-row zone-b-row">
             @for (day of daysInMonth(); track day.dateStr) {
-              <th class="holiday-strip-cell zone-b-cell" 
-                  [class.active]="holidayService.isHolidayInZone(day.date, 'Zone B')"
-                  [class.week-separator]="day.isWeekEnd"
-                  [attr.title]="holidayService.isHolidayInZone(day.date, 'Zone B') ? ('Zone B : ' + holidayService.getHolidayNameInZone(day.date, 'Zone B')) : ''">
+              <th
+                class="holiday-strip-cell zone-b-cell"
+                [class.active]="holidayService.isHolidayInZone(day.date, 'Zone B')"
+                [class.week-separator]="day.isWeekEnd"
+                [attr.title]="
+                  holidayService.isHolidayInZone(day.date, 'Zone B')
+                    ? 'Zone B : ' + holidayService.getHolidayNameInZone(day.date, 'Zone B')
+                    : ''
+                "
+              >
                 <div class="holiday-strip zone-b-strip"></div>
               </th>
             }
@@ -116,10 +187,16 @@
           <!-- Zone C Holiday Row -->
           <tr class="zone-holiday-row zone-c-row">
             @for (day of daysInMonth(); track day.dateStr) {
-              <th class="holiday-strip-cell zone-c-cell" 
-                  [class.active]="holidayService.isHolidayInZone(day.date, 'Zone C')"
-                  [class.week-separator]="day.isWeekEnd"
-                  [attr.title]="holidayService.isHolidayInZone(day.date, 'Zone C') ? ('Zone C : ' + holidayService.getHolidayNameInZone(day.date, 'Zone C')) : ''">
+              <th
+                class="holiday-strip-cell zone-c-cell"
+                [class.active]="holidayService.isHolidayInZone(day.date, 'Zone C')"
+                [class.week-separator]="day.isWeekEnd"
+                [attr.title]="
+                  holidayService.isHolidayInZone(day.date, 'Zone C')
+                    ? 'Zone C : ' + holidayService.getHolidayNameInZone(day.date, 'Zone C')
+                    : ''
+                "
+              >
                 <div class="holiday-strip zone-c-strip"></div>
               </th>
             }
@@ -128,11 +205,13 @@
           <tr class="day-header-row">
             <!-- Calendar day headers -->
             @for (day of daysInMonth(); track day.dateStr) {
-              <th [class.col-weekend]="day.isWeekend || day.isHoliday" 
-                  [class.col-holiday]="day.isHoliday"
-                  [class.week-separator]="day.isWeekEnd"
-                  [attr.title]="day.holidayName"
-                  class="day-col text-center">
+              <th
+                [class.col-weekend]="day.isWeekend || day.isHoliday"
+                [class.col-holiday]="day.isHoliday"
+                [class.week-separator]="day.isWeekEnd"
+                [attr.title]="day.holidayName"
+                class="day-col text-center"
+              >
                 <div class="day-header-compact">
                   <span class="day-name">{{ day.dayName }}</span>
                   <span class="day-number">{{ day.dayNum }}</span>
@@ -144,48 +223,87 @@
         <tbody>
           @for (emp of filteredEmployees(); track emp.id) {
             <tr>
-              <td class="sticky-col name-col font-semibold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">{{ emp.first_name }} {{ emp.last_name }}</td>
+              <td class="sticky-col name-col font-semibold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
+                {{ emp.first_name }} {{ emp.last_name }}
+              </td>
               @if (showServiceCol()) {
-                <td class="sticky-col service-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'service'" [style.left]="'150px'">{{ emp.service }}</td>
+                <td
+                  class="sticky-col service-col subtle-text"
+                  [class.last-sticky]="lastVisibleStickyCol() === 'service'"
+                  [style.left]="'150px'"
+                >
+                  {{ emp.service }}
+                </td>
               }
               @if (showTeamCol()) {
-                <td class="sticky-col team-col" [class.last-sticky]="lastVisibleStickyCol() === 'team'" [style.left]="teamColLeft()">
-                  <span class="team-badge" [style.background-color]="getTeamStyle(emp.team).background" [style.color]="getTeamStyle(emp.team).color" [style.border-color]="getTeamStyle(emp.team).borderColor">{{ emp.team }}</span>
+                <td
+                  class="sticky-col team-col"
+                  [class.last-sticky]="lastVisibleStickyCol() === 'team'"
+                  [style.left]="teamColLeft()"
+                >
+                  <span
+                    class="team-badge"
+                    [style.background-color]="getTeamStyle(emp.team).background"
+                    [style.color]="getTeamStyle(emp.team).color"
+                    [style.border-color]="getTeamStyle(emp.team).borderColor"
+                    >{{ emp.team }}</span
+                  >
                 </td>
               }
               @if (showSiteCol()) {
-                <td class="sticky-col site-col subtle-text" [class.last-sticky]="lastVisibleStickyCol() === 'site'" [style.left]="siteColLeft()">{{ emp.work_site }}</td>
+                <td
+                  class="sticky-col site-col subtle-text"
+                  [class.last-sticky]="lastVisibleStickyCol() === 'site'"
+                  [style.left]="siteColLeft()"
+                >
+                  {{ emp.work_site }}
+                </td>
               }
               @if (showTypeCol()) {
-                <td class="sticky-col type-col" [class.last-sticky]="lastVisibleStickyCol() === 'type'" [style.left]="typeColLeft()">
-                  <span class="type-text" [class.type-interne]="emp.contract_type === 'Interne'" [class.type-externe]="emp.contract_type === 'Externe'">
+                <td
+                  class="sticky-col type-col"
+                  [class.last-sticky]="lastVisibleStickyCol() === 'type'"
+                  [style.left]="typeColLeft()"
+                >
+                  <span
+                    class="type-text"
+                    [class.type-interne]="emp.contract_type === 'Interne'"
+                    [class.type-externe]="emp.contract_type === 'Externe'"
+                  >
                     {{ emp.contract_type }}
                   </span>
                 </td>
               }
-              
+
               <!-- Beginning Balance -->
               @if (showBalanceStartCol()) {
-                <td class="sticky-col balance-col text-center balance-value" [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'" [style.left]="balanceStartColLeft()">{{ getBeginningBalance(emp) }} j</td>
+                <td
+                  class="sticky-col balance-col text-center balance-value"
+                  [class.last-sticky]="lastVisibleStickyCol() === 'balanceStart'"
+                  [style.left]="balanceStartColLeft()"
+                >
+                  {{ getBeginningBalance(emp) }} j
+                </td>
               }
 
               <!-- Daily Calendar Grid Cells -->
               @for (day of daysInMonth(); track day.dateStr) {
                 @let isUnavailable = isEmployeeUnavailable(emp, day.dateStr);
-                <td [class.cell-weekend]="day.isWeekend || day.isHoliday"
-                    [class.cell-unavailable]="isUnavailable && !day.isWeekend && !day.isHoliday"
-                    [class.selected-cell]="isCellSelected(emp.id!, day.dateStr)"
-                    [class.week-separator]="day.isWeekEnd"
-                    (mousedown)="!(day.isWeekend || day.isHoliday || isUnavailable) && onCellMouseDown(emp.id!, day.dateStr, $event)"
-                    (mouseenter)="onCellMouseEnter(emp.id!, day.dateStr)"
-                    class="day-cell text-center select-none">
-                  
+                <td
+                  [class.cell-weekend]="day.isWeekend || day.isHoliday"
+                  [class.cell-unavailable]="isUnavailable && !day.isWeekend && !day.isHoliday"
+                  [class.selected-cell]="isCellSelected(emp.id!, day.dateStr)"
+                  [class.week-separator]="day.isWeekEnd"
+                  (mousedown)="
+                    !(day.isWeekend || day.isHoliday || isUnavailable) && onCellMouseDown(emp.id!, day.dateStr, $event)
+                  "
+                  (mouseenter)="onCellMouseEnter(emp.id!, day.dateStr)"
+                  class="day-cell text-center select-none"
+                >
                   <!-- Display absence badge if registered -->
                   @let cell = getCellVal(emp.id!, day.dateStr);
                   @if (cell) {
-                    <span class="absence-indicator" 
-                          [class]="cell.class"
-                          [title]="cell.tooltip">
+                    <span class="absence-indicator" [class]="cell.class" [title]="cell.tooltip">
                       {{ cell.val }}
                       @if (cell.comment) {
                         <lucide-icon [img]="MessageSquare" class="comment-icon-cell" size="9"></lucide-icon>
@@ -196,8 +314,10 @@
               }
 
               <!-- Ending Balance -->
-              <td class="balance-col text-center balance-value font-bold sticky-right-2">{{ getEndingBalance(emp) }} j</td>
-              
+              <td class="balance-col text-center balance-value font-bold sticky-right-2">
+                {{ getEndingBalance(emp) }} j
+              </td>
+
               <!-- Worked Days -->
               <td class="worked-col text-center worked-value font-bold sticky-right-1">{{ getWorkedDays(emp) }} j</td>
             </tr>
@@ -244,11 +364,13 @@
                     } @else {
                       <div class="availability-cell-badges">
                         @for (avail of weekData.availabilities; track avail.percentage) {
-                          <span class="availability-badge" 
-                                [class.avail-high]="avail.percentage === 100"
-                                [class.avail-med]="avail.percentage < 100 && avail.percentage > 0"
-                                [class.avail-zero]="avail.percentage === 0"
-                                [title]="avail.employeeNames.join(', ')">
+                          <span
+                            class="availability-badge"
+                            [class.avail-high]="avail.percentage === 100"
+                            [class.avail-med]="avail.percentage < 100 && avail.percentage > 0"
+                            [class.avail-zero]="avail.percentage === 0"
+                            [title]="avail.employeeNames.join(', ')"
+                          >
                             <strong>{{ avail.count }}</strong> × {{ avail.percentage }}%
                           </span>
                         }
@@ -267,11 +389,17 @@
   <!-- Legend Section at the bottom -->
   <div class="legend-card-container">
     <div class="legend-card" [class.expanded]="showLegend()">
-      <button type="button" class="legend-header" (click)="toggleLegend()" [class.active]="showLegend()" [title]="showLegend() ? 'Masquer la légende' : 'Afficher la légende'">
+      <button
+        type="button"
+        class="legend-header"
+        (click)="toggleLegend()"
+        [class.active]="showLegend()"
+        [title]="showLegend() ? 'Masquer la légende' : 'Afficher la légende'"
+      >
         <span class="legend-title">Légende</span>
         <lucide-icon [img]="ChevronRight" size="14" class="chevron-icon"></lucide-icon>
       </button>
-      
+
       @if (showLegend()) {
         <div class="legend-items">
           <div class="legend-item"><span class="legend-badge abs-other">1 / 0.5</span> Absence</div>
@@ -282,7 +410,9 @@
           <div class="legend-item"><span class="legend-badge abs-exceptionnel">1 / 0.5</span> Exceptionnel</div>
           <div class="legend-item"><span class="legend-badge abs-formation">F</span> Formation (Absence = 0)</div>
           <div class="legend-item"><span class="legend-badge abs-partiel">1 / 0.5</span> Temps partiel</div>
-          <div class="legend-item"><span class="legend-badge abs-previsionnel">1 / 0.5</span> Prévisionnel (Simulation)</div>
+          <div class="legend-item">
+            <span class="legend-badge abs-previsionnel">1 / 0.5</span> Prévisionnel (Simulation)
+          </div>
           <div class="legend-item"><span class="legend-badge abs-unavailable">I</span> Indisponible (Départ)</div>
         </div>
       }

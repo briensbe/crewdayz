@@ -31,9 +31,17 @@ if (fs.existsSync(targetEnvPath)) {
   const content = fs.readFileSync(targetEnvPath, 'utf-8');
 
   // Détection du format : si le fichier contient des "=" (format .env), on le parse comme un .env
-  if (content.includes('SUPABASE_URL=') || content.includes('SUPABASE_KEY=') || content.includes('SUPABASE_SERVICE_ROLE_KEY=') || content.includes('SUPABASE_SECRET_KEY=')) {
+  if (
+    content.includes('SUPABASE_URL=') ||
+    content.includes('SUPABASE_KEY=') ||
+    content.includes('SUPABASE_SERVICE_ROLE_KEY=') ||
+    content.includes('SUPABASE_SECRET_KEY=')
+  ) {
     const urlMatch = content.match(/^SUPABASE_URL\s*=\s*(.*)$/m);
-    const keyMatch = content.match(/^SUPABASE_SECRET_KEY\s*=\s*(.*)$/m) || content.match(/^SUPABASE_SERVICE_ROLE_KEY\s*=\s*(.*)$/m) || content.match(/^SUPABASE_KEY\s*=\s*(.*)$/m);
+    const keyMatch =
+      content.match(/^SUPABASE_SECRET_KEY\s*=\s*(.*)$/m) ||
+      content.match(/^SUPABASE_SERVICE_ROLE_KEY\s*=\s*(.*)$/m) ||
+      content.match(/^SUPABASE_KEY\s*=\s*(.*)$/m);
     if (urlMatch && urlMatch[1]) supabaseUrl = urlMatch[1].trim().replace(/^["']|["']$/g, '');
     if (keyMatch && keyMatch[1]) supabaseKey = keyMatch[1].trim().replace(/^["']|["']$/g, '');
   } else {
@@ -65,27 +73,39 @@ Veuillez soit :
 // Initialisation du client Supabase avec le schéma "crewdayz"
 const supabase = createClient(supabaseUrl, supabaseKey, {
   db: {
-    schema: 'crewdayz'
-  }
+    schema: 'crewdayz',
+  },
 });
 
 // Normaliser un nom pour la comparaison
 function normalizeName(name: string): string {
   if (!name) return '';
   return name
-    .replace(/^\d+/, '')                  // Suppression du préfixe numérique (ex: "00")
-    .normalize('NFD')                     // Décomposition des accents
-    .replace(/[\u0300-\u036f]/g, '')     // Suppression des accents
+    .replace(/^\d+/, '') // Suppression du préfixe numérique (ex: "00")
+    .normalize('NFD') // Décomposition des accents
+    .replace(/[\u0300-\u036f]/g, '') // Suppression des accents
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, ' ')           // Remplacement des caractères non alpha-numériques par un espace (ex: tirets, apostrophes)
-    .replace(/\s+/g, ' ')                 // Remplacement des espaces multiples par un seul espace
+    .replace(/[^a-z0-9]/g, ' ') // Remplacement des caractères non alpha-numériques par un espace (ex: tirets, apostrophes)
+    .replace(/\s+/g, ' ') // Remplacement des espaces multiples par un seul espace
     .trim();
 }
 
 const monthMap: { [key: string]: number } = {
-  'janvier': 1, 'février': 2, 'fevrier': 2, 'mars': 3, 'avril': 4,
-  'mai': 5, 'juin': 6, 'juillet': 7, 'août': 8, 'aout': 8,
-  'septembre': 9, 'octobre': 10, 'novembre': 11, 'décembre': 12, 'decembre': 12
+  janvier: 1,
+  février: 2,
+  fevrier: 2,
+  mars: 3,
+  avril: 4,
+  mai: 5,
+  juin: 6,
+  juillet: 7,
+  août: 8,
+  aout: 8,
+  septembre: 9,
+  octobre: 10,
+  novembre: 11,
+  décembre: 12,
+  decembre: 12,
 };
 
 async function main() {
@@ -109,13 +129,11 @@ async function main() {
   console.log(`Année ciblée pour l'importation : ${year}`);
 
   // 1. Récupération des employés existants en base
-  console.log("Chargement des employés depuis la table crewdayz.cd_employees...");
-  const { data: employees, error: empError } = await supabase
-    .from('cd_employees')
-    .select('id, first_name, last_name');
+  console.log('Chargement des employés depuis la table crewdayz.cd_employees...');
+  const { data: employees, error: empError } = await supabase.from('cd_employees').select('id, first_name, last_name');
 
   if (empError) {
-    console.error("Erreur lors de la récupération des employés :", empError);
+    console.error('Erreur lors de la récupération des employés :', empError);
     process.exit(1);
   }
 
@@ -136,7 +154,7 @@ async function main() {
   const sheetNames = workbook.SheetNames;
 
   // Filtrer pour ne garder que les onglets correspondant aux 12 mois
-  const monthSheets = sheetNames.filter(name => monthMap[name.toLowerCase()] !== undefined);
+  const monthSheets = sheetNames.filter((name) => monthMap[name.toLowerCase()] !== undefined);
   console.log(`Onglets de mois détectés à importer (${monthSheets.length}) :`, monthSheets);
 
   if (monthSheets.length === 0) {
@@ -211,7 +229,13 @@ async function main() {
 
       // Ignorer les lignes de totaux, légendes ou récapitulatifs à la fin
       const lowerName = rawName.toLowerCase();
-      if (lowerName.includes('solde') || lowerName.includes('total') || lowerName.includes('nb j') || lowerName.includes('legende') || lowerName.includes('légende')) {
+      if (
+        lowerName.includes('solde') ||
+        lowerName.includes('total') ||
+        lowerName.includes('nb j') ||
+        lowerName.includes('legende') ||
+        lowerName.includes('légende')
+      ) {
         continue;
       }
 
@@ -270,7 +294,7 @@ async function main() {
           category: category,
           comment: comment,
           raw_name: rawName,
-          import_status: importStatus
+          import_status: importStatus,
         });
 
         absencesProcessed++;
@@ -282,22 +306,24 @@ async function main() {
   }
 
   // 3. Insertion en base de données
-  console.log(`\nInsertion en base de données... Nombre total de lignes d'absences à insérer : ${recordsToInsert.length}`);
+  console.log(
+    `\nInsertion en base de données... Nombre total de lignes d'absences à insérer : ${recordsToInsert.length}`,
+  );
 
   if (recordsToInsert.length === 0) {
-    console.log("Aucune absence à insérer.");
+    console.log('Aucune absence à insérer.');
     process.exit(0);
   }
 
   // Nettoyage de la table temporaire avant l'insertion
-  console.log("Vidage préalable de la table crewdayz.cd_absences_import...");
+  console.log('Vidage préalable de la table crewdayz.cd_absences_import...');
   const { error: deleteError } = await supabase
     .from('cd_absences_import')
     .delete()
     .neq('id', '00000000-0000-0000-0000-000000000000'); // Astuce pour tout supprimer sans clause WHERE vide
 
   if (deleteError) {
-    console.error("Erreur lors du vidage de la table temporaire :", deleteError.message);
+    console.error('Erreur lors du vidage de la table temporaire :', deleteError.message);
     process.exit(1);
   }
 
@@ -305,11 +331,11 @@ async function main() {
   const batchSize = 1000;
   for (let i = 0; i < recordsToInsert.length; i += batchSize) {
     const batch = recordsToInsert.slice(i, i + batchSize);
-    console.log(`Insertion du lot ${Math.floor(i / batchSize) + 1}/${Math.ceil(recordsToInsert.length / batchSize)} (${batch.length} lignes)...`);
-    
-    const { error: insertError } = await supabase
-      .from('cd_absences_import')
-      .insert(batch);
+    console.log(
+      `Insertion du lot ${Math.floor(i / batchSize) + 1}/${Math.ceil(recordsToInsert.length / batchSize)} (${batch.length} lignes)...`,
+    );
+
+    const { error: insertError } = await supabase.from('cd_absences_import').insert(batch);
 
     if (insertError) {
       console.error("Erreur lors de l'insertion du lot :", insertError.message);
@@ -317,11 +343,11 @@ async function main() {
     }
   }
 
-  console.log("\nImportation terminée avec succès !");
+  console.log('\nImportation terminée avec succès !');
   console.log(`Au total : ${recordsToInsert.length} enregistrements insérés dans crewdayz.cd_absences_import.`);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error("Une erreur s'est produite lors de l'exécution du script :", err);
   process.exit(1);
 });

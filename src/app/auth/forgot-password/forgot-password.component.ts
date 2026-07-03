@@ -41,7 +41,7 @@ export class ForgotPasswordComponent {
       this.message.set('Un email de réinitialisation a été envoyé à votre adresse. Veuillez vérifier vos messages.');
       this.isError.set(false);
     } catch (error: any) {
-      this.message.set(`Erreur : ${error.message || 'Impossible d\'envoyer le mail.'}`);
+      this.message.set(`Erreur : ${error.message || "Impossible d'envoyer le mail."}`);
       this.isError.set(true);
     } finally {
       this.loading.set(false);

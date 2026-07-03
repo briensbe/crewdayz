@@ -3,11 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { SchoolHolidaysConfig, SchoolHolidayPeriod } from '../models/types';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SchoolHolidayService {
   private readonly http = inject(HttpClient);
-  
+
   // Expose configuration as a read-only signal
   private readonly _config = signal<SchoolHolidaysConfig | null>(null);
   public readonly config = this._config.asReadonly();
@@ -26,7 +26,7 @@ export class SchoolHolidayService {
       },
       error: (err) => {
         console.error('Failed to load school holidays config:', err);
-      }
+      },
     });
   }
 
@@ -61,8 +61,8 @@ export class SchoolHolidayService {
     }
 
     const dateStr = typeof date === 'string' ? date : this.formatDateStr(date);
-    return currentConfig.holidays.some(period => 
-      period.zones.includes(zone) && dateStr >= period.start && dateStr <= period.end
+    return currentConfig.holidays.some(
+      (period) => period.zones.includes(zone) && dateStr >= period.start && dateStr <= period.end,
     );
   }
 
@@ -76,8 +76,8 @@ export class SchoolHolidayService {
     }
 
     const dateStr = typeof date === 'string' ? date : this.formatDateStr(date);
-    const matchingPeriod = currentConfig.holidays.find(period => 
-      period.zones.includes(zone) && dateStr >= period.start && dateStr <= period.end
+    const matchingPeriod = currentConfig.holidays.find(
+      (period) => period.zones.includes(zone) && dateStr >= period.start && dateStr <= period.end,
     );
     return matchingPeriod ? matchingPeriod.name : null;
   }

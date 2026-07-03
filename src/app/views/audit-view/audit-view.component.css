@@ -42,7 +42,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Filters Toolbar */
@@ -161,12 +163,25 @@
 }
 
 /* Columns widths */
-.col-expand { width: 40px; text-align: center; }
-.col-date { width: 180px; }
-.col-table { width: 160px; }
-.col-action { width: 120px; }
-.col-user { width: 220px; }
-.col-id { width: 300px; }
+.col-expand {
+  width: 40px;
+  text-align: center;
+}
+.col-date {
+  width: 180px;
+}
+.col-table {
+  width: 160px;
+}
+.col-action {
+  width: 120px;
+}
+.col-user {
+  width: 220px;
+}
+.col-id {
+  width: 300px;
+}
 
 /* Expand Button */
 .expand-btn {
@@ -284,8 +299,14 @@
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Details Tabs */
@@ -484,7 +505,8 @@ tr.removed .diff-value.old .value-text {
 }
 
 /* States */
-.loading-state, .empty-state {
+.loading-state,
+.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -10,14 +10,14 @@
   --background: hsl(210, 40%, 98%);
   --surface: hsl(0, 0%, 100%);
   --sidebar-bg: hsl(222, 47%, 11%);
-  
+
   --text-main: hsl(215, 28%, 17%);
   --text-muted: hsl(215, 16%, 47%);
   --text-light: hsl(215, 20%, 65%);
-  
+
   --border: hsl(214, 32%, 91%);
   --border-light: hsl(214, 32%, 95%);
-  
+
   --success: hsl(142, 76%, 36%);
   --success-light: hsl(142, 76%, 95%);
   --info: hsl(200, 95%, 39%);
@@ -31,31 +31,31 @@
   --abs-cp: hsl(262, 83%, 58%);
   --abs-cp-bg: hsl(262, 83%, 95%);
   --abs-cp-border: hsl(262, 83%, 90%);
-  
+
   --abs-rtt: hsl(36, 100%, 47%);
   --abs-rtt-bg: hsl(36, 100%, 95%);
   --abs-rtt-border: hsl(36, 100%, 90%);
-  
+
   --abs-maladie: hsl(0, 84%, 60%);
   --abs-maladie-bg: hsl(0, 84%, 96%);
   --abs-maladie-border: hsl(0, 84%, 92%);
-  
+
   --abs-maternite: hsl(322, 81%, 60%);
   --abs-maternite-bg: hsl(322, 81%, 96%);
   --abs-maternite-border: hsl(322, 81%, 92%);
-  
+
   --abs-exceptionnel: hsl(215, 16%, 47%);
   --abs-exceptionnel-bg: hsl(215, 16%, 95%);
   --abs-exceptionnel-border: hsl(215, 16%, 90%);
-  
+
   --abs-formation: hsl(142, 71%, 45%);
   --abs-formation-bg: hsl(142, 71%, 95%);
   --abs-formation-border: hsl(142, 71%, 90%);
-  
+
   --abs-autre: hsl(199, 89%, 48%);
   --abs-autre-bg: hsl(199, 89%, 95%);
   --abs-autre-border: hsl(199, 89%, 90%);
-  
+
   --abs-partiel: hsl(215, 25%, 45%);
   --abs-partiel-bg: hsl(215, 25%, 95%);
   --abs-partiel-border: hsl(215, 25%, 90%);
@@ -69,17 +69,19 @@
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-full: 9999px;
-  
+
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
   --shadow-card: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-  
+
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Resets */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -93,7 +95,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
   color: var(--text-main);
@@ -171,7 +178,9 @@ a:hover {
   transform: translateY(-50%);
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   width: 100%;
   padding: 0.75rem 1rem;
   font-family: inherit;
@@ -188,13 +197,16 @@ input, select, textarea {
   padding-left: 2.5rem;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 4px var(--primary-light);
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: var(--text-light);
 }
 
@@ -265,7 +277,9 @@ input::placeholder, textarea::placeholder {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Alerts */
@@ -303,8 +317,14 @@ input::placeholder, textarea::placeholder {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive fixes for scrolling tables */

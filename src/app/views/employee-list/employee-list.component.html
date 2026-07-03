@@ -49,57 +49,82 @@
             <th (click)="toggleSort('name')" class="sortable-column">
               <div class="header-sort-wrapper">
                 <span>Nom complet</span>
-                <lucide-icon [img]="sortField() === 'name' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
-                             [class.active]="sortField() === 'name'" 
-                             class="sort-icon" size="14"></lucide-icon>
+                <lucide-icon
+                  [img]="sortField() === 'name' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                  [class.active]="sortField() === 'name'"
+                  class="sort-icon"
+                  size="14"
+                ></lucide-icon>
               </div>
             </th>
             <th (click)="toggleSort('contract_type')" class="sortable-column">
               <div class="header-sort-wrapper">
                 <span>Type / Société</span>
-                <lucide-icon [img]="sortField() === 'contract_type' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
-                             [class.active]="sortField() === 'contract_type'" 
-                             class="sort-icon" size="14"></lucide-icon>
+                <lucide-icon
+                  [img]="
+                    sortField() === 'contract_type' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown
+                  "
+                  [class.active]="sortField() === 'contract_type'"
+                  class="sort-icon"
+                  size="14"
+                ></lucide-icon>
               </div>
             </th>
             <th (click)="toggleSort('profile')" class="sortable-column">
               <div class="header-sort-wrapper">
                 <span>Profil</span>
-                <lucide-icon [img]="sortField() === 'profile' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
-                             [class.active]="sortField() === 'profile'" 
-                             class="sort-icon" size="14"></lucide-icon>
+                <lucide-icon
+                  [img]="sortField() === 'profile' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                  [class.active]="sortField() === 'profile'"
+                  class="sort-icon"
+                  size="14"
+                ></lucide-icon>
               </div>
             </th>
             <th (click)="toggleSort('service')" class="sortable-column">
               <div class="header-sort-wrapper">
                 <span>Service</span>
-                <lucide-icon [img]="sortField() === 'service' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
-                             [class.active]="sortField() === 'service'" 
-                             class="sort-icon" size="14"></lucide-icon>
+                <lucide-icon
+                  [img]="sortField() === 'service' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                  [class.active]="sortField() === 'service'"
+                  class="sort-icon"
+                  size="14"
+                ></lucide-icon>
               </div>
             </th>
             <th (click)="toggleSort('team')" class="sortable-column">
               <div class="header-sort-wrapper">
                 <span>Équipe</span>
-                <lucide-icon [img]="sortField() === 'team' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
-                             [class.active]="sortField() === 'team'" 
-                             class="sort-icon" size="14"></lucide-icon>
+                <lucide-icon
+                  [img]="sortField() === 'team' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                  [class.active]="sortField() === 'team'"
+                  class="sort-icon"
+                  size="14"
+                ></lucide-icon>
               </div>
             </th>
             <th (click)="toggleSort('work_site')" class="sortable-column">
               <div class="header-sort-wrapper">
                 <span>Site de travail</span>
-                <lucide-icon [img]="sortField() === 'work_site' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
-                             [class.active]="sortField() === 'work_site'" 
-                             class="sort-icon" size="14"></lucide-icon>
+                <lucide-icon
+                  [img]="sortField() === 'work_site' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                  [class.active]="sortField() === 'work_site'"
+                  class="sort-icon"
+                  size="14"
+                ></lucide-icon>
               </div>
             </th>
             <th (click)="toggleSort('arrival_date')" class="sortable-column">
               <div class="header-sort-wrapper">
                 <span>Dates d'activité</span>
-                <lucide-icon [img]="sortField() === 'arrival_date' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown" 
-                             [class.active]="sortField() === 'arrival_date'" 
-                             class="sort-icon" size="14"></lucide-icon>
+                <lucide-icon
+                  [img]="
+                    sortField() === 'arrival_date' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown
+                  "
+                  [class.active]="sortField() === 'arrival_date'"
+                  class="sort-icon"
+                  size="14"
+                ></lucide-icon>
               </div>
             </th>
             <th class="text-center">Soldes Initiaux</th>
@@ -119,14 +144,34 @@
                 @if (editingEmployeeId() === emp.id && editingField() === 'name') {
                   <div class="inline-edit-popover" (click)="$event.stopPropagation()">
                     <div class="inputs-row">
-                      <input type="text" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" placeholder="Prénom" class="inline-input auto-grow" [size]="(firstName().length || 8) + 2" required />
-                      <input type="text" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" placeholder="Nom" class="inline-input auto-grow" [size]="(lastName().length || 8) + 2" required />
+                      <input
+                        type="text"
+                        [ngModel]="firstName()"
+                        (ngModelChange)="firstName.set($event)"
+                        placeholder="Prénom"
+                        class="inline-input auto-grow"
+                        [size]="(firstName().length || 8) + 2"
+                        required
+                      />
+                      <input
+                        type="text"
+                        [ngModel]="lastName()"
+                        (ngModelChange)="lastName.set($event)"
+                        placeholder="Nom"
+                        class="inline-input auto-grow"
+                        [size]="(lastName().length || 8) + 2"
+                        required
+                      />
                     </div>
                   </div>
                 }
               </td>
               <td (click)="startInlineEdit(emp, 'contract', $event)">
-                <div class="contract-badge" [class.interne]="emp.contract_type === 'Interne'" [class.externe]="emp.contract_type === 'Externe'">
+                <div
+                  class="contract-badge"
+                  [class.interne]="emp.contract_type === 'Interne'"
+                  [class.externe]="emp.contract_type === 'Externe'"
+                >
                   {{ emp.contract_type }}
                   @if (emp.contract_type === 'Externe' && emp.company_name) {
                     <span class="company-name">({{ emp.company_name }})</span>
@@ -134,20 +179,24 @@
                 </div>
                 @if (editingEmployeeId() === emp.id && editingField() === 'contract') {
                   <div class="inline-edit-popover contract-layout" (click)="$event.stopPropagation()">
-                    <select [ngModel]="contractType()" (ngModelChange)="onContractTypeChange($event)" class="inline-input">
+                    <select
+                      [ngModel]="contractType()"
+                      (ngModelChange)="onContractTypeChange($event)"
+                      class="inline-input"
+                    >
                       <option value="Interne">Interne</option>
                       <option value="Externe">Externe</option>
                     </select>
                     @if (contractType() === 'Externe') {
                       <div class="custom-combobox inline-combobox">
                         <div class="combobox-wrapper">
-                          <input 
-                            type="text" 
-                            [ngModel]="companyName()" 
-                            (ngModelChange)="onCompanySearch($event)" 
+                          <input
+                            type="text"
+                            [ngModel]="companyName()"
+                            (ngModelChange)="onCompanySearch($event)"
                             (focus)="showCompanyDropdown.set(true)"
                             (blur)="closeCompanyDropdown()"
-                            placeholder="ESN..." 
+                            placeholder="ESN..."
                             autocomplete="off"
                             class="inline-input auto-grow"
                             [size]="(companyName().length || 10) + 2"
@@ -169,17 +218,17 @@
                     }
                   </div>
                 }
-              </td>            
+              </td>
               <td (click)="startInlineEdit(emp, 'profile', $event)">
                 <span class="profile-text">{{ emp.profile }}</span>
                 @if (editingEmployeeId() === emp.id && editingField() === 'profile') {
                   <div class="inline-edit-popover" (click)="$event.stopPropagation()">
                     <div class="custom-combobox inline-combobox">
                       <div class="combobox-wrapper">
-                        <input 
-                          type="text" 
-                          [ngModel]="profile()" 
-                          (ngModelChange)="onProfileSearch($event)" 
+                        <input
+                          type="text"
+                          [ngModel]="profile()"
+                          (ngModelChange)="onProfileSearch($event)"
                           (focus)="showProfileDropdown.set(true)"
                           (blur)="closeProfileDropdown()"
                           autocomplete="off"
@@ -209,10 +258,10 @@
                   <div class="inline-edit-popover" (click)="$event.stopPropagation()">
                     <div class="custom-combobox inline-combobox">
                       <div class="combobox-wrapper">
-                        <input 
-                          type="text" 
-                          [ngModel]="service()" 
-                          (ngModelChange)="onServiceSearch($event)" 
+                        <input
+                          type="text"
+                          [ngModel]="service()"
+                          (ngModelChange)="onServiceSearch($event)"
                           (focus)="showServiceDropdown.set(true)"
                           (blur)="closeServiceDropdown()"
                           autocomplete="off"
@@ -237,15 +286,21 @@
                 }
               </td>
               <td (click)="startInlineEdit(emp, 'team', $event)">
-                <span class="team-badge" [style.background-color]="getTeamStyle(emp.team).background" [style.color]="getTeamStyle(emp.team).color" [style.border-color]="getTeamStyle(emp.team).borderColor">{{ emp.team }}</span>
+                <span
+                  class="team-badge"
+                  [style.background-color]="getTeamStyle(emp.team).background"
+                  [style.color]="getTeamStyle(emp.team).color"
+                  [style.border-color]="getTeamStyle(emp.team).borderColor"
+                  >{{ emp.team }}</span
+                >
                 @if (editingEmployeeId() === emp.id && editingField() === 'team') {
                   <div class="inline-edit-popover" (click)="$event.stopPropagation()">
                     <div class="custom-combobox inline-combobox">
                       <div class="combobox-wrapper">
-                        <input 
-                          type="text" 
-                          [ngModel]="team()" 
-                          (ngModelChange)="onTeamSearch($event)" 
+                        <input
+                          type="text"
+                          [ngModel]="team()"
+                          (ngModelChange)="onTeamSearch($event)"
                           (focus)="showTeamDropdown.set(true)"
                           (blur)="closeTeamDropdown()"
                           autocomplete="off"
@@ -275,10 +330,10 @@
                   <div class="inline-edit-popover" (click)="$event.stopPropagation()">
                     <div class="custom-combobox inline-combobox">
                       <div class="combobox-wrapper">
-                        <input 
-                          type="text" 
-                          [ngModel]="workSite()" 
-                          (ngModelChange)="onWorkSiteSearch($event)" 
+                        <input
+                          type="text"
+                          [ngModel]="workSite()"
+                          (ngModelChange)="onWorkSiteSearch($event)"
                           (focus)="showWorkSiteDropdown.set(true)"
                           (blur)="closeWorkSiteDropdown()"
                           autocomplete="off"
@@ -305,10 +360,10 @@
               <td (click)="startInlineEdit(emp, 'dates', $event)">
                 <div class="dates-info">
                   @if (emp.arrival_date) {
-                    <div><span class="subtle-label">Arrivée :</span> {{ emp.arrival_date | date:'dd/MM/yyyy' }}</div>
+                    <div><span class="subtle-label">Arrivée :</span> {{ emp.arrival_date | date: 'dd/MM/yyyy' }}</div>
                   }
                   @if (emp.departure_date) {
-                    <div><span class="subtle-label">Départ :</span> {{ emp.departure_date | date:'dd/MM/yyyy' }}</div>
+                    <div><span class="subtle-label">Départ :</span> {{ emp.departure_date | date: 'dd/MM/yyyy' }}</div>
                   }
                   @if (!emp.arrival_date && !emp.departure_date) {
                     <span class="subtle-text">-</span>
@@ -318,11 +373,21 @@
                   <div class="inline-edit-popover vertical-layout" (click)="$event.stopPropagation()">
                     <div class="date-field">
                       <label>Arrivée :</label>
-                      <input type="date" [ngModel]="arrivalDate()" (ngModelChange)="arrivalDate.set($event)" class="inline-input" />
+                      <input
+                        type="date"
+                        [ngModel]="arrivalDate()"
+                        (ngModelChange)="arrivalDate.set($event)"
+                        class="inline-input"
+                      />
                     </div>
                     <div class="date-field">
                       <label>Départ :</label>
-                      <input type="date" [ngModel]="departureDate()" (ngModelChange)="departureDate.set($event)" class="inline-input" />
+                      <input
+                        type="date"
+                        [ngModel]="departureDate()"
+                        (ngModelChange)="departureDate.set($event)"
+                        class="inline-input"
+                      />
                     </div>
                   </div>
                 }
@@ -331,43 +396,84 @@
                 <div class="balances-badges">
                   <span class="balance-badge cp" title="Solde CP Initial">
                     <span class="badge-label">CP</span>
-                    <span class="badge-value">{{ emp.initial_cp !== undefined && emp.initial_cp !== null ? emp.initial_cp + 'j' : '-' }}</span>
+                    <span class="badge-value">{{
+                      emp.initial_cp !== undefined && emp.initial_cp !== null ? emp.initial_cp + 'j' : '-'
+                    }}</span>
                   </span>
                   <span class="balance-badge rtt" title="Solde RTT Initial">
                     <span class="badge-label">RTT</span>
-                    <span class="badge-value">{{ emp.initial_rtt !== undefined && emp.initial_rtt !== null ? emp.initial_rtt + 'j' : '-' }}</span>
+                    <span class="badge-value">{{
+                      emp.initial_rtt !== undefined && emp.initial_rtt !== null ? emp.initial_rtt + 'j' : '-'
+                    }}</span>
                   </span>
                   <span class="balance-badge exceptional" title="Solde Exceptionnel Initial">
                     <span class="badge-label">Exc.</span>
-                    <span class="badge-value">{{ emp.initial_exceptional !== undefined && emp.initial_exceptional !== null ? emp.initial_exceptional + 'j' : '-' }}</span>
+                    <span class="badge-value">{{
+                      emp.initial_exceptional !== undefined && emp.initial_exceptional !== null
+                        ? emp.initial_exceptional + 'j'
+                        : '-'
+                    }}</span>
                   </span>
                 </div>
                 @if (editingEmployeeId() === emp.id && editingField() === 'balances') {
                   <div class="inline-edit-popover vertical-layout" (click)="$event.stopPropagation()">
                     <div class="balance-field cp">
                       <label>CP :</label>
-                      <input type="number" step="0.5" min="0" [ngModel]="initialCP()" (ngModelChange)="initialCP.set($event)" class="inline-input inline-num" />
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        [ngModel]="initialCP()"
+                        (ngModelChange)="initialCP.set($event)"
+                        class="inline-input inline-num"
+                      />
                     </div>
                     <div class="balance-field rtt">
                       <label>RTT :</label>
-                      <input type="number" step="0.5" min="0" [ngModel]="initialRTT()" (ngModelChange)="initialRTT.set($event)" class="inline-input inline-num" />
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        [ngModel]="initialRTT()"
+                        (ngModelChange)="initialRTT.set($event)"
+                        class="inline-input inline-num"
+                      />
                     </div>
                     <div class="balance-field exceptional">
                       <label>Exc. :</label>
-                      <input type="number" step="0.5" min="0" [ngModel]="initialExceptional()" (ngModelChange)="initialExceptional.set($event)" class="inline-input inline-num" />
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        [ngModel]="initialExceptional()"
+                        (ngModelChange)="initialExceptional.set($event)"
+                        class="inline-input inline-num"
+                      />
                     </div>
                   </div>
                 }
               </td>
               <td class="text-right">
                 <div class="action-buttons">
-                  <button class="action-btn duplicate-btn" (click)="openDuplicateModal(emp); $event.stopPropagation()" title="Dupliquer (créer une copie)">
+                  <button
+                    class="action-btn duplicate-btn"
+                    (click)="openDuplicateModal(emp); $event.stopPropagation()"
+                    title="Dupliquer (créer une copie)"
+                  >
                     <lucide-icon [img]="Copy" size="16"></lucide-icon>
                   </button>
-                  <button class="action-btn edit-btn" (click)="openEditModal(emp); $event.stopPropagation()" title="Modifier via formulaire global">
+                  <button
+                    class="action-btn edit-btn"
+                    (click)="openEditModal(emp); $event.stopPropagation()"
+                    title="Modifier via formulaire global"
+                  >
                     <lucide-icon [img]="Edit" size="16"></lucide-icon>
                   </button>
-                  <button class="action-btn delete-btn" (click)="deleteEmployee(emp); $event.stopPropagation()" title="Supprimer">
+                  <button
+                    class="action-btn delete-btn"
+                    (click)="deleteEmployee(emp); $event.stopPropagation()"
+                    title="Supprimer"
+                  >
                     <lucide-icon [img]="Trash2" size="16"></lucide-icon>
                   </button>
                 </div>
@@ -383,264 +489,400 @@
 <!-- Modal Dialog for Add / Edit -->
 @if (showModal()) {
   <div class="modal-overlay animate-fade-in" (click)="showModal.set(false)">
-  <div class="modal-card" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>
-        @if (isEditMode()) {
-          Modifier le collaborateur
-        } @else if (duplicatedFromName()) {
-          Ajouter un collaborateur (Copie)
-        } @else {
-          Ajouter un collaborateur
-        }
-      </h2>
-      <button class="close-btn" (click)="showModal.set(false)">
-        <lucide-icon [img]="Plus" style="transform: rotate(45deg);" size="20"></lucide-icon>
-      </button>
-    </div>
-
-    @if (duplicatedFromName()) {
-      <div class="alert alert-info animate-fade-in duplicate-info-banner">
-        <lucide-icon [img]="Users" size="16" class="banner-icon"></lucide-icon>
-        <span>Pré-rempli à partir de <strong>{{ duplicatedFromName() }}</strong></span>
-      </div>
-    }
-
-    @if (errorMessage()) {
-      <div class="alert alert-danger animate-fade-in">
-        <span>{{ errorMessage() }}</span>
-      </div>
-    }
-
-    <form (ngSubmit)="saveEmployee()" class="employee-form">
-      <div class="form-grid">
-        <!-- Identity -->
-        <div class="form-group">
-          <label for="firstName">Prénom *</label>
-          <input id="firstName" type="text" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" name="firstName" required placeholder="Jean" />
-        </div>
-        <div class="form-group">
-          <label for="lastName">Nom *</label>
-          <input id="lastName" type="text" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" name="lastName" required placeholder="Dupont" />
-        </div>
-
-        <!-- Assignment -->
-        <div class="form-group custom-combobox">
-          <label for="service">Service *</label>
-          <div class="combobox-wrapper">
-            <input 
-              id="service" 
-              type="text" 
-              [ngModel]="service()" 
-              (ngModelChange)="onServiceSearch($event)" 
-              (focus)="showServiceDropdown.set(true)"
-              (blur)="closeServiceDropdown()"
-              name="service" 
-              required 
-              placeholder="DSI, RH, Marketing..." 
-              autocomplete="off"
-            />
-            <button type="button" class="combobox-toggle" (click)="toggleServiceDropdown($event)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-          </div>
-
-          @if (showServiceDropdown()) {
-            <ul class="combobox-options">
-              @for (s of filteredServices(); track s) {
-                <li class="combobox-option" (mousedown)="selectService(s)">{{ s }}</li>
-              }
-              @if (isNewService()) {
-                <li class="combobox-option combobox-add-new" (mousedown)="selectService(service())">
-                  <span class="plus-symbol">+</span> Ajouter "<strong>{{ service() }}</strong>"
-                </li>
-              }
-            </ul>
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          @if (isEditMode()) {
+            Modifier le collaborateur
+          } @else if (duplicatedFromName()) {
+            Ajouter un collaborateur (Copie)
+          } @else {
+            Ajouter un collaborateur
           }
-        </div>
-        <div class="form-group custom-combobox">
-          <label for="team">Équipe *</label>
-          <div class="combobox-wrapper">
-            <input 
-              id="team" 
-              type="text" 
-              [ngModel]="team()" 
-              (ngModelChange)="onTeamSearch($event)" 
-              (focus)="showTeamDropdown.set(true)"
-              (blur)="closeTeamDropdown()"
-              name="team" 
-              required 
-              placeholder="Équipe Web, Ilot A..." 
-              autocomplete="off"
-            />
-            <button type="button" class="combobox-toggle" (click)="toggleTeamDropdown($event)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-          </div>
-
-          @if (showTeamDropdown()) {
-            <ul class="combobox-options">
-              @for (t of filteredTeams(); track t) {
-                <li class="combobox-option" (mousedown)="selectTeam(t)">{{ t }}</li>
-              }
-              @if (isNewTeam()) {
-                <li class="combobox-option combobox-add-new" (mousedown)="selectTeam(team())">
-                  <span class="plus-symbol">+</span> Ajouter "<strong>{{ team() }}</strong>"
-                </li>
-              }
-            </ul>
-          }
-        </div>
-
-        <div class="form-group custom-combobox">
-          <label for="workSite">Site de travail *</label>
-          <div class="combobox-wrapper">
-            <input 
-              id="workSite" 
-              type="text" 
-              [ngModel]="workSite()" 
-              (ngModelChange)="onWorkSiteSearch($event)" 
-              (focus)="showWorkSiteDropdown.set(true)"
-              (blur)="closeWorkSiteDropdown()"
-              name="workSite" 
-              required 
-              placeholder="Paris, Lyon, Télétravail..." 
-              autocomplete="off"
-            />
-            <button type="button" class="combobox-toggle" (click)="toggleWorkSiteDropdown($event)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-          </div>
-
-          @if (showWorkSiteDropdown()) {
-            <ul class="combobox-options">
-              @for (w of filteredWorkSites(); track w) {
-                <li class="combobox-option" (mousedown)="selectWorkSite(w)">{{ w }}</li>
-              }
-              @if (isNewWorkSite()) {
-                <li class="combobox-option combobox-add-new" (mousedown)="selectWorkSite(workSite())">
-                  <span class="plus-symbol">+</span> Ajouter "<strong>{{ workSite() }}</strong>"
-                </li>
-              }
-            </ul>
-          }
-        </div>
-        <div class="form-group custom-combobox">
-          <label for="profile">Profil métier *</label>
-          <div class="combobox-wrapper">
-            <input 
-              id="profile" 
-              type="text" 
-              [ngModel]="profile()" 
-              (ngModelChange)="onProfileSearch($event)" 
-              (focus)="showProfileDropdown.set(true)"
-              (blur)="closeProfileDropdown()"
-              name="profile" 
-              required 
-              placeholder="Ex: Développeur, Business Analyst..." 
-              autocomplete="off"
-            />
-            <button type="button" class="combobox-toggle" (click)="toggleProfileDropdown($event)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-          </div>
-
-          @if (showProfileDropdown()) {
-            <ul class="combobox-options">
-              @for (p of filteredProfiles(); track p) {
-                <li class="combobox-option" (mousedown)="selectProfile(p)">{{ p }}</li>
-              }
-              @if (isNewProfile()) {
-                <li class="combobox-option combobox-add-new" (mousedown)="selectProfile(profile())">
-                  <span class="plus-symbol">+</span> Ajouter "<strong>{{ profile() }}</strong>"
-                </li>
-              }
-            </ul>
-          }
-        </div>
-
-        <!-- Contract & Company -->
-        <div class="form-group">
-          <label for="contractType">Type de contrat *</label>
-          <select id="contractType" [ngModel]="contractType()" (ngModelChange)="onContractTypeChange($event)" name="contractType" required>
-            <option value="Interne">Interne (Salarié de la société)</option>
-            <option value="Externe">Externe (Prestataire ESN)</option>
-          </select>
-        </div>
-        <div class="form-group custom-combobox" [style.visibility]="contractType() === 'Externe' ? 'visible' : 'hidden'">
-          <label for="companyName">Nom de l'ESN *</label>
-          <div class="combobox-wrapper">
-            <input 
-              id="companyName" 
-              type="text" 
-              [ngModel]="companyName()" 
-              (ngModelChange)="onCompanySearch($event)" 
-              (focus)="showCompanyDropdown.set(true)"
-              (blur)="closeCompanyDropdown()"
-              name="companyName" 
-              placeholder="Ex: Capgemini, Sopra Steria..." 
-              autocomplete="off"
-            />
-            <button type="button" class="combobox-toggle" (click)="toggleCompanyDropdown($event)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-          </div>
-
-          @if (showCompanyDropdown()) {
-            <ul class="combobox-options">
-              @for (c of filteredCompanies(); track c) {
-                <li class="combobox-option" (mousedown)="selectCompany(c)">{{ c }}</li>
-              }
-              @if (isNewCompany()) {
-                <li class="combobox-option combobox-add-new" (mousedown)="selectCompany(companyName())">
-                  <span class="plus-symbol">+</span> Ajouter "<strong>{{ companyName() }}</strong>"
-                </li>
-              }
-            </ul>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="arrivalDate">Date d'arrivée</label>
-          <input id="arrivalDate" type="date" [ngModel]="arrivalDate()" (ngModelChange)="arrivalDate.set($event)" name="arrivalDate" />
-        </div>
-        <div class="form-group">
-          <label for="departureDate">Date de départ</label>
-          <input id="departureDate" type="date" [ngModel]="departureDate()" (ngModelChange)="departureDate.set($event)" name="departureDate" />
-        </div>
+        </h2>
+        <button class="close-btn" (click)="showModal.set(false)">
+          <lucide-icon [img]="Plus" style="transform: rotate(45deg)" size="20"></lucide-icon>
+        </button>
       </div>
 
-      <!-- Vacation Balances -->
-      <h3 class="section-title">Soldes de congés prévus au 1er Janvier</h3>
-      <div class="balances-grid">
-        <div class="form-group">
-          <label for="initialCP">Congés Payés (CP) *</label>
-          <input id="initialCP" type="number" step="0.5" min="0" [ngModel]="initialCP()" (ngModelChange)="initialCP.set($event)" name="initialCP" required />
+      @if (duplicatedFromName()) {
+        <div class="alert alert-info animate-fade-in duplicate-info-banner">
+          <lucide-icon [img]="Users" size="16" class="banner-icon"></lucide-icon>
+          <span
+            >Pré-rempli à partir de <strong>{{ duplicatedFromName() }}</strong></span
+          >
         </div>
-        <div class="form-group">
-          <label for="initialRTT">RTT *</label>
-          <input id="initialRTT" type="number" step="0.5" min="0" [ngModel]="initialRTT()" (ngModelChange)="initialRTT.set($event)" name="initialRTT" required />
-        </div>
-        <div class="form-group">
-          <label for="initialExceptional">Exceptionnel *</label>
-          <input id="initialExceptional" type="number" step="0.5" min="0" [ngModel]="initialExceptional()" (ngModelChange)="initialExceptional.set($event)" name="initialExceptional" required />
-        </div>
-      </div>
+      }
 
-      <div class="form-actions">
-        <button type="button" class="btn btn-outline" (click)="showModal.set(false)">Annuler</button>
-        <div class="submit-container">
-          <button type="submit" class="btn btn-primary" [disabled]="submitting()">
-            @if (submitting()) {
-              <span class="spinner"></span> Enregistrement...
-            } @else {
-              Enregistrer
+      @if (errorMessage()) {
+        <div class="alert alert-danger animate-fade-in">
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <form (ngSubmit)="saveEmployee()" class="employee-form">
+        <div class="form-grid">
+          <!-- Identity -->
+          <div class="form-group">
+            <label for="firstName">Prénom *</label>
+            <input
+              id="firstName"
+              type="text"
+              [ngModel]="firstName()"
+              (ngModelChange)="firstName.set($event)"
+              name="firstName"
+              required
+              placeholder="Jean"
+            />
+          </div>
+          <div class="form-group">
+            <label for="lastName">Nom *</label>
+            <input
+              id="lastName"
+              type="text"
+              [ngModel]="lastName()"
+              (ngModelChange)="lastName.set($event)"
+              name="lastName"
+              required
+              placeholder="Dupont"
+            />
+          </div>
+
+          <!-- Assignment -->
+          <div class="form-group custom-combobox">
+            <label for="service">Service *</label>
+            <div class="combobox-wrapper">
+              <input
+                id="service"
+                type="text"
+                [ngModel]="service()"
+                (ngModelChange)="onServiceSearch($event)"
+                (focus)="showServiceDropdown.set(true)"
+                (blur)="closeServiceDropdown()"
+                name="service"
+                required
+                placeholder="DSI, RH, Marketing..."
+                autocomplete="off"
+              />
+              <button type="button" class="combobox-toggle" (click)="toggleServiceDropdown($event)">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-down"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+            </div>
+
+            @if (showServiceDropdown()) {
+              <ul class="combobox-options">
+                @for (s of filteredServices(); track s) {
+                  <li class="combobox-option" (mousedown)="selectService(s)">{{ s }}</li>
+                }
+                @if (isNewService()) {
+                  <li class="combobox-option combobox-add-new" (mousedown)="selectService(service())">
+                    <span class="plus-symbol">+</span> Ajouter "<strong>{{ service() }}</strong
+                    >"
+                  </li>
+                }
+              </ul>
             }
-          </button>
-          <span class="submit-hint" title="Valider avec la combinaison Ctrl + Entrée">Ctrl + Entrée</span>
+          </div>
+          <div class="form-group custom-combobox">
+            <label for="team">Équipe *</label>
+            <div class="combobox-wrapper">
+              <input
+                id="team"
+                type="text"
+                [ngModel]="team()"
+                (ngModelChange)="onTeamSearch($event)"
+                (focus)="showTeamDropdown.set(true)"
+                (blur)="closeTeamDropdown()"
+                name="team"
+                required
+                placeholder="Équipe Web, Ilot A..."
+                autocomplete="off"
+              />
+              <button type="button" class="combobox-toggle" (click)="toggleTeamDropdown($event)">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-down"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+            </div>
+
+            @if (showTeamDropdown()) {
+              <ul class="combobox-options">
+                @for (t of filteredTeams(); track t) {
+                  <li class="combobox-option" (mousedown)="selectTeam(t)">{{ t }}</li>
+                }
+                @if (isNewTeam()) {
+                  <li class="combobox-option combobox-add-new" (mousedown)="selectTeam(team())">
+                    <span class="plus-symbol">+</span> Ajouter "<strong>{{ team() }}</strong
+                    >"
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+
+          <div class="form-group custom-combobox">
+            <label for="workSite">Site de travail *</label>
+            <div class="combobox-wrapper">
+              <input
+                id="workSite"
+                type="text"
+                [ngModel]="workSite()"
+                (ngModelChange)="onWorkSiteSearch($event)"
+                (focus)="showWorkSiteDropdown.set(true)"
+                (blur)="closeWorkSiteDropdown()"
+                name="workSite"
+                required
+                placeholder="Paris, Lyon, Télétravail..."
+                autocomplete="off"
+              />
+              <button type="button" class="combobox-toggle" (click)="toggleWorkSiteDropdown($event)">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-down"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+            </div>
+
+            @if (showWorkSiteDropdown()) {
+              <ul class="combobox-options">
+                @for (w of filteredWorkSites(); track w) {
+                  <li class="combobox-option" (mousedown)="selectWorkSite(w)">{{ w }}</li>
+                }
+                @if (isNewWorkSite()) {
+                  <li class="combobox-option combobox-add-new" (mousedown)="selectWorkSite(workSite())">
+                    <span class="plus-symbol">+</span> Ajouter "<strong>{{ workSite() }}</strong
+                    >"
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+          <div class="form-group custom-combobox">
+            <label for="profile">Profil métier *</label>
+            <div class="combobox-wrapper">
+              <input
+                id="profile"
+                type="text"
+                [ngModel]="profile()"
+                (ngModelChange)="onProfileSearch($event)"
+                (focus)="showProfileDropdown.set(true)"
+                (blur)="closeProfileDropdown()"
+                name="profile"
+                required
+                placeholder="Ex: Développeur, Business Analyst..."
+                autocomplete="off"
+              />
+              <button type="button" class="combobox-toggle" (click)="toggleProfileDropdown($event)">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-down"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+            </div>
+
+            @if (showProfileDropdown()) {
+              <ul class="combobox-options">
+                @for (p of filteredProfiles(); track p) {
+                  <li class="combobox-option" (mousedown)="selectProfile(p)">{{ p }}</li>
+                }
+                @if (isNewProfile()) {
+                  <li class="combobox-option combobox-add-new" (mousedown)="selectProfile(profile())">
+                    <span class="plus-symbol">+</span> Ajouter "<strong>{{ profile() }}</strong
+                    >"
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+
+          <!-- Contract & Company -->
+          <div class="form-group">
+            <label for="contractType">Type de contrat *</label>
+            <select
+              id="contractType"
+              [ngModel]="contractType()"
+              (ngModelChange)="onContractTypeChange($event)"
+              name="contractType"
+              required
+            >
+              <option value="Interne">Interne (Salarié de la société)</option>
+              <option value="Externe">Externe (Prestataire ESN)</option>
+            </select>
+          </div>
+          <div
+            class="form-group custom-combobox"
+            [style.visibility]="contractType() === 'Externe' ? 'visible' : 'hidden'"
+          >
+            <label for="companyName">Nom de l'ESN *</label>
+            <div class="combobox-wrapper">
+              <input
+                id="companyName"
+                type="text"
+                [ngModel]="companyName()"
+                (ngModelChange)="onCompanySearch($event)"
+                (focus)="showCompanyDropdown.set(true)"
+                (blur)="closeCompanyDropdown()"
+                name="companyName"
+                placeholder="Ex: Capgemini, Sopra Steria..."
+                autocomplete="off"
+              />
+              <button type="button" class="combobox-toggle" (click)="toggleCompanyDropdown($event)">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-down"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+            </div>
+
+            @if (showCompanyDropdown()) {
+              <ul class="combobox-options">
+                @for (c of filteredCompanies(); track c) {
+                  <li class="combobox-option" (mousedown)="selectCompany(c)">{{ c }}</li>
+                }
+                @if (isNewCompany()) {
+                  <li class="combobox-option combobox-add-new" (mousedown)="selectCompany(companyName())">
+                    <span class="plus-symbol">+</span> Ajouter "<strong>{{ companyName() }}</strong
+                    >"
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="arrivalDate">Date d'arrivée</label>
+            <input
+              id="arrivalDate"
+              type="date"
+              [ngModel]="arrivalDate()"
+              (ngModelChange)="arrivalDate.set($event)"
+              name="arrivalDate"
+            />
+          </div>
+          <div class="form-group">
+            <label for="departureDate">Date de départ</label>
+            <input
+              id="departureDate"
+              type="date"
+              [ngModel]="departureDate()"
+              (ngModelChange)="departureDate.set($event)"
+              name="departureDate"
+            />
+          </div>
         </div>
-      </div>
-    </form>
+
+        <!-- Vacation Balances -->
+        <h3 class="section-title">Soldes de congés prévus au 1er Janvier</h3>
+        <div class="balances-grid">
+          <div class="form-group">
+            <label for="initialCP">Congés Payés (CP) *</label>
+            <input
+              id="initialCP"
+              type="number"
+              step="0.5"
+              min="0"
+              [ngModel]="initialCP()"
+              (ngModelChange)="initialCP.set($event)"
+              name="initialCP"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="initialRTT">RTT *</label>
+            <input
+              id="initialRTT"
+              type="number"
+              step="0.5"
+              min="0"
+              [ngModel]="initialRTT()"
+              (ngModelChange)="initialRTT.set($event)"
+              name="initialRTT"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="initialExceptional">Exceptionnel *</label>
+            <input
+              id="initialExceptional"
+              type="number"
+              step="0.5"
+              min="0"
+              [ngModel]="initialExceptional()"
+              (ngModelChange)="initialExceptional.set($event)"
+              name="initialExceptional"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" (click)="showModal.set(false)">Annuler</button>
+          <div class="submit-container">
+            <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+              @if (submitting()) {
+                <span class="spinner"></span> Enregistrement...
+              } @else {
+                Enregistrer
+              }
+            </button>
+            <span class="submit-hint" title="Valider avec la combinaison Ctrl + Entrée">Ctrl + Entrée</span>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
 }

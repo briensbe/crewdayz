@@ -13,7 +13,16 @@ export interface AbsenceSavePayload {
   endDate: string;
   startPeriod: 'morning' | 'afternoon';
   endPeriod: 'morning' | 'afternoon';
-  category: 'CP' | 'RTT' | 'Maladie' | 'Congé maternité' | 'Exceptionnel' | 'Formation' | 'Autre' | 'Temps partiel' | 'Prévisionnel';
+  category:
+    | 'CP'
+    | 'RTT'
+    | 'Maladie'
+    | 'Congé maternité'
+    | 'Exceptionnel'
+    | 'Formation'
+    | 'Autre'
+    | 'Temps partiel'
+    | 'Prévisionnel';
   comment: string;
 }
 
@@ -22,7 +31,7 @@ export interface AbsenceSavePayload {
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './absence-modal.component.html',
-  styleUrl: './absence-modal.component.css'
+  styleUrl: './absence-modal.component.css',
 })
 export class AbsenceModalComponent {
   @HostListener('window:keydown', ['$event'])
@@ -57,9 +66,9 @@ export class AbsenceModalComponent {
     if (!empId || !start || !end) return [];
 
     // Filter absences for this employee in the date range [start, end]
-    const list = this.absenceService.absences().filter(a =>
-      a.employee_id === empId && a.date >= start && a.date <= end
-    );
+    const list = this.absenceService
+      .absences()
+      .filter((a) => a.employee_id === empId && a.date >= start && a.date <= end);
 
     // Sort by date chronologically
     list.sort((a, b) => a.date.localeCompare(b.date));
@@ -82,7 +91,7 @@ export class AbsenceModalComponent {
           endDate: abs.date,
           category: abs.category,
           periods: new Set([abs.period]),
-          comments: abs.comment ? [abs.comment] : []
+          comments: abs.comment ? [abs.comment] : [],
         });
         continue;
       }
@@ -108,13 +117,13 @@ export class AbsenceModalComponent {
           endDate: abs.date,
           category: abs.category,
           periods: new Set([abs.period]),
-          comments: abs.comment ? [abs.comment] : []
+          comments: abs.comment ? [abs.comment] : [],
         });
       }
     }
 
     // Format groups for template display
-    return groups.map(g => {
+    return groups.map((g) => {
       const startFormatted = this.formatDisplayDate(g.startDate);
       const endFormatted = this.formatDisplayDate(g.endDate);
 
@@ -139,7 +148,7 @@ export class AbsenceModalComponent {
         dateText,
         categoryLabel,
         commentText,
-        class: this.getCategoryClass(g.category)
+        class: this.getCategoryClass(g.category),
       };
     });
   });
@@ -153,30 +162,49 @@ export class AbsenceModalComponent {
 
   getCategoryLabel(category: string): string {
     switch (category) {
-      case 'CP': return 'Congé Payé (CP)';
-      case 'RTT': return 'RTT';
-      case 'Maladie': return 'Maladie';
-      case 'Congé maternité': return 'Congé Maternité / Paternité';
-      case 'Exceptionnel': return 'Congé Exceptionnel';
-      case 'Formation': return 'Formation';
-      case 'Temps partiel': return 'Temps partiel';
-      case 'Prévisionnel': return 'Prévisionnel (Simulation)';
-      case 'Autre': return 'Absence';
-      default: return category;
+      case 'CP':
+        return 'Congé Payé (CP)';
+      case 'RTT':
+        return 'RTT';
+      case 'Maladie':
+        return 'Maladie';
+      case 'Congé maternité':
+        return 'Congé Maternité / Paternité';
+      case 'Exceptionnel':
+        return 'Congé Exceptionnel';
+      case 'Formation':
+        return 'Formation';
+      case 'Temps partiel':
+        return 'Temps partiel';
+      case 'Prévisionnel':
+        return 'Prévisionnel (Simulation)';
+      case 'Autre':
+        return 'Absence';
+      default:
+        return category;
     }
   }
 
   getCategoryClass(category: string): string {
     switch (category) {
-      case 'CP': return 'badge-cp';
-      case 'RTT': return 'badge-rtt';
-      case 'Maladie': return 'badge-maladie';
-      case 'Congé maternité': return 'badge-maternite';
-      case 'Exceptionnel': return 'badge-exceptionnel';
-      case 'Formation': return 'badge-formation';
-      case 'Temps partiel': return 'badge-partiel';
-      case 'Prévisionnel': return 'badge-previsionnel';
-      default: return 'badge-other';
+      case 'CP':
+        return 'badge-cp';
+      case 'RTT':
+        return 'badge-rtt';
+      case 'Maladie':
+        return 'badge-maladie';
+      case 'Congé maternité':
+        return 'badge-maternite';
+      case 'Exceptionnel':
+        return 'badge-exceptionnel';
+      case 'Formation':
+        return 'badge-formation';
+      case 'Temps partiel':
+        return 'badge-partiel';
+      case 'Prévisionnel':
+        return 'badge-previsionnel';
+      default:
+        return 'badge-other';
     }
   }
 
@@ -186,7 +214,17 @@ export class AbsenceModalComponent {
   endDate = signal('');
   startPeriod = signal<'morning' | 'afternoon'>('morning');
   endPeriod = signal<'morning' | 'afternoon'>('afternoon');
-  category = signal<'CP' | 'RTT' | 'Maladie' | 'Congé maternité' | 'Exceptionnel' | 'Formation' | 'Autre' | 'Temps partiel' | 'Prévisionnel'>('CP');
+  category = signal<
+    | 'CP'
+    | 'RTT'
+    | 'Maladie'
+    | 'Congé maternité'
+    | 'Exceptionnel'
+    | 'Formation'
+    | 'Autre'
+    | 'Temps partiel'
+    | 'Prévisionnel'
+  >('CP');
   comment = signal('');
   showCommentInput = signal(false);
   errorMessage = signal<string | null>(null);
@@ -236,7 +274,7 @@ export class AbsenceModalComponent {
         period = this.endPeriod() === 'morning' ? 'morning' : 'full';
       }
 
-      total += (period === 'full' ? 1.0 : 0.5);
+      total += period === 'full' ? 1.0 : 0.5;
       temp.setDate(temp.getDate() + 1);
     }
 
@@ -256,30 +294,39 @@ export class AbsenceModalComponent {
     }
 
     const year = new Date(startStr).getFullYear();
-    const emp = this.employeeService.employees().find(e => e.id === empId);
+    const emp = this.employeeService.employees().find((e) => e.id === empId);
     if (!emp) return null;
 
-    const balanceRecord = emp.cd_employee_balances?.find(b => b.year === year);
-    const defaults = emp.contract_type === 'Interne'
-      ? CONTRACT_DEFAULT_BALANCES.Interne
-      : CONTRACT_DEFAULT_BALANCES.Externe;
+    const balanceRecord = emp.cd_employee_balances?.find((b) => b.year === year);
+    const defaults =
+      emp.contract_type === 'Interne' ? CONTRACT_DEFAULT_BALANCES.Interne : CONTRACT_DEFAULT_BALANCES.Externe;
 
     const initialCp = balanceRecord ? balanceRecord.initial_cp : defaults.initial_cp;
     const initialRtt = balanceRecord ? balanceRecord.initial_rtt : defaults.initial_rtt;
     const initialExceptional = balanceRecord ? balanceRecord.initial_exceptional : defaults.initial_exceptional;
 
-    const allAbsences = this.absenceService.absences().filter(a => a.employee_id === empId);
+    const allAbsences = this.absenceService.absences().filter((a) => a.employee_id === empId);
 
     const usedCp = allAbsences
-      .filter(a => a.category === 'CP' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
+      .filter(
+        (a) => a.category === 'CP' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr),
+      )
       .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
 
     const usedRtt = allAbsences
-      .filter(a => a.category === 'RTT' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
+      .filter(
+        (a) =>
+          a.category === 'RTT' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr),
+      )
       .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
 
     const usedExceptional = allAbsences
-      .filter(a => a.category === 'Exceptionnel' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
+      .filter(
+        (a) =>
+          a.category === 'Exceptionnel' &&
+          new Date(a.date).getFullYear() === year &&
+          (a.date < startStr || a.date > endStr),
+      )
       .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
 
     let startCp = initialCp - usedCp;
@@ -301,11 +348,16 @@ export class AbsenceModalComponent {
     // Global balance: CP + RTT + Exceptional minus all absences except Formation
     const initialTotal = initialCp + initialRtt + initialExceptional;
     const usedTotal = allAbsences
-      .filter(a => a.category !== 'Formation' && new Date(a.date).getFullYear() === year && (a.date < startStr || a.date > endStr))
+      .filter(
+        (a) =>
+          a.category !== 'Formation' &&
+          new Date(a.date).getFullYear() === year &&
+          (a.date < startStr || a.date > endStr),
+      )
       .reduce((sum, a) => sum + (a.period === 'full' ? 1.0 : 0.5), 0);
 
     let startTotal = initialTotal - usedTotal;
-    let endTotal = (selectedCategory !== 'Formation') ? (startTotal - currentDays) : startTotal;
+    let endTotal = selectedCategory !== 'Formation' ? startTotal - currentDays : startTotal;
 
     if (emp.departure_date) {
       if (startStr >= emp.departure_date) {
@@ -331,7 +383,7 @@ export class AbsenceModalComponent {
       exceptional: { start: startExceptional, end: endExceptional },
       total: { start: startTotal, end: endTotal },
       category: selectedCategory,
-      duration: currentDays
+      duration: currentDays,
     };
   });
 
@@ -353,7 +405,7 @@ export class AbsenceModalComponent {
     effect(() => {
       const empId = this.employeeId();
       if (empId) {
-        const emp = this.employeeService.employees().find(e => e.id === empId);
+        const emp = this.employeeService.employees().find((e) => e.id === empId);
         if (emp) {
           this.employeeName.set(`${emp.first_name} ${emp.last_name}`);
         }
@@ -424,7 +476,7 @@ export class AbsenceModalComponent {
       startPeriod: this.startPeriod(),
       endPeriod: this.endPeriod(),
       category: this.category(),
-      comment: this.comment()
+      comment: this.comment(),
     });
   }
 
@@ -434,9 +486,7 @@ export class AbsenceModalComponent {
     const end = this.endDate();
     if (!empId || !start || !end) return [];
 
-    return this.absenceService.absences().filter(a =>
-      a.employee_id === empId && a.date >= start && a.date <= end
-    );
+    return this.absenceService.absences().filter((a) => a.employee_id === empId && a.date >= start && a.date <= end);
   }
 
   onDelete() {
@@ -452,16 +502,16 @@ export class AbsenceModalComponent {
     if (exist) {
       this.delete.emit({
         employeeId: empId,
-        dates: [{ date: exist.date, period: exist.period }]
+        dates: [{ date: exist.date, period: exist.period }],
       });
     } else {
-      const list = this.getExistingAbsencesList().map(a => ({
+      const list = this.getExistingAbsencesList().map((a) => ({
         date: a.date,
-        period: a.period
+        period: a.period,
       }));
       this.delete.emit({
         employeeId: empId,
-        dates: list
+        dates: list,
       });
     }
   }

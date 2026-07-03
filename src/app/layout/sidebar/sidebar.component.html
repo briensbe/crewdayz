@@ -6,18 +6,24 @@
         <span class="logo-text">CrewDayz</span>
       }
     </div>
-    <button class="toggle-btn" (click)="toggleSidebar()" [title]="sidebarService.collapsed() ? 'Agrandir le menu' : 'Réduire le menu'">
+    <button
+      class="toggle-btn"
+      (click)="toggleSidebar()"
+      [title]="sidebarService.collapsed() ? 'Agrandir le menu' : 'Réduire le menu'"
+    >
       <lucide-icon [img]="sidebarService.collapsed() ? ChevronRight : ChevronLeft" size="18"></lucide-icon>
     </button>
   </div>
 
   <div class="nav-items">
     @for (item of navigationItems; track item.route) {
-      <a class="nav-item"
-         [routerLink]="item.route"
-         routerLinkActive="active"
-         [routerLinkActiveOptions]="{exact: true}"
-         [title]="sidebarService.collapsed() ? item.label : ''">
+      <a
+        class="nav-item"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [title]="sidebarService.collapsed() ? item.label : ''"
+      >
         <div class="nav-item-icon">
           <lucide-icon [img]="item.icon" size="20"></lucide-icon>
         </div>
@@ -29,10 +35,12 @@
   </div>
 
   <div class="sidebar-footer">
-    <div class="sidebar-version" 
-         [class.collapsed]="sidebarService.collapsed()" 
-         (click)="showReleaseNotes()"
-         title="Voir l'historique des versions">
+    <div
+      class="sidebar-version"
+      [class.collapsed]="sidebarService.collapsed()"
+      (click)="showReleaseNotes()"
+      title="Voir l'historique des versions"
+    >
       v{{ version }}
     </div>
   </div>

@@ -54,7 +54,7 @@
           <lucide-icon [img]="MapPin" size="18"></lucide-icon>
           <h2>Sites et Zones Associées</h2>
         </div>
-        
+
         <div class="sites-list">
           @if (configuredSites().length === 0) {
             <div class="empty-state">
@@ -62,11 +62,7 @@
             </div>
           } @else {
             @for (site of configuredSites(); track site.label) {
-              <div 
-                class="site-item" 
-                [class.active]="selectedSite() === site.label"
-                (click)="selectSite(site.label)"
-              >
+              <div class="site-item" [class.active]="selectedSite() === site.label" (click)="selectSite(site.label)">
                 <div class="site-main-info">
                   <span class="site-name">{{ site.label }}</span>
                   <div class="site-meta">
@@ -93,16 +89,14 @@
             </div>
             <button class="close-btn" (click)="selectedSite.set(null)">×</button>
           </div>
-          
+
           <div class="employee-list">
             @if (selectedSiteEmployees().length === 0) {
               <p class="empty-text">Aucun collaborateur actif rattaché à ce site.</p>
             } @else {
               @for (emp of selectedSiteEmployees(); track emp.id) {
                 <div class="employee-row">
-                  <div class="emp-avatar">
-                    {{ emp.first_name[0] }}{{ emp.last_name[0] }}
-                  </div>
+                  <div class="emp-avatar">{{ emp.first_name[0] }}{{ emp.last_name[0] }}</div>
                   <div class="emp-details">
                     <span class="emp-name">{{ emp.first_name }} {{ emp.last_name }}</span>
                     <span class="emp-role">{{ emp.profile }} • {{ emp.team }}</span>
@@ -123,13 +117,13 @@
             <lucide-icon [img]="Calendar" size="18"></lucide-icon>
             <h2>Calendrier des Vacances Scolaires</h2>
           </div>
-          
+
           <!-- Filters Toolbar -->
           <div class="filters-toolbar">
             <div class="search-input-container">
               <lucide-icon [img]="Search" class="search-icon" size="16"></lucide-icon>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Rechercher des vacances..."
                 [ngModel]="searchQuery()"
                 (ngModelChange)="searchQuery.set($event)"
@@ -137,28 +131,20 @@
             </div>
 
             <div class="zone-tabs">
-              <button 
-                class="tab-btn" 
-                [class.active]="selectedZone() === 'All'"
-                (click)="selectedZone.set('All')"
-              >
+              <button class="tab-btn" [class.active]="selectedZone() === 'All'" (click)="selectedZone.set('All')">
                 Toutes
               </button>
               @for (z of zones(); track z) {
-                <button 
-                  class="tab-btn" 
-                  [class.active]="selectedZone() === z"
-                  (click)="selectedZone.set(z)"
-                >
+                <button class="tab-btn" [class.active]="selectedZone() === z" (click)="selectedZone.set(z)">
                   {{ z }}
                 </button>
               }
             </div>
 
             <label class="toggle-checkbox">
-              <input 
-                type="checkbox" 
-                [checked]="hidePassedHolidays()" 
+              <input
+                type="checkbox"
+                [checked]="hidePassedHolidays()"
                 (change)="hidePassedHolidays.set(!hidePassedHolidays())"
               />
               <span>Masquer passées</span>

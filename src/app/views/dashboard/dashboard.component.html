@@ -4,7 +4,7 @@
       <h1>Tableau de Bord</h1>
       <p class="subtitle">Suivi annuel des effectifs par mois basé sur les dates d'arrivée et de départ</p>
     </div>
-    
+
     <!-- Year Navigation -->
     <div class="month-navigator">
       <button class="nav-arrow-btn" (click)="prevYear()" title="Année précédente">
@@ -86,7 +86,7 @@
       </div>
       @if (hoveredIndex() !== null) {
         <div class="chart-hover-indicator">
-          {{ monthlyData()[hoveredIndex()!].monthName }} : 
+          {{ monthlyData()[hoveredIndex()!].monthName }} :
           <strong>{{ monthlyData()[hoveredIndex()!].presentCount }}</strong>
         </div>
       }
@@ -104,29 +104,29 @@
           <!-- Definitions for gradients -->
           <defs>
             <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--chart-gradient-start, #3b82f6)" stop-opacity="0.2"/>
-              <stop offset="100%" stop-color="var(--chart-gradient-end, #3b82f6)" stop-opacity="0.0"/>
+              <stop offset="0%" stop-color="var(--chart-gradient-start, #3b82f6)" stop-opacity="0.2" />
+              <stop offset="100%" stop-color="var(--chart-gradient-end, #3b82f6)" stop-opacity="0.0" />
             </linearGradient>
             <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="#3b82f6"/>
-              <stop offset="100%" stop-color="#60a5fa"/>
+              <stop offset="0%" stop-color="#3b82f6" />
+              <stop offset="100%" stop-color="#60a5fa" />
             </linearGradient>
           </defs>
 
           <!-- Y-Axis Gridlines & Labels -->
           @for (tick of yTicks(); track tick) {
             <g class="grid-group">
-              <line 
-                [attr.x1]="paddingLeft" 
-                [attr.y1]="getY(tick, chartMaxY())" 
-                [attr.x2]="chartWidth - paddingRight" 
-                [attr.y2]="getY(tick, chartMaxY())" 
+              <line
+                [attr.x1]="paddingLeft"
+                [attr.y1]="getY(tick, chartMaxY())"
+                [attr.x2]="chartWidth - paddingRight"
+                [attr.y2]="getY(tick, chartMaxY())"
                 class="grid-line"
               />
-              <text 
-                [attr.x]="paddingLeft - 8" 
-                [attr.y]="getY(tick, chartMaxY()) + 3" 
-                text-anchor="end" 
+              <text
+                [attr.x]="paddingLeft - 8"
+                [attr.y]="getY(tick, chartMaxY()) + 3"
+                text-anchor="end"
                 class="axis-label"
               >
                 {{ tick }}
@@ -138,14 +138,21 @@
           <path [attr.d]="chartPath().area" fill="url(#areaGrad)" />
 
           <!-- Chart Line -->
-          <path [attr.d]="chartPath().line" fill="none" stroke="url(#lineGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path
+            [attr.d]="chartPath().line"
+            fill="none"
+            stroke="url(#lineGrad)"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
 
           <!-- Data Points & Interaction Dots -->
           @for (m of monthlyData(); track m.monthIndex; let idx = $index) {
-            <circle 
-              [attr.cx]="getX(idx)" 
-              [attr.cy]="getY(m.presentCount, chartMaxY())" 
-              [attr.r]="hoveredIndex() === idx ? 5 : 3" 
+            <circle
+              [attr.cx]="getX(idx)"
+              [attr.cy]="getY(m.presentCount, chartMaxY())"
+              [attr.r]="hoveredIndex() === idx ? 5 : 3"
               class="chart-point"
               [class.active]="hoveredIndex() === idx"
             />
@@ -153,12 +160,12 @@
 
           <!-- Interactive Hover Columns -->
           @for (m of monthlyData(); track m.monthIndex; let idx = $index) {
-            <rect 
-              [attr.x]="getX(idx) - (chartWidth - paddingLeft - paddingRight) / 24" 
-              [attr.y]="paddingTop" 
-              [attr.width]="(chartWidth - paddingLeft - paddingRight) / 12" 
-              [attr.height]="chartHeight - paddingTop - paddingBottom" 
-              fill="transparent" 
+            <rect
+              [attr.x]="getX(idx) - (chartWidth - paddingLeft - paddingRight) / 24"
+              [attr.y]="paddingTop"
+              [attr.width]="(chartWidth - paddingLeft - paddingRight) / 12"
+              [attr.height]="chartHeight - paddingTop - paddingBottom"
+              fill="transparent"
               class="hover-column"
               (mouseenter)="setHoveredIndex(idx)"
               (mouseleave)="setHoveredIndex(null)"
@@ -167,10 +174,10 @@
 
           <!-- X-Axis Labels (draw 12 months) -->
           @for (m of monthlyData(); track m.monthIndex; let idx = $index) {
-            <text 
-              [attr.x]="getX(idx)" 
-              [attr.y]="chartHeight - paddingBottom + 16" 
-              text-anchor="middle" 
+            <text
+              [attr.x]="getX(idx)"
+              [attr.y]="chartHeight - paddingBottom + 16"
+              text-anchor="middle"
               class="axis-label x-axis-label"
             >
               {{ m.monthName.substring(0, 3) }}.
@@ -179,11 +186,11 @@
 
           <!-- Hover Tooltip Line Indicator -->
           @if (hoveredIndex() !== null) {
-            <line 
-              [attr.x1]="getX(hoveredIndex()!)" 
-              [attr.y1]="paddingTop" 
-              [attr.x2]="getX(hoveredIndex()!)" 
-              [attr.y2]="chartHeight - paddingBottom" 
+            <line
+              [attr.x1]="getX(hoveredIndex()!)"
+              [attr.y1]="paddingTop"
+              [attr.x2]="getX(hoveredIndex()!)"
+              [attr.y2]="chartHeight - paddingBottom"
               class="tooltip-indicator-line"
             />
           }
@@ -192,8 +199,8 @@
         <!-- Premium Tooltip Overlay -->
         @if (hoveredIndex() !== null) {
           @let activeMonth = monthlyData()[hoveredIndex()!];
-          <div 
-            class="chart-tooltip" 
+          <div
+            class="chart-tooltip"
             [style.left.px]="getX(hoveredIndex()!) + 15"
             [style.top.px]="getY(activeMonth.presentCount, chartMaxY()) - 40"
           >
@@ -203,15 +210,21 @@
             <div class="tooltip-body">
               <div class="tooltip-stat">
                 <span class="dot present"></span>
-                <span>Actifs: <strong>{{ activeMonth.presentCount }}</strong></span>
+                <span
+                  >Actifs: <strong>{{ activeMonth.presentCount }}</strong></span
+                >
               </div>
               <div class="tooltip-stat">
                 <span class="dot purple"></span>
-                <span>Arrivées: <strong>{{ activeMonth.arrivals.length }}</strong></span>
+                <span
+                  >Arrivées: <strong>{{ activeMonth.arrivals.length }}</strong></span
+                >
               </div>
               <div class="tooltip-stat">
                 <span class="dot orange"></span>
-                <span>Départs: <strong>{{ activeMonth.departures.length }}</strong></span>
+                <span
+                  >Départs: <strong>{{ activeMonth.departures.length }}</strong></span
+                >
               </div>
 
               @if (activeMonth.arrivals.length > 0) {
@@ -246,12 +259,15 @@
 
   <!-- Monthly Breakdown Summary Panel -->
   <div class="absences-summary-card">
-    <button type="button" class="summary-header-btn" (click)="toggleBreakdown()" [title]="showBreakdown() ? 'Masquer le détail mensuel' : 'Afficher le détail mensuel'">
+    <button
+      type="button"
+      class="summary-header-btn"
+      (click)="toggleBreakdown()"
+      [title]="showBreakdown() ? 'Masquer le détail mensuel' : 'Afficher le détail mensuel'"
+    >
       <div class="summary-header-left">
         <h2>Détail Mensuel</h2>
-        <span class="summary-count">
-          12 mois suivis
-        </span>
+        <span class="summary-count"> 12 mois suivis </span>
       </div>
       <lucide-icon [img]="showBreakdown() ? ChevronUp : ChevronDown" size="18" class="chevron-icon"></lucide-icon>
     </button>
@@ -275,10 +291,19 @@
                     <strong>{{ m.monthName }}</strong>
                   </td>
                   <td>
-                    @let rate = kpis().totalUniqueEmployees > 0 ? (m.presentCount / kpis().totalUniqueEmployees * 100) : 0;
+                    @let rate =
+                      kpis().totalUniqueEmployees > 0 ? (m.presentCount / kpis().totalUniqueEmployees) * 100 : 0;
                     <div class="progress-bar-container">
-                      <div class="progress-bar" [style.width.%]="rate" [class.low]="rate < 50" [class.medium]="rate >= 50 && rate < 85" [class.high]="rate >= 85"></div>
-                      <span class="progress-text">{{ m.presentCount }} / {{ kpis().totalUniqueEmployees }} ({{ rate.toFixed(0) }}%)</span>
+                      <div
+                        class="progress-bar"
+                        [style.width.%]="rate"
+                        [class.low]="rate < 50"
+                        [class.medium]="rate >= 50 && rate < 85"
+                        [class.high]="rate >= 85"
+                      ></div>
+                      <span class="progress-text"
+                        >{{ m.presentCount }} / {{ kpis().totalUniqueEmployees }} ({{ rate.toFixed(0) }}%)</span
+                      >
                     </div>
                   </td>
                   <td>

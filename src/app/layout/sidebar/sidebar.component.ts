@@ -11,7 +11,7 @@ import {
   ChevronRight,
   LayoutDashboard,
   Umbrella,
-  History
+  History,
 } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
 import { ReleaseNotesService } from '../../services/release-notes.service';
@@ -28,7 +28,7 @@ interface NavigationItem {
   standalone: true,
   imports: [CommonModule, LucideAngularModule, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.css'
+  styleUrl: './sidebar.component.css',
 })
 export class SidebarComponent {
   protected readonly sidebarService = inject(SidebarService);
@@ -45,8 +45,8 @@ export class SidebarComponent {
     { label: 'Vue Mensuelle', icon: Calendar, route: '/mensuel' },
     { label: 'Vue Annuelle', icon: Layers, route: '/annuel' },
     { label: 'Vacances Scolaires', icon: Umbrella, route: '/vacances' },
-    { label: 'Historique d\'Audit', icon: History, route: '/audit' },
-    { label: 'Mon Profil', icon: User, route: '/profile' }
+    { label: "Historique d'Audit", icon: History, route: '/audit' },
+    { label: 'Mon Profil', icon: User, route: '/profile' },
   ];
 
   toggleSidebar() {
@@ -57,4 +57,3 @@ export class SidebarComponent {
     this.releaseNotesService.openNotes();
   }
 }
-

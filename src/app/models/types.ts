@@ -50,7 +50,16 @@ export interface Absence {
   employee_id: string;
   date: string; // YYYY-MM-DD format
   period: 'full' | 'morning' | 'afternoon';
-  category: 'CP' | 'RTT' | 'Maladie' | 'Congé maternité' | 'Exceptionnel' | 'Formation' | 'Autre' | 'Temps partiel' | 'Prévisionnel';
+  category:
+    | 'CP'
+    | 'RTT'
+    | 'Maladie'
+    | 'Congé maternité'
+    | 'Exceptionnel'
+    | 'Formation'
+    | 'Autre'
+    | 'Temps partiel'
+    | 'Prévisionnel';
   comment?: string;
   created_at?: string;
 }
@@ -78,7 +87,7 @@ export interface LoginPayload {
 export interface SchoolHolidayPeriod {
   name: string;
   start: string; // YYYY-MM-DD
-  end: string;   // YYYY-MM-DD
+  end: string; // YYYY-MM-DD
   zones: string[];
 }
 
@@ -102,5 +111,3 @@ export interface AuditLog {
     full_name: string;
   } | null;
 }
-
-

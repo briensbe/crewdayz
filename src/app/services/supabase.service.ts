@@ -1,13 +1,13 @@
-import { Injectable, signal } from "@angular/core";
-import { AuthTokenResponse, createClient, SupabaseClient, UserResponse, User } from "@supabase/supabase-js";
-import { BehaviorSubject } from "rxjs";
-import { LoginPayload, SignupPayload } from "../models/types";
-import { environment } from "../../environments/environment";
+import { Injectable, signal } from '@angular/core';
+import { AuthTokenResponse, createClient, SupabaseClient, UserResponse, User } from '@supabase/supabase-js';
+import { BehaviorSubject } from 'rxjs';
+import { LoginPayload, SignupPayload } from '../models/types';
+import { environment } from '../../environments/environment';
 
-const sessionStorageUserKey = "crewdayzUser";
+const sessionStorageUserKey = 'crewdayzUser';
 
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root',
 })
 export class SupabaseService {
   private supabase: SupabaseClient<any, any>;
@@ -17,7 +17,7 @@ export class SupabaseService {
   /**
    * Observable to track auth state changes (for backward compatibility / navigation guards)
    */
-  readonly authState$ = new BehaviorSubject<{ event: string, session: any } | null>(null);
+  readonly authState$ = new BehaviorSubject<{ event: string; session: any } | null>(null);
 
   /**
    * Reactive signal for currently logged in user
@@ -35,7 +35,7 @@ export class SupabaseService {
     // We configure the DB client to use the standard "public" schema
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey, {
       db: {
-        schema: "crewdayz"
+        schema: 'crewdayz',
       },
       auth: {
         lock: (name, acquireTimeout, acquireFn) => this.safeLock(name, acquireFn),
@@ -43,7 +43,7 @@ export class SupabaseService {
     });
 
     this.initializeAuthListener();
-    
+
     // Initial session load to populate user signal immediately
     this.supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
@@ -60,7 +60,7 @@ export class SupabaseService {
       } catch {
         // Ignore and retry
       }
-      await new Promise(res => setTimeout(res, delayMs));
+      await new Promise((res) => setTimeout(res, delayMs));
     }
     return navigator.locks.request(name, acquireFn);
   }
@@ -103,13 +103,16 @@ export class SupabaseService {
   /**
    * Get the currently logged in user (fast cached signal, falling back to network if needed)
    */
-  async getUser(): Promise<{ data: { user: User | null }, error: any }> {
+  async getUser(): Promise<{ data: { user: User | null }; error: any }> {
     const cachedUser = this._user();
     if (cachedUser) {
       return { data: { user: cachedUser }, error: null };
     }
 
-    const { data: { session }, error: sessionError } = await this.supabase.auth.getSession();
+    const {
+      data: { session },
+      error: sessionError,
+    } = await this.supabase.auth.getSession();
     if (session?.user) {
       this._user.set(session.user);
       return { data: { user: session.user }, error: null };
@@ -134,7 +137,7 @@ export class SupabaseService {
       await this.supabase.auth.signOut();
     } finally {
       sessionStorage.removeItem(sessionStorageUserKey);
-      setTimeout(() => this._isLocalLogout = false, 1000);
+      setTimeout(() => (this._isLocalLogout = false), 1000);
     }
   }
 
@@ -145,12 +148,12 @@ export class SupabaseService {
     try {
       const authRedirectUrl = environment.authRedirectUrl;
       const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: authRedirectUrl + "/update-password",
+        redirectTo: authRedirectUrl + '/update-password',
       });
 
       if (error) throw error;
     } catch (err: any) {
-      throw new Error(err.message || "Erreur lors de l’envoi du mail de réinitialisation.");
+      throw new Error(err.message || 'Erreur lors de l’envoi du mail de réinitialisation.');
     }
   }
 
@@ -158,7 +161,7 @@ export class SupabaseService {
    * Exchange the recovery/invite token for a session
    */
   async exchangeCodeForSession(hash: string): Promise<AuthTokenResponse> {
-    if (!hash.includes("access_token")) throw new Error("Token manquant");
+    if (!hash.includes('access_token')) throw new Error('Token manquant');
     const response = await this.supabase.auth.exchangeCodeForSession(hash);
     if (response.error) throw new Error(response.error.message);
     return response;
@@ -197,12 +200,12 @@ export class SupabaseService {
    */
   async signInWithGoogle() {
     return await this.supabase.auth.signInWithOAuth({
-      provider: "google",
+      provider: 'google',
       options: {
         redirectTo: environment.authRedirectUrl,
         queryParams: {
-          access_type: "offline",
-          prompt: "consent",
+          access_type: 'offline',
+          prompt: 'consent',
         },
       },
     });

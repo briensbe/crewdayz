@@ -2,8 +2,11 @@
   @if (supabaseService.user()) {
     <app-sidebar></app-sidebar>
   }
-  
-  <main [class.main-content]="supabaseService.user() !== null" [class.sidebar-collapsed]="supabaseService.user() !== null && sidebarService.collapsed()">
+
+  <main
+    [class.main-content]="supabaseService.user() !== null"
+    [class.sidebar-collapsed]="supabaseService.user() !== null && sidebarService.collapsed()"
+  >
     <router-outlet></router-outlet>
   </main>
 

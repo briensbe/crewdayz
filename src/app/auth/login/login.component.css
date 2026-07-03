@@ -112,11 +112,11 @@
 }
 
 .divider:not(:empty)::before {
-  margin-right: .75em;
+  margin-right: 0.75em;
 }
 
 .divider:not(:empty)::after {
-  margin-left: .75em;
+  margin-left: 0.75em;
 }
 
 .google-btn {

@@ -28,13 +28,15 @@ interface ReleaseNote {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './release-notes.component.html',
-  styleUrl: './release-notes.component.css'
+  styleUrl: './release-notes.component.css',
 })
 export class ReleaseNotesComponent implements OnInit, OnDestroy {
   notes: ReleaseNote[] = [];
   private _show = false;
-  
-  get show() { return this._show; }
+
+  get show() {
+    return this._show;
+  }
   set show(value: boolean) {
     this._show = value;
     if (value) {
@@ -44,7 +46,7 @@ export class ReleaseNotesComponent implements OnInit, OnDestroy {
       this.activeImageUrl = null;
     }
   }
-  
+
   showHistory = false;
   activeImageUrl: string | null = null;
   private readonly STORAGE_KEY = 'last_seen_release_version';
@@ -65,7 +67,7 @@ export class ReleaseNotesComponent implements OnInit, OnDestroy {
           }
         }
       },
-      error: (err) => console.error('Error loading release notes:', err)
+      error: (err) => console.error('Error loading release notes:', err),
     });
 
     // Listen to authentication changes
@@ -145,7 +147,7 @@ export class ReleaseNotesComponent implements OnInit, OnDestroy {
   close() {
     this.show = false;
     this.hasBeenClosedInSession = true;
-    setTimeout(() => this.showHistory = false, 300);
+    setTimeout(() => (this.showHistory = false), 300);
   }
 
   dontShowAgain() {

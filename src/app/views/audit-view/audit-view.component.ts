@@ -1,20 +1,20 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  LucideAngularModule, 
-  History, 
-  Search, 
-  ChevronDown, 
-  ChevronUp, 
-  User, 
-  Calendar, 
-  FileText, 
-  Filter, 
+import {
+  LucideAngularModule,
+  History,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  User,
+  Calendar,
+  FileText,
+  Filter,
   RefreshCw,
   Database,
   ArrowRight,
-  Eye
+  Eye,
 } from 'lucide-angular';
 import { AuditService } from '../../services/audit.service';
 import { SupabaseService } from '../../services/supabase.service';
@@ -36,7 +36,7 @@ interface ChangedField {
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './audit-view.component.html',
-  styleUrl: './audit-view.component.css'
+  styleUrl: './audit-view.component.css',
 })
 export class AuditViewComponent implements OnInit {
   protected readonly auditService = inject(AuditService);
@@ -68,42 +68,42 @@ export class AuditViewComponent implements OnInit {
 
   // Translations maps
   readonly tableTranslations: Record<string, string> = {
-    'cd_employees': 'Collaborateurs',
-    'cd_absences': 'Absences',
-    'cd_employee_balances': 'Soldes des Collaborateurs',
-    'audit_logs': 'Logs d\'Audit'
+    cd_employees: 'Collaborateurs',
+    cd_absences: 'Absences',
+    cd_employee_balances: 'Soldes des Collaborateurs',
+    audit_logs: "Logs d'Audit",
   };
 
   readonly fieldTranslations: Record<string, string> = {
-    'first_name': 'Prénom',
-    'last_name': 'Nom de famille',
-    'service': 'Service',
-    'team': 'Îlot',
-    'work_site': 'Site de travail',
-    'contract_type': 'Type de contrat',
-    'company_name': 'Société (ESN)',
-    'profile': 'Profil métier',
-    'arrival_date': 'Date d\'arrivée',
-    'departure_date': 'Date de départ',
-    'date': 'Date de l\'absence',
-    'period': 'Période',
-    'category': 'Catégorie d\'absence',
-    'comment': 'Commentaire',
-    'initial_cp': 'Solde initial CP',
-    'initial_rtt': 'Solde initial RTT',
-    'initial_exceptional': 'Solde initial Exceptionnel',
-    'year': 'Année',
-    'employee_id': 'ID Collaborateur'
+    first_name: 'Prénom',
+    last_name: 'Nom de famille',
+    service: 'Service',
+    team: 'Îlot',
+    work_site: 'Site de travail',
+    contract_type: 'Type de contrat',
+    company_name: 'Société (ESN)',
+    profile: 'Profil métier',
+    arrival_date: "Date d'arrivée",
+    departure_date: 'Date de départ',
+    date: "Date de l'absence",
+    period: 'Période',
+    category: "Catégorie d'absence",
+    comment: 'Commentaire',
+    initial_cp: 'Solde initial CP',
+    initial_rtt: 'Solde initial RTT',
+    initial_exceptional: 'Solde initial Exceptionnel',
+    year: 'Année',
+    employee_id: 'ID Collaborateur',
   };
 
   // Unique lists computed for filters
   tables = computed(() => {
-    const list = this.auditService.logs().map(log => log.table_name);
+    const list = this.auditService.logs().map((log) => log.table_name);
     return Array.from(new Set(list)).sort();
   });
 
   actions = computed(() => {
-    const list = this.auditService.logs().map(log => log.action);
+    const list = this.auditService.logs().map((log) => log.action);
     return Array.from(new Set(list)).sort();
   });
 
@@ -113,7 +113,7 @@ export class AuditViewComponent implements OnInit {
     const table = this.selectedTable();
     const action = this.selectedAction();
 
-    return this.auditService.logs().filter(log => {
+    return this.auditService.logs().filter((log) => {
       // Table Filter
       if (table && log.table_name !== table) return false;
 
@@ -131,14 +131,16 @@ export class AuditViewComponent implements OnInit {
         const oldDataStr = JSON.stringify(log.old_data || {}).toLowerCase();
         const newDataStr = JSON.stringify(log.new_data || {}).toLowerCase();
 
-        return tableNameFr.includes(query) ||
-               userName.includes(query) ||
-               changedBy.includes(query) ||
-               actionStr.includes(query) ||
-               rowId.includes(query) ||
-               employeeName.includes(query) ||
-               oldDataStr.includes(query) ||
-               newDataStr.includes(query);
+        return (
+          tableNameFr.includes(query) ||
+          userName.includes(query) ||
+          changedBy.includes(query) ||
+          actionStr.includes(query) ||
+          rowId.includes(query) ||
+          employeeName.includes(query) ||
+          oldDataStr.includes(query) ||
+          newDataStr.includes(query)
+        );
       }
 
       return true;
@@ -147,14 +149,14 @@ export class AuditViewComponent implements OnInit {
 
   ngOnInit() {
     this.loadLogs();
-    this.employeeService.fetchEmployees().catch(err => console.error("Failed to load employees:", err));
+    this.employeeService.fetchEmployees().catch((err) => console.error('Failed to load employees:', err));
   }
 
   async loadLogs() {
     try {
       await this.auditService.fetchAuditLogs();
     } catch (err) {
-      console.error("Failed to load audit logs", err);
+      console.error('Failed to load audit logs', err);
     }
   }
 
@@ -173,9 +175,9 @@ export class AuditViewComponent implements OnInit {
   }
 
   toggleRawJson(logId: string, show: boolean) {
-    this.showJsonRaw.update(state => ({
+    this.showJsonRaw.update((state) => ({
       ...state,
-      [logId]: show
+      [logId]: show,
     }));
   }
 
@@ -184,7 +186,7 @@ export class AuditViewComponent implements OnInit {
   }
 
   getEmployeeName(id: string): string | null {
-    const emp = this.employeeService.employees().find(e => e.id === id);
+    const emp = this.employeeService.employees().find((e) => e.id === id);
     return emp ? `${emp.first_name} ${emp.last_name}` : null;
   }
 
@@ -241,26 +243,26 @@ export class AuditViewComponent implements OnInit {
     const systemFields = ['id', 'created_at', 'updated_at', 'changed_at', 'changed_by'];
 
     if (log.action === 'INSERT') {
-      Object.keys(newObj).forEach(key => {
+      Object.keys(newObj).forEach((key) => {
         if (!systemFields.includes(key) && newObj[key] !== null && newObj[key] !== undefined) {
           fields.push({
             key,
             label: this.translateField(key),
             oldValue: null,
             newValue: newObj[key],
-            type: 'added'
+            type: 'added',
           });
         }
       });
     } else if (log.action === 'DELETE') {
-      Object.keys(oldObj).forEach(key => {
+      Object.keys(oldObj).forEach((key) => {
         if (!systemFields.includes(key) && oldObj[key] !== null && oldObj[key] !== undefined) {
           fields.push({
             key,
             label: this.translateField(key),
             oldValue: oldObj[key],
             newValue: null,
-            type: 'removed'
+            type: 'removed',
           });
         }
       });
@@ -268,7 +270,7 @@ export class AuditViewComponent implements OnInit {
       // Gather all keys present in either object
       const allKeys = Array.from(new Set([...Object.keys(oldObj), ...Object.keys(newObj)]));
 
-      allKeys.forEach(key => {
+      allKeys.forEach((key) => {
         if (!systemFields.includes(key)) {
           const oldVal = oldObj[key];
           const newVal = newObj[key];
@@ -280,7 +282,7 @@ export class AuditViewComponent implements OnInit {
               label: this.translateField(key),
               oldValue: oldVal,
               newValue: newVal,
-              type: 'modified'
+              type: 'modified',
             });
           }
         }
