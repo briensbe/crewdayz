@@ -151,3 +151,14 @@
     padding: 2rem 1.5rem;
   }
 }
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-wrapper input {
+  padding-right: 2.75rem;
+}
