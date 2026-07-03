@@ -9,6 +9,7 @@ import { FiltersComponent, FilterState } from '../../shared/filters/filters.comp
 import { storageSignal } from '../../../utils/storage-signal';
 import { isFrenchPublicHoliday } from '../../../utils/holidays';
 import { getTeamStyle } from '../../shared/utils/color-utils';
+import { normalizeString } from '../../shared/utils/string-utils';
 
 interface EmployeeAnnualRow {
   employee: Employee;
@@ -121,10 +122,10 @@ export class AnnualViewComponent implements OnInit {
         if (currentYear < arrivalYear) return false;
       }
       if (filters.search) {
-        const query = filters.search.toLowerCase();
-        const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
+        const query = normalizeString(filters.search);
+        const fullName = normalizeString(`${emp.first_name} ${emp.last_name}`);
         const matchesName = fullName.includes(query);
-        const matchesCompany = emp.company_name?.toLowerCase().includes(query) || false;
+        const matchesCompany = normalizeString(emp.company_name).includes(query);
         if (!matchesName && !matchesCompany) return false;
       }
       if (filters.service && filters.service.length > 0 && !filters.service.includes(emp.service)) return false;

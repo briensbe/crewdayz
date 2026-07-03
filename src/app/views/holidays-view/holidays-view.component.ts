@@ -5,6 +5,7 @@ import { LucideAngularModule, Umbrella, MapPin, Users, Calendar, Search, ArrowRi
 import { SchoolHolidayService } from '../../services/school-holiday.service';
 import { EmployeeService } from '../../services/employee.service';
 import { SchoolHolidayPeriod } from '../../models/types';
+import { normalizeString } from '../../shared/utils/string-utils';
 
 interface SiteStats {
   label: string;
@@ -120,7 +121,7 @@ export class HolidaysViewComponent {
   // Filtered holiday periods
   filteredPeriods = computed(() => {
     const zoneFilter = this.selectedZone();
-    const query = this.searchQuery().toLowerCase().trim();
+    const query = normalizeString(this.searchQuery()).trim();
     const hidePassed = this.hidePassedHolidays();
     let periods = this.allPeriods();
 
@@ -135,8 +136,8 @@ export class HolidaysViewComponent {
     if (query) {
       periods = periods.filter(
         (p) =>
-          p.name.toLowerCase().includes(query) ||
-          p.zones.some((z) => z.toLowerCase().includes(query)) ||
+          normalizeString(p.name).includes(query) ||
+          p.zones.some((z) => normalizeString(z).includes(query)) ||
           p.start.includes(query) ||
           p.end.includes(query),
       );

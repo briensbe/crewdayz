@@ -24,6 +24,7 @@ import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { storageSignal } from '../../../utils/storage-signal';
 import { getTeamStyle } from '../../shared/utils/color-utils';
+import { normalizeString } from '../../shared/utils/string-utils';
 
 export type EmployeeSortField =
   | 'name'
@@ -169,10 +170,10 @@ export class EmployeeListComponent implements OnInit {
       .filter((emp) => {
         // Search filter (first name, last name, or ESN name)
         if (filters.search) {
-          const query = filters.search.toLowerCase();
-          const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
+          const query = normalizeString(filters.search);
+          const fullName = normalizeString(`${emp.first_name} ${emp.last_name}`);
           const matchesName = fullName.includes(query);
-          const matchesCompany = emp.company_name?.toLowerCase().includes(query) || false;
+          const matchesCompany = normalizeString(emp.company_name).includes(query);
           if (!matchesName && !matchesCompany) return false;
         }
         // Dropdown filters
@@ -272,19 +273,19 @@ export class EmployeeListComponent implements OnInit {
 
   // Computes filtered list based on typed value in "team" field
   filteredTeams = computed(() => {
-    const query = this.team().toLowerCase().trim();
+    const query = normalizeString(this.team()).trim();
     // If query is empty OR if it matches exactly an existing team, show all teams
-    if (!query || this.teams().some((t) => t.toLowerCase() === query)) {
+    if (!query || this.teams().some((t) => normalizeString(t) === query)) {
       return this.teams();
     }
-    return this.teams().filter((t) => t.toLowerCase().includes(query));
+    return this.teams().filter((t) => normalizeString(t).includes(query));
   });
 
   // Determines if the entered text is a new team that doesn't exist yet
   isNewTeam = computed(() => {
     const current = this.team().trim();
     if (!current) return false;
-    return !this.teams().some((t) => t.toLowerCase() === current.toLowerCase());
+    return !this.teams().some((t) => normalizeString(t) === normalizeString(current));
   });
 
   onTeamSearch(val: string) {
@@ -314,19 +315,19 @@ export class EmployeeListComponent implements OnInit {
 
   // Computes filtered list based on typed value in "service" field
   filteredServices = computed(() => {
-    const query = this.service().toLowerCase().trim();
+    const query = normalizeString(this.service()).trim();
     // If query is empty OR if it matches exactly an existing service, show all services
-    if (!query || this.services().some((s) => s.toLowerCase() === query)) {
+    if (!query || this.services().some((s) => normalizeString(s) === query)) {
       return this.services();
     }
-    return this.services().filter((s) => s.toLowerCase().includes(query));
+    return this.services().filter((s) => normalizeString(s).includes(query));
   });
 
   // Determines if the entered text is a new service that doesn't exist yet
   isNewService = computed(() => {
     const current = this.service().trim();
     if (!current) return false;
-    return !this.services().some((s) => s.toLowerCase() === current.toLowerCase());
+    return !this.services().some((s) => normalizeString(s) === normalizeString(current));
   });
 
   onServiceSearch(val: string) {
@@ -356,19 +357,19 @@ export class EmployeeListComponent implements OnInit {
 
   // Computes filtered list based on typed value in "companyName" field
   filteredCompanies = computed(() => {
-    const query = this.companyName().toLowerCase().trim();
+    const query = normalizeString(this.companyName()).trim();
     // If query is empty OR if it matches exactly an existing company, show all companies
-    if (!query || this.companyNames().some((c) => c?.toLowerCase() === query)) {
+    if (!query || this.companyNames().some((c) => normalizeString(c) === query)) {
       return this.companyNames();
     }
-    return this.companyNames().filter((c) => c?.toLowerCase().includes(query));
+    return this.companyNames().filter((c) => normalizeString(c).includes(query));
   });
 
   // Determines if the entered text is a new company that doesn't exist yet
   isNewCompany = computed(() => {
     const current = this.companyName().trim();
     if (!current) return false;
-    return !this.companyNames().some((c) => c?.toLowerCase() === current.toLowerCase());
+    return !this.companyNames().some((c) => normalizeString(c) === normalizeString(current));
   });
 
   onCompanySearch(val: string) {
@@ -398,19 +399,19 @@ export class EmployeeListComponent implements OnInit {
 
   // Computes filtered list based on typed value in "workSite" field
   filteredWorkSites = computed(() => {
-    const query = this.workSite().toLowerCase().trim();
+    const query = normalizeString(this.workSite()).trim();
     // If query is empty OR if it matches exactly an existing site, show all sites
-    if (!query || this.workSites().some((w) => w.toLowerCase() === query)) {
+    if (!query || this.workSites().some((w) => normalizeString(w) === query)) {
       return this.workSites();
     }
-    return this.workSites().filter((w) => w.toLowerCase().includes(query));
+    return this.workSites().filter((w) => normalizeString(w).includes(query));
   });
 
   // Determines if the entered text is a new site that doesn't exist yet
   isNewWorkSite = computed(() => {
     const current = this.workSite().trim();
     if (!current) return false;
-    return !this.workSites().some((w) => w.toLowerCase() === current.toLowerCase());
+    return !this.workSites().some((w) => normalizeString(w) === normalizeString(current));
   });
 
   onWorkSiteSearch(val: string) {
@@ -440,19 +441,19 @@ export class EmployeeListComponent implements OnInit {
 
   // Computes filtered list based on typed value in "profile" field
   filteredProfiles = computed(() => {
-    const query = this.profile().toLowerCase().trim();
+    const query = normalizeString(this.profile()).trim();
     // If query is empty OR if it matches exactly an existing profile, show all profiles
-    if (!query || this.profiles().some((p) => p.toLowerCase() === query)) {
+    if (!query || this.profiles().some((p) => normalizeString(p) === query)) {
       return this.profiles();
     }
-    return this.profiles().filter((p) => p.toLowerCase().includes(query));
+    return this.profiles().filter((p) => normalizeString(p).includes(query));
   });
 
   // Determines if the entered text is a new profile that doesn't exist yet
   isNewProfile = computed(() => {
     const current = this.profile().trim();
     if (!current) return false;
-    return !this.profiles().some((p) => p.toLowerCase() === current.toLowerCase());
+    return !this.profiles().some((p) => normalizeString(p) === normalizeString(current));
   });
 
   onProfileSearch(val: string) {

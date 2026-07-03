@@ -22,6 +22,7 @@ import { EmployeeService } from '../../services/employee.service';
 import { AuditLog } from '../../models/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { normalizeString } from '../../shared/utils/string-utils';
 
 interface ChangedField {
   key: string;
@@ -109,7 +110,7 @@ export class AuditViewComponent implements OnInit {
 
   // Filtered Logs
   filteredLogs = computed(() => {
-    const query = this.searchQuery().toLowerCase().trim();
+    const query = normalizeString(this.searchQuery()).trim();
     const table = this.selectedTable();
     const action = this.selectedAction();
 
@@ -122,14 +123,14 @@ export class AuditViewComponent implements OnInit {
 
       // Text Search
       if (query) {
-        const tableNameFr = this.translateTable(log.table_name).toLowerCase();
-        const userName = (log.profiles?.full_name || '').toLowerCase();
-        const changedBy = (log.changed_by || '').toLowerCase();
-        const actionStr = log.action.toLowerCase();
-        const rowId = log.row_id.toLowerCase();
-        const employeeName = (this.getRelatedEmployee(log) || '').toLowerCase();
-        const oldDataStr = JSON.stringify(log.old_data || {}).toLowerCase();
-        const newDataStr = JSON.stringify(log.new_data || {}).toLowerCase();
+        const tableNameFr = normalizeString(this.translateTable(log.table_name));
+        const userName = normalizeString(log.profiles?.full_name || '');
+        const changedBy = normalizeString(log.changed_by || '');
+        const actionStr = normalizeString(log.action);
+        const rowId = normalizeString(log.row_id);
+        const employeeName = normalizeString(this.getRelatedEmployee(log) || '');
+        const oldDataStr = normalizeString(JSON.stringify(log.old_data || {}));
+        const newDataStr = normalizeString(JSON.stringify(log.new_data || {}));
 
         return (
           tableNameFr.includes(query) ||
