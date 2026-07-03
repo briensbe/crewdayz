@@ -160,21 +160,46 @@ export class AbsenceService implements OnDestroy {
     yearToRefresh: number,
   ): Promise<Absence[]> {
     try {
-      if (datesToDelete.length > 0) {
-        const { error: deleteError } = await this.supabase.client
-          .from('cd_absences')
-          .delete()
-          .eq('employee_id', employeeId)
-          .in('date', datesToDelete);
+      // 1. Get existing absences in memory for this employee on the affected dates
+      const existing = this._absences().filter(
+        (abs) => abs.employee_id === employeeId && datesToDelete.includes(abs.date),
+      );
 
-        if (deleteError) throw deleteError;
+      // 2. Identify absences to delete
+      // (present in DB but not in the new configuration for the same date and period)
+      const toDelete = existing.filter(
+        (ext) => !newAbsences.some((n) => n.date === ext.date && n.period === ext.period),
+      );
+
+      // 3. Identify absences to insert or update
+      const toUpsert = newAbsences.filter((n) => {
+        const ext = existing.find((e) => e.date === n.date && e.period === n.period);
+        if (!ext) {
+          // New absence record
+          return true;
+        }
+        // Existing record: only update if category or comment changed
+        return ext.category !== n.category || ext.comment !== n.comment;
+      });
+
+      // 4. Perform DB operations only if necessary
+      if (toDelete.length > 0) {
+        const idsToDelete = toDelete.map((d) => d.id).filter(Boolean) as string[];
+        if (idsToDelete.length > 0) {
+          const { error: deleteError } = await this.supabase.client
+            .from('cd_absences')
+            .delete()
+            .in('id', idsToDelete);
+
+          if (deleteError) throw deleteError;
+        }
       }
 
       let data: Absence[] = [];
-      if (newAbsences.length > 0) {
+      if (toUpsert.length > 0) {
         const { data: upsertData, error: upsertError } = await this.supabase.client
           .from('cd_absences')
-          .upsert(newAbsences, { onConflict: 'employee_id,date,period' })
+          .upsert(toUpsert, { onConflict: 'employee_id,date,period' })
           .select();
 
         if (upsertError) throw upsertError;
@@ -184,7 +209,7 @@ export class AbsenceService implements OnDestroy {
       await this.fetchAbsencesForYear(yearToRefresh);
       return data;
     } catch (err) {
-      console.error('Error replacing employee absences:', err);
+      console.error('Error replacing employee absences with diffing:', err);
       throw err;
     }
   }
