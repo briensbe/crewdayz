@@ -1,7 +1,7 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, ChevronLeft, ChevronRight, BarChart3, Info, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-angular';
+import { LucideAngularModule, ChevronLeft, ChevronRight, BarChart3, Info, ArrowUp, ArrowDown, ArrowUpDown, Download, ChevronDown } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
 import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
@@ -10,6 +10,7 @@ import { storageSignal } from '../../../utils/storage-signal';
 import { isFrenchPublicHoliday } from '../../../utils/holidays';
 import { getTeamStyle } from '../../shared/utils/color-utils';
 import { normalizeString } from '../../shared/utils/string-utils';
+import * as XLSX from 'xlsx';
 
 interface EmployeeAnnualRow {
   employee: Employee;
@@ -40,6 +41,23 @@ export class AnnualViewComponent implements OnInit {
   readonly ArrowUp = ArrowUp;
   readonly ArrowDown = ArrowDown;
   readonly ArrowUpDown = ArrowUpDown;
+  readonly Download = Download;
+  readonly ChevronDown = ChevronDown;
+
+  // Export state
+  showExportDropdown = signal<boolean>(false);
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.export-dropdown-container')) {
+      this.showExportDropdown.set(false);
+    }
+  }
+
+  toggleExportDropdown() {
+    this.showExportDropdown.update((v) => !v);
+  }
 
   // Sort State
   sortField = storageSignal<EmployeeSortField>('crewdayz_annual_list_sort_field', 'name');
@@ -199,109 +217,111 @@ export class AnnualViewComponent implements OnInit {
     });
   });
 
+  private calculateAnnualRow(emp: Employee, abs: any[], y: number): EmployeeAnnualRow {
+    const monthlyWorked: number[] = [];
+    let workedDaysSum = 0;
+
+    for (let m = 0; m < 12; m++) {
+      // Calculate total days in month
+      const daysInMonth = new Date(y, m + 1, 0).getDate();
+      let businessDaysCount = 0;
+
+      // Count Mon-Fri business days (excluding holidays, days before arrival and days after departure)
+      for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(y, m, d);
+        const mm = String(m + 1).padStart(2, '0');
+        const dd = String(d).padStart(2, '0');
+        const dateStr = `${y}-${mm}-${dd}`;
+
+        if (emp.arrival_date && dateStr < emp.arrival_date) {
+          continue;
+        }
+        if (emp.departure_date && dateStr >= emp.departure_date) {
+          continue;
+        }
+
+        const dayOfWeek = date.getDay();
+        if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(date)) {
+          businessDaysCount++;
+        }
+      }
+
+      // Count absences that reduce working days (exclude Formation, filter active year/month, ensure business days and not holiday)
+      const absencesInMonth = abs.filter((a) => {
+        if (a.employee_id !== emp.id) return false;
+        if (a.category === 'Formation') return false; // Formation doesn't reduce worked days
+        if (emp.arrival_date && a.date < emp.arrival_date) return false;
+        if (emp.departure_date && a.date >= emp.departure_date) return false;
+
+        const absDate = new Date(a.date);
+        if (absDate.getFullYear() !== y || absDate.getMonth() !== m) return false;
+
+        const dayOfWeek = absDate.getDay();
+        return dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(absDate);
+      });
+
+      // Sum absences per day to avoid double counting if multiple half-days exist on same day
+      const dateMap = new Map<string, number>();
+      absencesInMonth.forEach((a) => {
+        const current = dateMap.get(a.date) || 0;
+        dateMap.set(a.date, current + (a.period === 'full' ? 1.0 : 0.5));
+      });
+
+      let totalAbsenceDays = 0;
+      dateMap.forEach((val) => {
+        totalAbsenceDays += Math.min(val, 1.0);
+      });
+
+      const worked = Math.max(businessDaysCount - totalAbsenceDays, 0);
+      monthlyWorked.push(worked);
+      workedDaysSum += worked;
+    }
+
+    // Calculate December balance (solde restant à fin Décembre)
+    const balance = emp.cd_employee_balances?.find((b) => b.year === y);
+    const defaults =
+      emp.contract_type === 'Interne' ? CONTRACT_DEFAULT_BALANCES.Interne : CONTRACT_DEFAULT_BALANCES.Externe;
+
+    const initialCp = balance ? balance.initial_cp : defaults.initial_cp;
+    const initialRtt = balance ? balance.initial_rtt : defaults.initial_rtt;
+    const initialExceptional = balance ? balance.initial_exceptional : defaults.initial_exceptional;
+    const initial = initialCp + initialRtt + initialExceptional;
+
+    const usedInYear = abs
+      .filter((a) => {
+        if (a.employee_id !== emp.id) return false;
+        if (a.category === 'Formation') return false;
+        const absDate = new Date(a.date);
+        return absDate.getFullYear() === y;
+      })
+      .reduce((sum, a) => {
+        return sum + (a.period === 'full' ? 1.0 : 0.5);
+      }, 0);
+
+    let decemberBalance = initial - usedInYear;
+    if (emp.departure_date) {
+      const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
+      if (departureYear <= y) {
+        decemberBalance = 0;
+      }
+    }
+    const annualTotal = workedDaysSum - decemberBalance;
+
+    return {
+      employee: emp,
+      monthlyWorked,
+      decemberBalance,
+      annualTotal,
+    };
+  }
+
   // Main list showing calculated worked days for each month & annual totals
   employeesAnnualRows = computed<EmployeeAnnualRow[]>(() => {
     const emps = this.filteredEmployees();
     const abs = this.absenceService.absences();
     const y = this.year();
 
-    return emps.map((emp) => {
-      const monthlyWorked: number[] = [];
-      let workedDaysSum = 0;
-
-      for (let m = 0; m < 12; m++) {
-        // Calculate total days in month
-        const daysInMonth = new Date(y, m + 1, 0).getDate();
-        let businessDaysCount = 0;
-
-        // Count Mon-Fri business days (excluding holidays, days before arrival and days after departure)
-        for (let d = 1; d <= daysInMonth; d++) {
-          const date = new Date(y, m, d);
-          const mm = String(m + 1).padStart(2, '0');
-          const dd = String(d).padStart(2, '0');
-          const dateStr = `${y}-${mm}-${dd}`;
-
-          if (emp.arrival_date && dateStr < emp.arrival_date) {
-            continue;
-          }
-          if (emp.departure_date && dateStr >= emp.departure_date) {
-            continue;
-          }
-
-          const dayOfWeek = date.getDay();
-          if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(date)) {
-            businessDaysCount++;
-          }
-        }
-
-        // Count absences that reduce working days (exclude Formation, filter active year/month, ensure business days and not holiday)
-        const absencesInMonth = abs.filter((a) => {
-          if (a.employee_id !== emp.id) return false;
-          if (a.category === 'Formation') return false; // Formation doesn't reduce worked days
-          if (emp.arrival_date && a.date < emp.arrival_date) return false;
-          if (emp.departure_date && a.date >= emp.departure_date) return false;
-
-          const absDate = new Date(a.date);
-          if (absDate.getFullYear() !== y || absDate.getMonth() !== m) return false;
-
-          const dayOfWeek = absDate.getDay();
-          return dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(absDate);
-        });
-
-        // Sum absences per day to avoid double counting if multiple half-days exist on same day
-        const dateMap = new Map<string, number>();
-        absencesInMonth.forEach((a) => {
-          const current = dateMap.get(a.date) || 0;
-          dateMap.set(a.date, current + (a.period === 'full' ? 1.0 : 0.5));
-        });
-
-        let totalAbsenceDays = 0;
-        dateMap.forEach((val) => {
-          totalAbsenceDays += Math.min(val, 1.0);
-        });
-
-        const worked = Math.max(businessDaysCount - totalAbsenceDays, 0);
-        monthlyWorked.push(worked);
-        workedDaysSum += worked;
-      }
-
-      // Calculate December balance (solde restant à fin Décembre)
-      const balance = emp.cd_employee_balances?.find((b) => b.year === y);
-      const defaults =
-        emp.contract_type === 'Interne' ? CONTRACT_DEFAULT_BALANCES.Interne : CONTRACT_DEFAULT_BALANCES.Externe;
-
-      const initialCp = balance ? balance.initial_cp : defaults.initial_cp;
-      const initialRtt = balance ? balance.initial_rtt : defaults.initial_rtt;
-      const initialExceptional = balance ? balance.initial_exceptional : defaults.initial_exceptional;
-      const initial = initialCp + initialRtt + initialExceptional;
-
-      const usedInYear = abs
-        .filter((a) => {
-          if (a.employee_id !== emp.id) return false;
-          if (a.category === 'Formation') return false;
-          const absDate = new Date(a.date);
-          return absDate.getFullYear() === y;
-        })
-        .reduce((sum, a) => {
-          return sum + (a.period === 'full' ? 1.0 : 0.5);
-        }, 0);
-
-      let decemberBalance = initial - usedInYear;
-      if (emp.departure_date) {
-        const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
-        if (departureYear <= y) {
-          decemberBalance = 0;
-        }
-      }
-      const annualTotal = workedDaysSum - decemberBalance;
-
-      return {
-        employee: emp,
-        monthlyWorked,
-        decemberBalance,
-        annualTotal,
-      };
-    });
+    return emps.map((emp) => this.calculateAnnualRow(emp, abs, y));
   });
 
   // Calculate sum of worked days for all filtered employees (by month and grand total)
@@ -325,6 +345,105 @@ export class AnnualViewComponent implements OnInit {
       balance: balanceSum,
     };
   });
+
+  exportExcel(mode: 'all' | 'filtered') {
+    let rowsToExport: EmployeeAnnualRow[] = [];
+    const abs = this.absenceService.absences();
+    const y = this.year();
+
+    if (mode === 'filtered') {
+      rowsToExport = this.employeesAnnualRows();
+    } else {
+      // Calculate rows for ALL active employees in the selected year
+      const allActiveEmps = this.employeeService.employees().filter((emp) => {
+        if (emp.departure_date) {
+          const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
+          if (y > departureYear) return false;
+        }
+        if (emp.arrival_date) {
+          const arrivalYear = parseInt(emp.arrival_date.split('-')[0], 10);
+          if (y < arrivalYear) return false;
+        }
+        return true;
+      });
+
+      // Sort by name
+      const sortedActive = [...allActiveEmps].sort((a, b) => {
+        const nameA = `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase();
+        const nameB = `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase();
+        return nameA.localeCompare(nameB, 'fr', { sensitivity: 'base' });
+      });
+
+      rowsToExport = sortedActive.map((emp) => this.calculateAnnualRow(emp, abs, y));
+    }
+
+    // Map to worksheet format
+    const data = rowsToExport.map((r) => ({
+      'Collaborateur': `${r.employee.first_name} ${r.employee.last_name}`,
+      'Service': r.employee.service || '',
+      'Équipe': r.employee.team || '',
+      'Site': r.employee.work_site || '',
+      'Type de contrat': (r.employee.contract_type || '') as string,
+      'Janvier': r.monthlyWorked[0],
+      'Février': r.monthlyWorked[1],
+      'Mars': r.monthlyWorked[2],
+      'Avril': r.monthlyWorked[3],
+      'Mai': r.monthlyWorked[4],
+      'Juin': r.monthlyWorked[5],
+      'Juillet': r.monthlyWorked[6],
+      'Août': r.monthlyWorked[7],
+      'Septembre': r.monthlyWorked[8],
+      'Octobre': r.monthlyWorked[9],
+      'Novembre': r.monthlyWorked[10],
+      'Décembre': r.monthlyWorked[11],
+      'Solde Déc.': r.decemberBalance,
+      'Total Annuel': r.annualTotal,
+    }));
+
+    // Add sum totals row at the bottom
+    const totalMonthly = Array(12).fill(0);
+    let totalDecemberBalance = 0;
+    let totalAnnualTotal = 0;
+
+    rowsToExport.forEach((r) => {
+      for (let m = 0; m < 12; m++) {
+        totalMonthly[m] += r.monthlyWorked[m];
+      }
+      totalDecemberBalance += r.decemberBalance;
+      totalAnnualTotal += r.annualTotal;
+    });
+
+    data.push({
+      'Collaborateur': 'TOTAL CUMULÉ',
+      'Service': '',
+      'Équipe': '',
+      'Site': '',
+      'Type de contrat': '',
+      'Janvier': totalMonthly[0],
+      'Février': totalMonthly[1],
+      'Mars': totalMonthly[2],
+      'Avril': totalMonthly[3],
+      'Mai': totalMonthly[4],
+      'Juin': totalMonthly[5],
+      'Juillet': totalMonthly[6],
+      'Août': totalMonthly[7],
+      'Septembre': totalMonthly[8],
+      'Octobre': totalMonthly[9],
+      'Novembre': totalMonthly[10],
+      'Décembre': totalMonthly[11],
+      'Solde Déc.': totalDecemberBalance,
+      'Total Annuel': totalAnnualTotal,
+    });
+
+    // Generate XLSX workbook & download it
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, `Synthèse ${y}`);
+
+    const fileName = `Export_Annuel_${y}_${mode === 'filtered' ? 'filtre' : 'tous'}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    this.showExportDropdown.set(false);
+  }
 
   ngOnInit() {
     this.employeeService.fetchEmployees();

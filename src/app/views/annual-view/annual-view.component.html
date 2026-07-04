@@ -5,15 +5,37 @@
       <p class="subtitle">Synthèse annuelle des jours travaillés par ressource</p>
     </div>
 
-    <!-- Year Navigation -->
-    <div class="year-navigator">
-      <button class="nav-arrow-btn" (click)="prevYear()" title="Année précédente">
-        <lucide-icon [img]="ChevronLeft" size="18"></lucide-icon>
-      </button>
-      <span class="year-title">Année {{ year() }}</span>
-      <button class="nav-arrow-btn" (click)="nextYear()" title="Année suivante">
-        <lucide-icon [img]="ChevronRight" size="18"></lucide-icon>
-      </button>
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <!-- Export Dropdown -->
+      <div class="export-dropdown-container">
+        <button type="button" class="btn btn-outline export-btn" (click)="toggleExportDropdown(); $event.stopPropagation()">
+          <lucide-icon [img]="Download" size="16"></lucide-icon>
+          <span>Exporter</span>
+          <lucide-icon [img]="ChevronDown" size="14" class="chevron-icon" [class.rotated]="showExportDropdown()"></lucide-icon>
+        </button>
+        @if (showExportDropdown()) {
+          <div class="export-dropdown-menu">
+            <button type="button" class="dropdown-item" (click)="exportExcel('filtered')">
+              Lignes filtrées
+            </button>
+            <button type="button" class="dropdown-item" (click)="exportExcel('all')">
+              Toutes les lignes
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Year Navigation -->
+      <div class="year-navigator">
+        <button class="nav-arrow-btn" (click)="prevYear()" title="Année précédente">
+          <lucide-icon [img]="ChevronLeft" size="18"></lucide-icon>
+        </button>
+        <span class="year-title">Année {{ year() }}</span>
+        <button class="nav-arrow-btn" (click)="nextYear()" title="Année suivante">
+          <lucide-icon [img]="ChevronRight" size="18"></lucide-icon>
+        </button>
+      </div>
     </div>
   </div>
 
