@@ -10,7 +10,7 @@ import { storageSignal } from '../../../utils/storage-signal';
 import { isFrenchPublicHoliday } from '../../../utils/holidays';
 import { getTeamStyle } from '../../shared/utils/color-utils';
 import { normalizeString } from '../../shared/utils/string-utils';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 
 interface EmployeeAnnualRow {
   employee: Employee;
@@ -437,6 +437,90 @@ export class AnnualViewComponent implements OnInit {
 
     // Generate XLSX workbook & download it
     const ws = XLSX.utils.json_to_sheet(data);
+
+    // Set column widths to prevent text clipping
+    ws['!cols'] = [
+      { wch: 25 }, // Collaborateur
+      { wch: 15 }, // Service
+      { wch: 12 }, // Équipe
+      { wch: 12 }, // Site
+      { wch: 15 }, // Type de contrat
+      // Months (Jan to Dec)
+      { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+      { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+      { wch: 12 }, // Solde Déc.
+      { wch: 12 }  // Total Annuel
+    ];
+
+    // Professional styles for HR Table
+    const headerStyle = {
+      fill: { fgColor: { rgb: '1E3A8A' } },
+      font: { name: 'Arial', sz: 10, bold: true, color: { rgb: 'FFFFFF' } },
+      alignment: { vertical: 'center', horizontal: 'center', wrapText: true },
+      border: {
+        top: { style: 'thin', color: { rgb: 'CBD5E1' } },
+        bottom: { style: 'medium', color: { rgb: '475569' } },
+        left: { style: 'thin', color: { rgb: 'CBD5E1' } },
+        right: { style: 'thin', color: { rgb: 'CBD5E1' } }
+      }
+    };
+
+    const dataStyle = {
+      font: { name: 'Arial', sz: 10 },
+      border: {
+        top: { style: 'thin', color: { rgb: 'E2E8F0' } },
+        bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
+        left: { style: 'thin', color: { rgb: 'E2E8F0' } },
+        right: { style: 'thin', color: { rgb: 'E2E8F0' } }
+      }
+    };
+
+    const numberStyle = {
+      font: { name: 'Arial', sz: 10 },
+      alignment: { horizontal: 'right' },
+      border: {
+        top: { style: 'thin', color: { rgb: 'E2E8F0' } },
+        bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
+        left: { style: 'thin', color: { rgb: 'E2E8F0' } },
+        right: { style: 'thin', color: { rgb: 'E2E8F0' } }
+      }
+    };
+
+    const totalRowStyle = {
+      fill: { fgColor: { rgb: 'F1F5F9' } },
+      font: { name: 'Arial', sz: 10, bold: true },
+      border: {
+        top: { style: 'medium', color: { rgb: '94A3B8' } },
+        bottom: { style: 'double', color: { rgb: '475569' } },
+        left: { style: 'thin', color: { rgb: 'CBD5E1' } },
+        right: { style: 'thin', color: { rgb: 'CBD5E1' } }
+      }
+    };
+
+    // Apply styles to all cells
+    for (const cellRef in ws) {
+      if (cellRef[0] === '!') continue;
+      const cell = ws[cellRef];
+      if (!cell) continue;
+
+      const match = cellRef.match(/^([A-Z]+)([0-9]+)$/);
+      if (match) {
+        const row = parseInt(match[2], 10);
+        if (row === 1) {
+          cell.s = headerStyle;
+        } else if (row === data.length + 1) {
+          // Total Row
+          cell.s = cell.t === 'n' ? {
+            ...totalRowStyle,
+            alignment: { horizontal: 'right' }
+          } : totalRowStyle;
+        } else {
+          // Data Row
+          cell.s = cell.t === 'n' ? numberStyle : dataStyle;
+        }
+      }
+    }
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, `Synthèse ${y}`);
 
