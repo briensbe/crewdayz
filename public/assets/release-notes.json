@@ -21,7 +21,15 @@
       {
         "title": "Historique d'Audit complet",
         "items": [
-          "L'historique d'audit suit désormais toutes les modifications apportées aux collaborateurs ainsi qu'à leurs soldes de congés initiaux"
+          "L'historique d'audit suit désormais toutes les modifications apportées aux collaborateurs ainsi qu'à leurs soldes de congés initiaux",
+          "Les triggers ont été ajoutés aux tables employees et employee_balances pour garantir que toutes les modifications soient enregistrées"
+        ]
+      },
+      {
+        "title": "Export Excel stylisé",
+        "items": [
+          "Les récapitulatifs annuels sont désormais exportables en Excel avec un formatage professionnel et lisible",
+          "Mise en place du package xlsx-js-style pour un formatage avancé"
         ]
       },
       {
