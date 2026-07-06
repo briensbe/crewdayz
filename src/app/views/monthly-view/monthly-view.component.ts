@@ -372,7 +372,7 @@ export class MonthlyViewComponent implements OnInit {
       if (emp.arrival_date && dateStr < emp.arrival_date) {
         return 1.0;
       }
-      if (emp.departure_date && dateStr >= emp.departure_date) {
+      if (emp.departure_date && dateStr > emp.departure_date) {
         return 1.0;
       }
       const list = absences.filter((a) => a.employee_id === emp.id && a.date === dateStr);
@@ -533,7 +533,7 @@ export class MonthlyViewComponent implements OnInit {
     const emp = this.employeeService.employees().find((e) => e.id === employeeId);
     if (emp) {
       const isBeforeArrival = emp.arrival_date && dateStr < emp.arrival_date;
-      const isAfterDeparture = emp.departure_date && dateStr >= emp.departure_date;
+      const isAfterDeparture = emp.departure_date && dateStr > emp.departure_date;
 
       if (isBeforeArrival || isAfterDeparture) {
         const date = new Date(dateStr);
@@ -724,7 +724,7 @@ export class MonthlyViewComponent implements OnInit {
       if (emp.arrival_date && dateStr < emp.arrival_date) {
         continue;
       }
-      if (emp.departure_date && dateStr >= emp.departure_date) {
+      if (emp.departure_date && dateStr > emp.departure_date) {
         continue;
       }
 
@@ -739,7 +739,7 @@ export class MonthlyViewComponent implements OnInit {
       if (a.employee_id !== emp.id) return false;
       if (a.category === 'Formation') return false; // Formation counts as 0 absence (so worked day)
       if (emp.arrival_date && a.date < emp.arrival_date) return false;
-      if (emp.departure_date && a.date >= emp.departure_date) return false;
+      if (emp.departure_date && a.date > emp.departure_date) return false;
 
       const absDate = new Date(a.date);
       if (absDate.getFullYear() !== y || absDate.getMonth() !== m) return false;
@@ -767,7 +767,7 @@ export class MonthlyViewComponent implements OnInit {
 
   isEmployeeUnavailable(emp: Employee, dateStr: string): boolean {
     const isBeforeArrival = !!(emp.arrival_date && dateStr < emp.arrival_date);
-    const isAfterDeparture = !!(emp.departure_date && dateStr >= emp.departure_date);
+    const isAfterDeparture = !!(emp.departure_date && dateStr > emp.departure_date);
     return isBeforeArrival || isAfterDeparture;
   }
 
@@ -868,7 +868,7 @@ export class MonthlyViewComponent implements OnInit {
       const isHoliday = isFrenchPublicHoliday(temp);
       const isUnavailable = !!(
         emp &&
-        ((emp.arrival_date && dateStr < emp.arrival_date) || (emp.departure_date && dateStr >= emp.departure_date))
+        ((emp.arrival_date && dateStr < emp.arrival_date) || (emp.departure_date && dateStr > emp.departure_date))
       );
 
       if (!isWeekend && !isHoliday && !isUnavailable) {
