@@ -336,12 +336,12 @@ textarea::placeholder {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   margin-top: 1rem;
-  min-height: 330px;
+  min-height: 360px;
   transition: padding-bottom 0.15s ease-in-out;
 }
 
 .table-container.is-editing {
-  padding-bottom: 330px; /* Provides space for dropdowns above the horizontal scrollbar */
+  padding-bottom: 360px; /* Provides space for dropdowns above the horizontal scrollbar */
 }
 
 table {
