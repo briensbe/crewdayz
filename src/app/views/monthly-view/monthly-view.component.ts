@@ -301,7 +301,7 @@ export class MonthlyViewComponent implements OnInit {
       }
       if (filters.search) {
         const query = normalizeString(filters.search);
-        const fullName = normalizeString(`${emp.first_name} ${emp.last_name}`);
+        const fullName = normalizeString(`${emp.last_name} ${emp.first_name}`);
         const matchesName = fullName.includes(query);
         const matchesCompany = normalizeString(emp.company_name).includes(query);
         if (!matchesName && !matchesCompany) return false;
@@ -415,7 +415,7 @@ export class MonthlyViewComponent implements OnInit {
           if (!pctGroup.has(percentage)) {
             pctGroup.set(percentage, []);
           }
-          pctGroup.get(percentage)!.push(`${emp.first_name} ${emp.last_name}`);
+          pctGroup.get(percentage)!.push(`${(emp.last_name || '').toUpperCase()} ${emp.first_name}`);
         }
 
         const availabilities = Array.from(pctGroup.entries())

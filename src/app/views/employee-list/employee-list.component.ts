@@ -180,7 +180,7 @@ export class EmployeeListComponent implements OnInit {
         // Search filter (first name, last name, or ESN name)
         if (filters.search) {
           const query = normalizeString(filters.search);
-          const fullName = normalizeString(`${emp.first_name} ${emp.last_name}`);
+          const fullName = normalizeString(`${emp.last_name} ${emp.first_name}`);
           const matchesName = fullName.includes(query);
           const matchesCompany = normalizeString(emp.company_name).includes(query);
           if (!matchesName && !matchesCompany) return false;
@@ -513,7 +513,7 @@ export class EmployeeListComponent implements OnInit {
     this.resetFormFields();
 
     // Fill duplicatedFromName signal to show feedback
-    this.duplicatedFromName.set(`${emp.first_name} ${emp.last_name}`);
+    this.duplicatedFromName.set(`${(emp.last_name || '').toUpperCase()} ${emp.first_name}`);
 
     // Pre-fill professional fields
     this.service.set(emp.service);

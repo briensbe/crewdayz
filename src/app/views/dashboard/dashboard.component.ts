@@ -142,7 +142,7 @@ export class DashboardComponent implements OnInit {
     return this.employeeService.employees().filter((emp) => {
       if (filters.search) {
         const query = normalizeString(filters.search);
-        const fullName = normalizeString(`${emp.first_name} ${emp.last_name}`);
+        const fullName = normalizeString(`${emp.last_name} ${emp.first_name}`);
         const matchesName = fullName.includes(query);
         const matchesCompany = normalizeString(emp.company_name).includes(query);
         if (!matchesName && !matchesCompany) return false;

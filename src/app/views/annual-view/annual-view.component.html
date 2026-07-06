@@ -180,7 +180,7 @@
         <tbody>
           <tr *ngFor="let row of employeesAnnualRows()">
             <td class="sticky-col name-col font-semibold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
-              {{ row.employee.first_name }} {{ row.employee.last_name }}
+              {{ row.employee.last_name.toUpperCase() }} {{ row.employee.first_name }}
             </td>
             <td
               *ngIf="showServiceCol()"

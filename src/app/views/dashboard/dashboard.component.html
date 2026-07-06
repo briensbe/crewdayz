@@ -233,7 +233,7 @@
                 <div class="tooltip-absences-list">
                   @for (emp of activeMonth.arrivals; track emp.id) {
                     <div class="tooltip-absence-item">
-                      <span class="abs-name">{{ emp.first_name }} {{ emp.last_name }}</span>
+                      <span class="abs-name">{{ emp.last_name.toUpperCase() }} {{ emp.first_name }}</span>
                       <span class="abs-cat">Le {{ emp.arrival_date }}</span>
                     </div>
                   }
@@ -245,7 +245,7 @@
                 <div class="tooltip-absences-list">
                   @for (emp of activeMonth.departures; track emp.id) {
                     <div class="tooltip-absence-item">
-                      <span class="abs-name">{{ emp.first_name }} {{ emp.last_name }}</span>
+                      <span class="abs-name">{{ emp.last_name.toUpperCase() }} {{ emp.first_name }}</span>
                       <span class="abs-cat">Le {{ emp.departure_date }}</span>
                     </div>
                   }
@@ -312,7 +312,7 @@
                       <div class="absents-tags">
                         @for (emp of m.arrivals; track emp.id) {
                           <span class="absent-tag arrival" [title]="'Recruté le ' + emp.arrival_date">
-                            {{ emp.first_name }} {{ emp.last_name }}
+                            {{ emp.last_name.toUpperCase() }} {{ emp.first_name }}
                           </span>
                         }
                       </div>
@@ -325,7 +325,7 @@
                       <div class="absents-tags">
                         @for (emp of m.departures; track emp.id) {
                           <span class="absent-tag departure" [title]="'Sortie le ' + emp.departure_date">
-                            {{ emp.first_name }} {{ emp.last_name }}
+                            {{ emp.last_name.toUpperCase() }} {{ emp.first_name }}
                           </span>
                         }
                       </div>

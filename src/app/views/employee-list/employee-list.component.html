@@ -139,7 +139,7 @@
                 <div class="name-cell">
                   <span class="avatar-sm">{{ emp.first_name.charAt(0) }}{{ emp.last_name.charAt(0) }}</span>
                   <div class="name-details">
-                    <span class="full-name">{{ emp.first_name }} {{ emp.last_name }}</span>
+                    <span class="full-name">{{ emp.last_name.toUpperCase() }} {{ emp.first_name }}</span>
                   </div>
                 </div>
                 @if (editingEmployeeId() === emp.id && editingField() === 'name') {
@@ -901,7 +901,7 @@
 
       <div class="confirm-body">
         <p>
-          Êtes-vous sûr de vouloir supprimer <strong>{{ employeeToDelete()?.first_name }} {{ employeeToDelete()?.last_name }}</strong> ?
+          Êtes-vous sûr de vouloir supprimer <strong>{{ employeeToDelete()?.last_name?.toUpperCase() }} {{ employeeToDelete()?.first_name }}</strong> ?
         </p>
         <p class="warning-text">
           Cette action supprimera également toutes ses absences et cette opération est irréversible.

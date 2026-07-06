@@ -407,7 +407,7 @@ export class AbsenceModalComponent {
       if (empId) {
         const emp = this.employeeService.employees().find((e) => e.id === empId);
         if (emp) {
-          this.employeeName.set(`${emp.first_name} ${emp.last_name}`);
+          this.employeeName.set(`${(emp.last_name || '').toUpperCase()} ${emp.first_name}`);
         }
       }
     });

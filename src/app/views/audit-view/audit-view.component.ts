@@ -188,7 +188,7 @@ export class AuditViewComponent implements OnInit {
 
   getEmployeeName(id: string): string | null {
     const emp = this.employeeService.employees().find((e) => e.id === id);
-    return emp ? `${emp.first_name} ${emp.last_name}` : null;
+    return emp ? `${(emp.last_name || '').toUpperCase()} ${emp.first_name}` : null;
   }
 
   getRelatedEmployee(log: AuditLog): string | null {

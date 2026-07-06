@@ -260,7 +260,7 @@
           @for (emp of filteredEmployees(); track emp.id) {
             <tr>
               <td class="sticky-col name-col font-semibold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
-                {{ emp.first_name }} {{ emp.last_name }}
+                {{ emp.last_name.toUpperCase() }} {{ emp.first_name }}
               </td>
               @if (showServiceCol()) {
                 <td

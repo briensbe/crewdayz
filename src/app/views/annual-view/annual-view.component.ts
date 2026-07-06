@@ -168,7 +168,7 @@ export class AnnualViewComponent implements OnInit {
       }
       if (filters.search) {
         const query = normalizeString(filters.search);
-        const fullName = normalizeString(`${emp.first_name} ${emp.last_name}`);
+        const fullName = normalizeString(`${emp.last_name} ${emp.first_name}`);
         const matchesName = fullName.includes(query);
         const matchesCompany = normalizeString(emp.company_name).includes(query);
         if (!matchesName && !matchesCompany) return false;
@@ -379,7 +379,8 @@ export class AnnualViewComponent implements OnInit {
 
     // Map to worksheet format
     const data = rowsToExport.map((r) => ({
-      'Collaborateur': `${r.employee.first_name} ${r.employee.last_name}`,
+      'Collaborateur': `${(r.employee.last_name || '').toUpperCase()} ${r.employee.first_name}`,
+      'Collaborateur (Prénom NOM)': `${r.employee.first_name} ${(r.employee.last_name || '').toUpperCase()}`,
       'Service': r.employee.service || '',
       'Équipe': r.employee.team || '',
       'Site': r.employee.work_site || '',
@@ -415,6 +416,7 @@ export class AnnualViewComponent implements OnInit {
 
     data.push({
       'Collaborateur': 'TOTAL CUMULÉ',
+      'Collaborateur (Prénom NOM)': '',
       'Service': '',
       'Équipe': '',
       'Site': '',
@@ -441,6 +443,7 @@ export class AnnualViewComponent implements OnInit {
     // Set column widths to prevent text clipping
     ws['!cols'] = [
       { wch: 25 }, // Collaborateur
+      { wch: 25 }, // Collaborateur (Prénom NOM)
       { wch: 15 }, // Service
       { wch: 12 }, // Équipe
       { wch: 12 }, // Site
