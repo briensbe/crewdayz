@@ -204,7 +204,7 @@
                           />
                         </div>
                         @if (showCompanyDropdown()) {
-                          <ul class="combobox-options">
+                          <ul class="combobox-options company-options">
                             @for (c of filteredCompanies(); track c) {
                               <li class="combobox-option" (mousedown)="selectCompany(c)">{{ c }}</li>
                             }

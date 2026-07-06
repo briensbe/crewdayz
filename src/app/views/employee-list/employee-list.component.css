@@ -476,6 +476,12 @@
   list-style: none;
 }
 
+.combobox-options.company-options {
+  min-width: 250px;
+  width: max-content;
+  right: auto;
+}
+
 .combobox-option {
   padding: 0.5rem 0.75rem;
   font-size: 0.9rem;
