@@ -471,7 +471,7 @@
   box-shadow: var(--shadow-md);
   margin-top: 0.25rem;
   padding: 0.25rem 0;
-  max-height: 180px;
+  max-height: 310px;
   overflow-y: auto;
   list-style: none;
 }
