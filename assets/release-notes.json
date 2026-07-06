@@ -1,5 +1,31 @@
 [
   {
+    "version": "2026.07.06",
+    "date": "2026-07-06",
+    "news": [
+      {
+        "title": "Affichage & Export des Collaborateurs",
+        "items": [
+          "Présentation uniforme des collaborateurs sous le format 'NOM Prénom' dans toutes les vues pour être cohérent avec le tri.",
+          "Ajout d'une colonne supplémentaire dans l'export Excel ('Prénom NOM') pour faciliter les comparaisons avec les exports Triskell."
+        ]
+      },
+      {
+        "title": "Ergonomie des Formulaires",
+        "items": [
+          "Amélioration de la gestion de la largeur et agrandissement de la combobox éditable (Sociétés et Equipes)",
+          "Extension du tableau vers le bas pour éviter que les options des listes déroulantes ne soient tronquées."
+        ]
+      },
+      {
+        "title": "Gestion du cycle de vie des Collaborateurs",
+        "items": [
+          "La date de départ d'un collaborateur doit être le dernier jour de présence dans l'entreprise. Il est comptabilisé dans les jours travaillés."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.07.03",
     "date": "2026-07-03",
     "news": [
