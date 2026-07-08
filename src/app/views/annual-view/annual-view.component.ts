@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, ChevronLeft, ChevronRight, BarChart3, Info, ArrowUp, ArrowDown, ArrowUpDown, Download, ChevronDown } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
-import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
+import { Employee, Absence, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { storageSignal } from '../../../utils/storage-signal';
 import { isFrenchPublicHoliday } from '../../../utils/holidays';
@@ -231,9 +231,10 @@ export class AnnualViewComponent implements OnInit {
     });
   });
 
-  private calculateAnnualRow(emp: Employee, abs: any[], y: number): EmployeeAnnualRow {
+  private calculateAnnualRow(emp: Employee, absMap: Map<string, Map<string, Absence[]>>, y: number): EmployeeAnnualRow {
     const monthlyWorked: number[] = [];
     let workedDaysSum = 0;
+    const empMap = absMap.get(emp.id!);
 
     for (let m = 0; m < 12; m++) {
       // Calculate total days in month
@@ -261,25 +262,27 @@ export class AnnualViewComponent implements OnInit {
       }
 
       // Count absences that reduce working days (exclude Formation, filter active year/month, ensure business days and not holiday)
-      const absencesInMonth = abs.filter((a) => {
-        if (a.employee_id !== emp.id) return false;
-        if (a.category === 'Formation') return false; // Formation doesn't reduce worked days
-        if (emp.arrival_date && a.date < emp.arrival_date) return false;
-        if (emp.departure_date && a.date > emp.departure_date) return false;
-
-        const absDate = new Date(a.date);
-        if (absDate.getFullYear() !== y || absDate.getMonth() !== m) return false;
-
-        const dayOfWeek = absDate.getDay();
-        return dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(absDate);
-      });
-
-      // Sum absences per day to avoid double counting if multiple half-days exist on same day
+      const mm = String(m + 1).padStart(2, '0');
+      const monthPrefix = `${y}-${mm}-`;
       const dateMap = new Map<string, number>();
-      absencesInMonth.forEach((a) => {
-        const current = dateMap.get(a.date) || 0;
-        dateMap.set(a.date, current + (a.period === 'full' ? 1.0 : 0.5));
-      });
+
+      if (empMap) {
+        for (const [dateStr, list] of empMap.entries()) {
+          if (!dateStr.startsWith(monthPrefix)) continue;
+          if (emp.arrival_date && dateStr < emp.arrival_date) continue;
+          if (emp.departure_date && dateStr > emp.departure_date) continue;
+
+          const absDate = new Date(dateStr);
+          const dayOfWeek = absDate.getDay();
+          if (dayOfWeek === 0 || dayOfWeek === 6 || isFrenchPublicHoliday(absDate)) continue;
+
+          for (const a of list) {
+            if (a.category === 'Formation') continue;
+            const current = dateMap.get(dateStr) || 0;
+            dateMap.set(dateStr, current + (a.period === 'full' ? 1.0 : 0.5));
+          }
+        }
+      }
 
       let totalAbsenceDays = 0;
       dateMap.forEach((val) => {
@@ -301,16 +304,17 @@ export class AnnualViewComponent implements OnInit {
     const initialExceptional = balance ? balance.initial_exceptional : defaults.initial_exceptional;
     const initial = initialCp + initialRtt + initialExceptional;
 
-    const usedInYear = abs
-      .filter((a) => {
-        if (a.employee_id !== emp.id) return false;
-        if (a.category === 'Formation') return false;
-        const absDate = new Date(a.date);
-        return absDate.getFullYear() === y;
-      })
-      .reduce((sum, a) => {
-        return sum + (a.period === 'full' ? 1.0 : 0.5);
-      }, 0);
+    let usedInYear = 0;
+    if (empMap) {
+      const yearPrefix = `${y}-`;
+      for (const [dateStr, list] of empMap.entries()) {
+        if (!dateStr.startsWith(yearPrefix)) continue;
+        for (const a of list) {
+          if (a.category === 'Formation') continue;
+          usedInYear += a.period === 'full' ? 1.0 : 0.5;
+        }
+      }
+    }
 
     let decemberBalance = initial - usedInYear;
     if (emp.departure_date) {
@@ -329,13 +333,30 @@ export class AnnualViewComponent implements OnInit {
     };
   }
 
+  // Pre-indexed absences map: employeeId -> date -> Absence[]
+  absencesMap = computed(() => {
+    const map = new Map<string, Map<string, Absence[]>>();
+    const allAbsences = this.absenceService.absences();
+    for (const a of allAbsences) {
+      if (!map.has(a.employee_id)) {
+        map.set(a.employee_id, new Map<string, Absence[]>());
+      }
+      const empMap = map.get(a.employee_id)!;
+      if (!empMap.has(a.date)) {
+        empMap.set(a.date, []);
+      }
+      empMap.get(a.date)!.push(a);
+    }
+    return map;
+  });
+
   // Main list showing calculated worked days for each month & annual totals
   employeesAnnualRows = computed<EmployeeAnnualRow[]>(() => {
     const emps = this.filteredEmployees();
-    const abs = this.absenceService.absences();
+    const absMap = this.absencesMap();
     const y = this.year();
 
-    return emps.map((emp) => this.calculateAnnualRow(emp, abs, y));
+    return emps.map((emp) => this.calculateAnnualRow(emp, absMap, y));
   });
 
   // Calculate sum of worked days for all filtered employees (by month and grand total)
@@ -362,7 +383,7 @@ export class AnnualViewComponent implements OnInit {
 
   exportExcel(mode: 'all' | 'filtered') {
     let rowsToExport: EmployeeAnnualRow[] = [];
-    const abs = this.absenceService.absences();
+    const absMap = this.absencesMap();
     const y = this.year();
 
     if (mode === 'filtered') {
@@ -388,7 +409,7 @@ export class AnnualViewComponent implements OnInit {
         return nameA.localeCompare(nameB, 'fr', { sensitivity: 'base' });
       });
 
-      rowsToExport = sortedActive.map((emp) => this.calculateAnnualRow(emp, abs, y));
+      rowsToExport = sortedActive.map((emp) => this.calculateAnnualRow(emp, absMap, y));
     }
 
     // Map to worksheet format
