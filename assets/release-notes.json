@@ -1,5 +1,30 @@
 [
   {
+    "version": "2026.07.08",
+    "date": "2026-07-08",
+    "news": [
+      {
+        "title": "Ergonomie & Interface",
+        "items": [
+          "Première version du redimensionnement de la première colonne (noms) dans les différentes vues.",
+          "Correction de l'effet de clignotement lors du cochage/décochage des filtres."
+        ]
+      },
+      {
+        "title": "Routage & Déploiement",
+        "items": [
+          "Mise en place de la stratégie de routage par Hash (HashLocationStrategy) pour éviter les erreurs 404 lors du rechargement de page sur GitHub Pages."
+        ]
+      },
+      {
+        "title": "Performances",
+        "items": [
+          "Indexation des absences pour optimiser les performances et réduire les avertissements."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.07.06",
     "date": "2026-07-06",
     "news": [
