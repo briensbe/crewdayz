@@ -317,7 +317,10 @@
 .dropdown-item input[type='checkbox'] {
   margin: 0;
   cursor: pointer;
-  width: auto;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  border-radius: 4px;
 }
 
 .dropdown-item .item-label {

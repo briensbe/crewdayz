@@ -178,7 +178,7 @@ a:hover {
   transform: translateY(-50%);
 }
 
-input,
+input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
   width: 100%;
@@ -192,12 +192,12 @@ textarea {
   transition: var(--transition);
 }
 
-.input-icon-wrapper input,
+.input-icon-wrapper input:not([type="checkbox"]):not([type="radio"]),
 .input-icon-wrapper select {
   padding-left: 2.5rem;
 }
 
-input:focus,
+input:not([type="checkbox"]):not([type="radio"]):focus,
 select:focus,
 textarea:focus {
   outline: none;
@@ -205,7 +205,7 @@ textarea:focus {
   box-shadow: 0 0 0 4px var(--primary-light);
 }
 
-input::placeholder,
+input:not([type="checkbox"]):not([type="radio"])::placeholder,
 textarea::placeholder {
   color: var(--text-light);
 }
