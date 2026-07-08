@@ -75,10 +75,20 @@
         <p>Ajustez vos filtres ou ajoutez des collaborateurs et des absences.</p>
       </div>
     } @else {
-      <table class="annual-table">
+      <table class="annual-table" [style.--name-col-width.px]="nameColWidth()">
         <thead>
           <tr>
-            <th class="sticky-col name-col sortable-column" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
+            <th
+              class="sticky-col name-col sortable-column"
+              [class.last-sticky]="lastVisibleStickyCol() === 'name'"
+              [(appResizable)]="nameColWidth"
+              [minWidth]="120"
+              [maxWidth]="400"
+              [storageKey]="'crewdayz_annual_name_col_width'"
+              [style.width.px]="nameColWidth()"
+              [style.min-width.px]="nameColWidth()"
+              [style.max-width.px]="nameColWidth()"
+            >
               <div class="name-header-content">
                 <div class="header-sort-wrapper" (click)="toggleSort('name')">
                   <span>Collaborateur</span>
@@ -105,7 +115,7 @@
               *ngIf="showServiceCol()"
               class="sticky-col service-col sortable-column"
               [class.last-sticky]="lastVisibleStickyCol() === 'service'"
-              [style.left]="'150px'"
+              [style.left.px]="nameColWidth()"
               (click)="toggleSort('service')"
             >
               <div class="header-sort-wrapper">
@@ -179,14 +189,20 @@
         </thead>
         <tbody>
           <tr *ngFor="let row of employeesAnnualRows()">
-            <td class="sticky-col name-col font-semibold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
+            <td
+              class="sticky-col name-col font-semibold"
+              [class.last-sticky]="lastVisibleStickyCol() === 'name'"
+              [style.width.px]="nameColWidth()"
+              [style.min-width.px]="nameColWidth()"
+              [style.max-width.px]="nameColWidth()"
+            >
               {{ row.employee.last_name.toUpperCase() }} {{ row.employee.first_name }}
             </td>
             <td
               *ngIf="showServiceCol()"
               class="sticky-col service-col subtle-text"
               [class.last-sticky]="lastVisibleStickyCol() === 'service'"
-              [style.left]="'150px'"
+              [style.left.px]="nameColWidth()"
             >
               {{ row.employee.service }}
             </td>
@@ -238,14 +254,20 @@
         <!-- Totals Footer Row -->
         <tfoot>
           <tr class="totals-row">
-            <td class="sticky-col name-col font-bold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
+            <td
+              class="sticky-col name-col font-bold"
+              [class.last-sticky]="lastVisibleStickyCol() === 'name'"
+              [style.width.px]="nameColWidth()"
+              [style.min-width.px]="nameColWidth()"
+              [style.max-width.px]="nameColWidth()"
+            >
               TOTAL CUMULÉ
             </td>
             <td
               *ngIf="showServiceCol()"
               class="sticky-col service-col"
               [class.last-sticky]="lastVisibleStickyCol() === 'service'"
-              [style.left]="'150px'"
+              [style.left.px]="nameColWidth()"
             ></td>
             <td
               *ngIf="showTeamCol()"

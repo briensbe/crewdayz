@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, HostListener, ViewChild, ElementRef, OnDestroy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -26,6 +26,7 @@ import { isFrenchPublicHoliday, getFrenchPublicHolidayName } from '../../../util
 import { SchoolHolidayService } from '../../services/school-holiday.service';
 import { getTeamStyle } from '../../shared/utils/color-utils';
 import { normalizeString } from '../../shared/utils/string-utils';
+import { ResizableDirective } from '../../shared/directives/resizable.directive';
 
 interface DayColumn {
   date: Date;
@@ -54,16 +55,42 @@ export type EmployeeSortField = 'name' | 'contract_type' | 'service' | 'team' | 
 @Component({
   selector: 'app-monthly-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, FiltersComponent, AbsenceModalComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, FiltersComponent, AbsenceModalComponent, ResizableDirective],
   templateUrl: './monthly-view.component.html',
   styleUrl: './monthly-view.component.css',
 })
-export class MonthlyViewComponent implements OnInit {
+export class MonthlyViewComponent implements OnInit, OnDestroy {
+  private readonly zone = inject(NgZone);
+  private tableBodyListenerCleanup?: () => void;
+
+  @ViewChild('tableBody') set tableBody(elementRef: ElementRef<HTMLTableSectionElement> | undefined) {
+    if (this.tableBodyListenerCleanup) {
+      this.tableBodyListenerCleanup();
+      this.tableBodyListenerCleanup = undefined;
+    }
+    if (elementRef) {
+      this.setupTableBodyListener(elementRef.nativeElement);
+    }
+  }
+
+  nameColWidth = signal<number>(
+    (() => {
+      try {
+        const stored = localStorage.getItem('crewdayz_monthly_name_col_width');
+        return stored ? JSON.parse(stored) : 150;
+      } catch (e) {
+        return 150;
+      }
+    })()
+  );
+  protected readonly getTeamStyle = getTeamStyle;
+  protected readonly isFrenchPublicHoliday = isFrenchPublicHoliday;
+  protected readonly getFrenchPublicHolidayName = getFrenchPublicHolidayName;
+
   // Services
   protected readonly employeeService = inject(EmployeeService);
   protected readonly absenceService = inject(AbsenceService);
   protected readonly holidayService = inject(SchoolHolidayService);
-  protected readonly getTeamStyle = getTeamStyle;
 
   // Expose icons
   readonly ChevronLeft = ChevronLeft;
@@ -99,20 +126,20 @@ export class MonthlyViewComponent implements OnInit {
 
   // Column positions for sticky columns
   teamColLeft = computed(() => {
-    let pos = 150;
+    let pos = this.nameColWidth();
     if (this.showServiceCol()) pos += 100;
     return `${pos}px`;
   });
 
   siteColLeft = computed(() => {
-    let pos = 150;
+    let pos = this.nameColWidth();
     if (this.showServiceCol()) pos += 100;
     if (this.showTeamCol()) pos += 80;
     return `${pos}px`;
   });
 
   typeColLeft = computed(() => {
-    let pos = 150;
+    let pos = this.nameColWidth();
     if (this.showServiceCol()) pos += 100;
     if (this.showTeamCol()) pos += 80;
     if (this.showSiteCol()) pos += 90;
@@ -120,7 +147,7 @@ export class MonthlyViewComponent implements OnInit {
   });
 
   balanceStartColLeft = computed(() => {
-    let pos = 150;
+    let pos = this.nameColWidth();
     if (this.showServiceCol()) pos += 100;
     if (this.showTeamCol()) pos += 80;
     if (this.showSiteCol()) pos += 90;
@@ -177,6 +204,23 @@ export class MonthlyViewComponent implements OnInit {
   modalInitialDate = signal('');
   modalInitialEndDate = signal('');
   modalExistingAbsence = signal<Absence | null>(null);
+
+  // Pre-indexed absences map: employeeId -> date -> Absence[]
+  absencesMap = computed(() => {
+    const map = new Map<string, Map<string, Absence[]>>();
+    const allAbsences = this.absenceService.absences();
+    for (const a of allAbsences) {
+      if (!map.has(a.employee_id)) {
+        map.set(a.employee_id, new Map<string, Absence[]>());
+      }
+      const empMap = map.get(a.employee_id)!;
+      if (!empMap.has(a.date)) {
+        empMap.set(a.date, []);
+      }
+      empMap.get(a.date)!.push(a);
+    }
+    return map;
+  });
 
   // Extract unique options for filters
   services = computed(() => {
@@ -354,8 +398,8 @@ export class MonthlyViewComponent implements OnInit {
   profileWeeklyAvailability = computed(() => {
     const days = this.daysInMonth();
     const employees = this.filteredEmployees();
-    const absences = this.absenceService.absences();
     const weeksList = this.weeksInMonth();
+    const absMap = this.absencesMap();
 
     // Group days by weekNum
     const daysByWeek = new Map<number, DayColumn[]>();
@@ -375,7 +419,7 @@ export class MonthlyViewComponent implements OnInit {
       if (emp.departure_date && dateStr > emp.departure_date) {
         return 1.0;
       }
-      const list = absences.filter((a) => a.employee_id === emp.id && a.date === dateStr);
+      const list = absMap.get(emp.id!)?.get(dateStr) || [];
       let total = 0;
       for (const a of list) {
         if (a.category === 'Formation') continue;
@@ -458,6 +502,41 @@ export class MonthlyViewComponent implements OnInit {
     this.fetchAbsencesForCurrentYear();
   }
 
+  private setupTableBodyListener(tbody: HTMLTableSectionElement) {
+    this.zone.runOutsideAngular(() => {
+      const handler = (event: MouseEvent) => {
+        if (!this.isSelecting()) return;
+        const cell = (event.target as HTMLElement).closest('.day-cell');
+        if (!cell) return;
+
+        const employeeId = cell.getAttribute('data-employee-id');
+        const dateStr = cell.getAttribute('data-date-str');
+        if (!employeeId || !dateStr) return;
+
+        if (this.selectionEmployeeId() !== employeeId) return;
+
+        const emp = this.employeeService.employees().find((e) => e.id === employeeId);
+        if (emp && this.isEmployeeUnavailable(emp, dateStr)) return;
+
+        if (this.selectionEndDayStr() === dateStr) return;
+
+        this.zone.run(() => {
+          this.selectionEndDayStr.set(dateStr);
+          this.updateSelectedDaysList();
+        });
+      };
+
+      tbody.addEventListener('mouseover', handler);
+      this.tableBodyListenerCleanup = () => tbody.removeEventListener('mouseover', handler);
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.tableBodyListenerCleanup) {
+      this.tableBodyListenerCleanup();
+    }
+  }
+
   // Fetch absences for current year
   async fetchAbsencesForCurrentYear() {
     await this.absenceService.fetchAbsencesForYear(this.year());
@@ -495,7 +574,7 @@ export class MonthlyViewComponent implements OnInit {
 
   // Get employee absences in the selected month
   getAbsenceForCell(employeeId: string, dateStr: string): Absence | null {
-    const match = this.absenceService.absences().filter((a) => a.employee_id === employeeId && a.date === dateStr);
+    const match = this.absencesMap().get(employeeId)?.get(dateStr) || [];
     // If we have any, return the first one (since constraint ensures uniqueness per period, we just pick the primary or merge)
     return match.length > 0 ? match[0] : null;
   }
@@ -554,7 +633,7 @@ export class MonthlyViewComponent implements OnInit {
       }
     }
 
-    const list = this.absenceService.absences().filter((a) => a.employee_id === employeeId && a.date === dateStr);
+    const list = this.absencesMap().get(employeeId)?.get(dateStr) || [];
     if (list.length === 0) return null;
 
     // Sum periods
@@ -659,17 +738,20 @@ export class MonthlyViewComponent implements OnInit {
     const startOfSelectedMonth = new Date(y, m, 1);
 
     // Sum all eligible absences before the start of this month (all except Formation)
-    const used = this.absenceService
-      .absences()
-      .filter((a) => {
-        if (a.employee_id !== emp.id) return false;
-        if (a.category === 'Formation') return false;
-        const absDate = new Date(a.date);
-        return absDate.getFullYear() === y && absDate < startOfSelectedMonth;
-      })
-      .reduce((sum, a) => {
-        return sum + (a.period === 'full' ? 1.0 : 0.5);
-      }, 0);
+    const mm = String(m + 1).padStart(2, '0');
+    const startOfSelectedMonthStr = `${y}-${mm}-01`;
+    const empMap = this.absencesMap().get(emp.id!);
+    let used = 0;
+    if (empMap) {
+      for (const [dateStr, list] of empMap.entries()) {
+        if (dateStr >= startOfSelectedMonthStr) continue;
+        if (!dateStr.startsWith(`${y}-`)) continue;
+        for (const a of list) {
+          if (a.category === 'Formation') continue;
+          used += a.period === 'full' ? 1.0 : 0.5;
+        }
+      }
+    }
 
     return initial - used;
   }
@@ -692,17 +774,19 @@ export class MonthlyViewComponent implements OnInit {
     const startBalance = this.getBeginningBalance(emp);
 
     // Sum eligible absences in the selected month (all except Formation)
-    const usedInMonth = this.absenceService
-      .absences()
-      .filter((a) => {
-        if (a.employee_id !== emp.id) return false;
-        if (a.category === 'Formation') return false;
-        const absDate = new Date(a.date);
-        return absDate.getFullYear() === y && absDate.getMonth() === m;
-      })
-      .reduce((sum, a) => {
-        return sum + (a.period === 'full' ? 1.0 : 0.5);
-      }, 0);
+    const mm = String(m + 1).padStart(2, '0');
+    const monthPrefix = `${y}-${mm}-`;
+    const empMap = this.absencesMap().get(emp.id!);
+    let usedInMonth = 0;
+    if (empMap) {
+      for (const [dateStr, list] of empMap.entries()) {
+        if (!dateStr.startsWith(monthPrefix)) continue;
+        for (const a of list) {
+          if (a.category === 'Formation') continue;
+          usedInMonth += a.period === 'full' ? 1.0 : 0.5;
+        }
+      }
+    }
 
     return startBalance - usedInMonth;
   }
@@ -735,31 +819,32 @@ export class MonthlyViewComponent implements OnInit {
     }
 
     // Count absences that reduce working days (i.e. everything except Formation, on business days and not holidays)
-    const absencesInMonth = this.absenceService.absences().filter((a) => {
-      if (a.employee_id !== emp.id) return false;
-      if (a.category === 'Formation') return false; // Formation counts as 0 absence (so worked day)
-      if (emp.arrival_date && a.date < emp.arrival_date) return false;
-      if (emp.departure_date && a.date > emp.departure_date) return false;
-
-      const absDate = new Date(a.date);
-      if (absDate.getFullYear() !== y || absDate.getMonth() !== m) return false;
-      // Ensure the absence is on a business day and not a public holiday
-      const dayOfWeek = absDate.getDay();
-      return dayOfWeek !== 0 && dayOfWeek !== 6 && !isFrenchPublicHoliday(absDate);
-    });
-
-    // Sum absence values
+    const mm = String(m + 1).padStart(2, '0');
+    const monthPrefix = `${y}-${mm}-`;
+    const empMap = this.absencesMap().get(emp.id!);
     let totalAbsenceDays = 0;
-    // We group by date to prevent double counting if multiple half days exist on same date
-    const dateMap = new Map<string, number>();
-    absencesInMonth.forEach((a) => {
-      const current = dateMap.get(a.date) || 0;
-      dateMap.set(a.date, current + (a.period === 'full' ? 1.0 : 0.5));
-    });
 
-    dateMap.forEach((val) => {
-      totalAbsenceDays += Math.min(val, 1.0); // Caps at 1.0 day of absence per calendar date
-    });
+    if (empMap) {
+      const dateMap = new Map<string, number>();
+      for (const [dateStr, list] of empMap.entries()) {
+        if (!dateStr.startsWith(monthPrefix)) continue;
+        if (emp.arrival_date && dateStr < emp.arrival_date) continue;
+        if (emp.departure_date && dateStr > emp.departure_date) continue;
+
+        const absDate = new Date(dateStr);
+        const dayOfWeek = absDate.getDay();
+        if (dayOfWeek === 0 || dayOfWeek === 6 || isFrenchPublicHoliday(absDate)) continue;
+
+        for (const a of list) {
+          if (a.category === 'Formation') continue;
+          const current = dateMap.get(dateStr) || 0;
+          dateMap.set(dateStr, current + (a.period === 'full' ? 1.0 : 0.5));
+        }
+      }
+      dateMap.forEach((val) => {
+        totalAbsenceDays += Math.min(val, 1.0); // Caps at 1.0 day of absence per calendar date
+      });
+    }
 
     const worked = businessDaysCount - totalAbsenceDays;
     return Math.max(worked, 0);
@@ -793,13 +878,7 @@ export class MonthlyViewComponent implements OnInit {
     this.updateSelectedDaysList();
   }
 
-  onCellMouseEnter(employeeId: string, dateStr: string) {
-    if (!this.isSelecting() || this.selectionEmployeeId() !== employeeId) return;
-    const emp = this.employeeService.employees().find((e) => e.id === employeeId);
-    if (emp && this.isEmployeeUnavailable(emp, dateStr)) return;
-    this.selectionEndDayStr.set(dateStr);
-    this.updateSelectedDaysList();
-  }
+  // cell hover is delegated via event delegation in ngAfterViewInit
 
   @HostListener('document:mouseup')
   onMouseUp() {

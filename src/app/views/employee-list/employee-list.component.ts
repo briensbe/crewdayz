@@ -25,6 +25,7 @@ import { FiltersComponent, FilterState } from '../../shared/filters/filters.comp
 import { storageSignal } from '../../../utils/storage-signal';
 import { getTeamStyle } from '../../shared/utils/color-utils';
 import { normalizeString } from '../../shared/utils/string-utils';
+import { ResizableDirective } from '../../shared/directives/resizable.directive';
 
 export type EmployeeSortField =
   | 'name'
@@ -38,11 +39,21 @@ export type EmployeeSortField =
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, FiltersComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, FiltersComponent, ResizableDirective],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.css',
 })
 export class EmployeeListComponent implements OnInit {
+  nameColWidth = signal<number>(
+    (() => {
+      try {
+        const stored = localStorage.getItem('crewdayz_employee_name_col_width');
+        return stored ? JSON.parse(stored) : 200;
+      } catch (e) {
+        return 200;
+      }
+    })()
+  );
   protected readonly getTeamStyle = getTeamStyle;
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {

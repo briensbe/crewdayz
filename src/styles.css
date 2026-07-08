@@ -374,3 +374,39 @@ tr:last-child td {
 tr:hover td {
   background-color: var(--background);
 }
+
+/* Column Resizing */
+.name-col:not(.sticky-col) {
+  position: relative;
+}
+
+.resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  z-index: 100;
+  transition: background-color 0.2s;
+  touch-action: none;
+}
+
+.resizer:hover {
+  background-color: var(--primary);
+}
+
+body.resizing {
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+.name-col {
+  width: var(--name-col-width) !important;
+  min-width: var(--name-col-width) !important;
+  max-width: var(--name-col-width) !important;
+}
+
+

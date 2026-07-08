@@ -44,10 +44,20 @@
         <p>Essayez de modifier vos filtres ou ajoutez un nouveau collaborateur.</p>
       </div>
     } @else {
-      <table>
+      <table [style.--name-col-width.px]="nameColWidth()">
         <thead>
           <tr>
-            <th (click)="toggleSort('name')" class="sortable-column">
+            <th
+              [(appResizable)]="nameColWidth"
+              [minWidth]="120"
+              [maxWidth]="400"
+              [storageKey]="'crewdayz_employee_name_col_width'"
+              [style.width.px]="nameColWidth()"
+              [style.min-width.px]="nameColWidth()"
+              [style.max-width.px]="nameColWidth()"
+              (click)="toggleSort('name')"
+              class="sortable-column name-col"
+            >
               <div class="header-sort-wrapper">
                 <span>Nom complet</span>
                 <lucide-icon
@@ -135,7 +145,13 @@
         <tbody>
           @for (emp of filteredEmployees(); track emp.id) {
             <tr class="clickable-row">
-              <td (click)="startInlineEdit(emp, 'name', $event)">
+              <td
+                (click)="startInlineEdit(emp, 'name', $event)"
+                class="name-col"
+                [style.width.px]="nameColWidth()"
+                [style.min-width.px]="nameColWidth()"
+                [style.max-width.px]="nameColWidth()"
+              >
                 <div class="name-cell">
                   <span class="avatar-sm">{{ emp.first_name.charAt(0) }}{{ emp.last_name.charAt(0) }}</span>
                   <div class="name-details">

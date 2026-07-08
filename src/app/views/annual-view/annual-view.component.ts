@@ -10,6 +10,7 @@ import { storageSignal } from '../../../utils/storage-signal';
 import { isFrenchPublicHoliday } from '../../../utils/holidays';
 import { getTeamStyle } from '../../shared/utils/color-utils';
 import { normalizeString } from '../../shared/utils/string-utils';
+import { ResizableDirective } from '../../shared/directives/resizable.directive';
 import * as XLSX from 'xlsx-js-style';
 
 interface EmployeeAnnualRow {
@@ -24,11 +25,22 @@ export type EmployeeSortField = 'name' | 'contract_type' | 'service' | 'team' | 
 @Component({
   selector: 'app-annual-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, FiltersComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, FiltersComponent, ResizableDirective],
   templateUrl: './annual-view.component.html',
   styleUrl: './annual-view.component.css',
 })
 export class AnnualViewComponent implements OnInit {
+  nameColWidth = signal<number>(
+    (() => {
+      try {
+        const stored = localStorage.getItem('crewdayz_annual_name_col_width');
+        return stored ? JSON.parse(stored) : 150;
+      } catch (e) {
+        return 150;
+      }
+    })()
+  );
+
   // Services and dependencies
   protected readonly employeeService = inject(EmployeeService);
   protected readonly absenceService = inject(AbsenceService);
@@ -59,6 +71,9 @@ export class AnnualViewComponent implements OnInit {
     this.showExportDropdown.update((v) => !v);
   }
 
+  // Active Year State
+  year = signal<number>(new Date().getFullYear());
+
   // Sort State
   sortField = storageSignal<EmployeeSortField>('crewdayz_annual_list_sort_field', 'name');
   sortDirection = storageSignal<'asc' | 'desc'>('crewdayz_annual_list_sort_direction', 'asc');
@@ -85,20 +100,20 @@ export class AnnualViewComponent implements OnInit {
 
   // Column positions for sticky columns
   teamColLeft = computed(() => {
-    let pos = 150;
+    let pos = this.nameColWidth();
     if (this.showServiceCol()) pos += 100;
     return `${pos}px`;
   });
 
   siteColLeft = computed(() => {
-    let pos = 150;
+    let pos = this.nameColWidth();
     if (this.showServiceCol()) pos += 100;
     if (this.showTeamCol()) pos += 80;
     return `${pos}px`;
   });
 
   typeColLeft = computed(() => {
-    let pos = 150;
+    let pos = this.nameColWidth();
     if (this.showServiceCol()) pos += 100;
     if (this.showTeamCol()) pos += 80;
     if (this.showSiteCol()) pos += 90;
@@ -114,7 +129,6 @@ export class AnnualViewComponent implements OnInit {
   });
 
   // State
-  year = signal<number>(new Date().getFullYear());
   months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
 
   // Filter State

@@ -41,13 +41,27 @@
         <p>Ajustez vos filtres pour voir les données du mois.</p>
       </div>
     } @else {
-      <table class="calendar-table">
+      <table
+        class="calendar-table"
+        [style.--name-col-width.px]="nameColWidth()"
+        [style.--service-width.px]="showServiceCol() ? 100 : 0"
+        [style.--team-width.px]="showTeamCol() ? 80 : 0"
+        [style.--site-width.px]="showSiteCol() ? 90 : 0"
+        [style.--type-width.px]="showTypeCol() ? 80 : 0"
+      >
         <thead>
           <tr class="week-header-row">
             <th
               rowspan="5"
               class="sticky-col name-col sortable-column"
               [class.last-sticky]="lastVisibleStickyCol() === 'name'"
+              [(appResizable)]="nameColWidth"
+              [minWidth]="120"
+              [maxWidth]="400"
+              [storageKey]="'crewdayz_monthly_name_col_width'"
+              [style.width.px]="nameColWidth()"
+              [style.min-width.px]="nameColWidth()"
+              [style.max-width.px]="nameColWidth()"
               title="Trier par collaborateur"
             >
               <div class="name-header-container-wrapper">
@@ -80,7 +94,7 @@
                 rowspan="5"
                 class="sticky-col service-col sortable-column"
                 [class.last-sticky]="lastVisibleStickyCol() === 'service'"
-                [style.left]="'150px'"
+                [style.left.px]="nameColWidth()"
                 (click)="toggleSort('service')"
               >
                 <div class="header-sort-wrapper">
@@ -256,17 +270,23 @@
             }
           </tr>
         </thead>
-        <tbody>
+        <tbody #tableBody>
           @for (emp of filteredEmployees(); track emp.id) {
             <tr>
-              <td class="sticky-col name-col font-semibold" [class.last-sticky]="lastVisibleStickyCol() === 'name'">
+              <td
+                class="sticky-col name-col font-semibold"
+                [class.last-sticky]="lastVisibleStickyCol() === 'name'"
+                [style.width.px]="nameColWidth()"
+                [style.min-width.px]="nameColWidth()"
+                [style.max-width.px]="nameColWidth()"
+              >
                 {{ emp.last_name.toUpperCase() }} {{ emp.first_name }}
               </td>
               @if (showServiceCol()) {
                 <td
                   class="sticky-col service-col subtle-text"
                   [class.last-sticky]="lastVisibleStickyCol() === 'service'"
-                  [style.left]="'150px'"
+                  [style.left.px]="nameColWidth()"
                 >
                   {{ emp.service }}
                 </td>
@@ -330,10 +350,11 @@
                   [class.cell-unavailable]="isUnavailable && !day.isWeekend && !day.isHoliday"
                   [class.selected-cell]="isCellSelected(emp.id!, day.dateStr)"
                   [class.week-separator]="day.isWeekEnd"
+                  [attr.data-employee-id]="emp.id"
+                  [attr.data-date-str]="day.dateStr"
                   (mousedown)="
                     !(day.isWeekend || day.isHoliday || isUnavailable) && onCellMouseDown(emp.id!, day.dateStr, $event)
                   "
-                  (mouseenter)="onCellMouseEnter(emp.id!, day.dateStr)"
                   class="day-cell text-center select-none"
                 >
                   <!-- Display absence badge if registered -->

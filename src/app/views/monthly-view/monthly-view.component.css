@@ -307,28 +307,34 @@ tr:hover .sticky-col {
 
 .name-col {
   left: 0;
-  min-width: 150px;
+  width: var(--name-col-width, 150px) !important;
+  min-width: var(--name-col-width, 150px) !important;
+  max-width: var(--name-col-width, 150px) !important;
   border-right: 1px solid var(--border-light);
 }
 
 .service-col {
-  left: 150px;
+  left: var(--name-col-width, 150px) !important;
   min-width: 100px;
 }
 
 .team-col {
-  left: 250px;
+  left: calc(var(--name-col-width, 150px) + var(--service-width, 100px)) !important;
   min-width: 80px;
 }
 
 .site-col {
-  left: 330px;
+  left: calc(var(--name-col-width, 150px) + var(--service-width, 100px) + var(--team-width, 80px)) !important;
   min-width: 90px;
 }
 
 .type-col {
-  left: 420px;
+  left: calc(var(--name-col-width, 150px) + var(--service-width, 100px) + var(--team-width, 80px) + var(--site-width, 90px)) !important;
   min-width: 80px;
+}
+
+.balance-col.sticky-col {
+  left: calc(var(--name-col-width, 150px) + var(--service-width, 100px) + var(--team-width, 80px) + var(--site-width, 90px) + var(--type-width, 80px)) !important;
 }
 
 /* Make header matching sticky backgrounds and handle vertical sticky position */
