@@ -259,6 +259,7 @@
                 [class.col-weekend]="day.isWeekend || day.isHoliday"
                 [class.col-holiday]="day.isHoliday"
                 [class.week-separator]="day.isWeekEnd"
+                [class.is-today]="day.isToday"
                 [attr.title]="day.holidayName"
                 class="day-col text-center"
               >
@@ -350,6 +351,7 @@
                   [class.cell-unavailable]="isUnavailable && !day.isWeekend && !day.isHoliday"
                   [class.selected-cell]="isCellSelected(emp.id!, day.dateStr)"
                   [class.week-separator]="day.isWeekEnd"
+                  [class.is-today]="day.isToday"
                   [attr.data-employee-id]="emp.id"
                   [attr.data-date-str]="day.dateStr"
                   (mousedown)="

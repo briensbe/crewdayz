@@ -531,6 +531,21 @@ tr:hover .sticky-right-1.worked-value {
   cursor: not-allowed;
 }
 
+/* Today highlight styles */
+th.is-today {
+  position: relative;
+}
+
+th.is-today::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--primary);
+}
+
 /* Selected cells during drag */
 .selected-cell {
   background-color: hsl(217, 91%, 90%) !important;

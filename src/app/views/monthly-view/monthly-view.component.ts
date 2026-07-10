@@ -38,6 +38,7 @@ interface DayColumn {
   isHoliday: boolean;
   isWeekEnd: boolean;
   holidayName?: string;
+  isToday: boolean;
 }
 
 const FRENCH_DAYS = ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'];
@@ -253,6 +254,10 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
     const m = this.month();
     const daysCount = new Date(y, m + 1, 0).getDate();
     const list: DayColumn[] = [];
+    const today = new Date();
+    const todayY = today.getFullYear();
+    const todayM = today.getMonth();
+    const todayD = today.getDate();
 
     for (let d = 1; d <= daysCount; d++) {
       const date = new Date(y, m, d);
@@ -272,6 +277,7 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
         isHoliday: isFrenchPublicHoliday(date),
         isWeekEnd: dayOfWeek === 0,
         holidayName: getFrenchPublicHolidayName(date) || undefined,
+        isToday: y === todayY && m === todayM && d === todayD,
       });
     }
     return list;
