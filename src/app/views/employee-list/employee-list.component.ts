@@ -209,6 +209,19 @@ export class EmployeeListComponent implements OnInit {
           return false;
         if (filters.profile && filters.profile.length > 0 && !filters.profile.includes(emp.profile)) return false;
 
+        if (filters.onlyActive) {
+          if (emp.arrival_date) {
+            const arrParts = emp.arrival_date.split('-');
+            const arrYear = parseInt(arrParts[0], 10);
+            if (arrYear > activeYear) return false;
+          }
+          if (emp.departure_date) {
+            const depParts = emp.departure_date.split('-');
+            const depYear = parseInt(depParts[0], 10);
+            if (depYear < activeYear) return false;
+          }
+        }
+
         return true;
       })
       .map((emp): Employee => {

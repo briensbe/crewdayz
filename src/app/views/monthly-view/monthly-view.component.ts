@@ -339,15 +339,21 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
     const direction = this.sortDirection();
 
     const list = this.employeeService.employees().filter((emp) => {
-      // Exclude employees who departed in a previous year
-      if (emp.departure_date) {
-        const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
-        if (currentYear > departureYear) return false;
-      }
-      // Exclude employees who arrive in a future year
-      if (emp.arrival_date) {
-        const arrivalYear = parseInt(emp.arrival_date.split('-')[0], 10);
-        if (currentYear < arrivalYear) return false;
+      if (filters.onlyActive) {
+        // Exclude employees who have not arrived yet relative to this month
+        if (emp.arrival_date) {
+          const arrParts = emp.arrival_date.split('-');
+          const arrYear = parseInt(arrParts[0], 10);
+          const arrMonth = parseInt(arrParts[1], 10) - 1;
+          if (currentYear < arrYear || (currentYear === arrYear && this.month() < arrMonth)) return false;
+        }
+        // Exclude employees who departed in a previous month relative to this month
+        if (emp.departure_date) {
+          const depParts = emp.departure_date.split('-');
+          const depYear = parseInt(depParts[0], 10);
+          const depMonth = parseInt(depParts[1], 10) - 1;
+          if (currentYear > depYear || (currentYear === depYear && this.month() > depMonth)) return false;
+        }
       }
       if (filters.search) {
         const query = normalizeString(filters.search);

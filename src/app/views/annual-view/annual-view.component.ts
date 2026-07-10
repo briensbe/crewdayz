@@ -170,15 +170,17 @@ export class AnnualViewComponent implements OnInit {
     const direction = this.sortDirection();
 
     const list = this.employeeService.employees().filter((emp) => {
-      // Exclude employees who departed in a previous year
-      if (emp.departure_date) {
-        const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
-        if (currentYear > departureYear) return false;
-      }
-      // Exclude employees who arrive in a future year
-      if (emp.arrival_date) {
-        const arrivalYear = parseInt(emp.arrival_date.split('-')[0], 10);
-        if (currentYear < arrivalYear) return false;
+      if (filters.onlyActive) {
+        // Exclude employees who departed in a previous year
+        if (emp.departure_date) {
+          const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
+          if (currentYear > departureYear) return false;
+        }
+        // Exclude employees who arrive in a future year
+        if (emp.arrival_date) {
+          const arrivalYear = parseInt(emp.arrival_date.split('-')[0], 10);
+          if (currentYear < arrivalYear) return false;
+        }
       }
       if (filters.search) {
         const query = normalizeString(filters.search);

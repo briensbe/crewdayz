@@ -10,6 +10,7 @@ export interface FilterState {
   work_site: string[];
   contract_type: string[];
   profile?: string[];
+  onlyActive?: boolean;
 }
 
 @Component({
@@ -47,6 +48,7 @@ export class FiltersComponent implements OnInit {
   selectedWorkSite = signal<string[]>([]);
   selectedContractType = signal<string[]>([]);
   selectedProfile = signal<string[]>([]);
+  onlyActive = signal(true);
 
   // Dropdown states
   openServiceDropdown = signal(false);
@@ -131,6 +133,7 @@ export class FiltersComponent implements OnInit {
       this.selectedWorkSite.set(initial.work_site || []);
       this.selectedContractType.set(initial.contract_type || []);
       this.selectedProfile.set(initial.profile || []);
+      this.onlyActive.set(initial.onlyActive !== undefined ? initial.onlyActive : true);
     }
   }
 
@@ -142,6 +145,7 @@ export class FiltersComponent implements OnInit {
       work_site: this.selectedWorkSite(),
       contract_type: this.selectedContractType(),
       profile: this.selectedProfile(),
+      onlyActive: this.onlyActive(),
     });
   }
 
@@ -182,6 +186,7 @@ export class FiltersComponent implements OnInit {
     if (key === 'work_site') this.selectedWorkSite.set([]);
     if (key === 'contract_type') this.selectedContractType.set([]);
     if (key === 'profile') this.selectedProfile.set([]);
+    if (key === 'onlyActive') this.onlyActive.set(false);
     this.onFilterChange();
   }
 
@@ -192,6 +197,7 @@ export class FiltersComponent implements OnInit {
     this.selectedWorkSite.set([]);
     this.selectedContractType.set([]);
     this.selectedProfile.set([]);
+    this.onlyActive.set(true);
     this.onFilterChange();
   }
 }

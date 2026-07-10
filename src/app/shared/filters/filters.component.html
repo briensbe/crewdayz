@@ -266,7 +266,7 @@
     }
 
     <!-- Reset Button -->
-    @if (search() || selectedService().length > 0 || selectedTeam().length > 0 || selectedWorkSite().length > 0 || selectedContractType().length > 0 || selectedProfile().length > 0) {
+    @if (search() || selectedService().length > 0 || selectedTeam().length > 0 || selectedWorkSite().length > 0 || selectedContractType().length > 0 || selectedProfile().length > 0 || !onlyActive()) {
       <div class="filter-item actions-item">
         <button class="btn btn-outline btn-reset" (click)="resetFilters()" type="button">
           <lucide-icon [img]="X" size="16"></lucide-icon>
@@ -274,6 +274,18 @@
         </button>
       </div>
     }
+  </div>
+
+  <!-- Filter Options Row (Active Period toggle) -->
+  <div class="filters-options-row">
+    <label class="filter-checkbox-label">
+      <input
+        type="checkbox"
+        [ngModel]="onlyActive()"
+        (ngModelChange)="onlyActive.set($event); onFilterChange()"
+      />
+      <span>Collaborateurs actifs sur la période</span>
+    </label>
   </div>
 
   <!-- Active Filter Badges inside the Filters Card -->
