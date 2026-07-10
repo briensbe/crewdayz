@@ -452,7 +452,7 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
       // For each profile, compute availability for each week
       const weeksData = weeksList.map((w) => {
         const weekDays = daysByWeek.get(w.weekNum) || [];
-        const workingDays = weekDays.filter((d) => !d.isWeekend && !d.isHoliday);
+        const workingDays = weekDays.filter((d) => !d.isWeekend);
 
         // Group by percentage
         const pctGroup = new Map<number, string[]>();
@@ -463,7 +463,11 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
           if (workingDays.length > 0) {
             let totalAbsence = 0;
             for (const day of workingDays) {
-              totalAbsence += getAbsenceVal(emp, day.dateStr);
+              if (day.isHoliday) {
+                totalAbsence += 1.0;
+              } else {
+                totalAbsence += getAbsenceVal(emp, day.dateStr);
+              }
             }
             const worked = workingDays.length - totalAbsence;
             percentage = Math.max(0, Math.min(100, Math.round((worked / workingDays.length) * 100)));
