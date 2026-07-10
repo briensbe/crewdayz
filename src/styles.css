@@ -407,6 +407,9 @@ body.resizing {
   width: var(--name-col-width) !important;
   min-width: var(--name-col-width) !important;
   max-width: var(--name-col-width) !important;
+  white-space: normal !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 
