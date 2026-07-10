@@ -73,7 +73,7 @@ export class FiltersComponent implements OnInit {
     if (this.selectedEmployees().length > 0) {
       const names = this.selectedEmployees().map(id => {
         const emp = this.employees().find(e => e.id === id);
-        return emp ? `${emp.first_name} ${emp.last_name}` : id;
+        return emp ? `${emp.last_name.toUpperCase()} ${emp.first_name}` : id;
       });
       labels.push({ key: 'employees', label: 'Collaborateurs', value: names.join(', ') });
     }
@@ -190,17 +190,24 @@ export class FiltersComponent implements OnInit {
 
   getEmployeeName(id: string): string {
     const emp = this.employees().find((e) => e.id === id);
-    return emp ? `${emp.first_name} ${emp.last_name}` : id;
+    return emp ? `${emp.last_name.toUpperCase()} ${emp.first_name}` : id;
   }
 
   filteredEmployeesForDropdown = computed(() => {
     const search = this.employeeSearch().toLowerCase().trim();
     const allEmps = this.employees();
-    if (!search) return allEmps;
-    return allEmps.filter((emp) => {
-      const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
-      const company = (emp.company_name || '').toLowerCase();
-      return fullName.includes(search) || company.includes(search);
+    let result = allEmps;
+    if (search) {
+      result = allEmps.filter((emp) => {
+        const fullName = `${emp.last_name} ${emp.first_name}`.toLowerCase();
+        const company = (emp.company_name || '').toLowerCase();
+        return fullName.includes(search) || company.includes(search);
+      });
+    }
+    return [...result].sort((a, b) => {
+      const nameA = `${a.last_name} ${a.first_name}`.toLowerCase();
+      const nameB = `${b.last_name} ${b.first_name}`.toLowerCase();
+      return nameA.localeCompare(nameB);
     });
   });
 

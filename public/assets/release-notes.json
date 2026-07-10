@@ -1,5 +1,19 @@
 [
   {
+    "version": "2026.07.10",
+    "date": "2026-07-10",
+    "news": [
+      {
+        "title": "Ergonomie",
+        "items": [
+          "Ajout du filtre multi-sélection 'Collaborateurs' avec champ de recherche interne pour cibler et afficher plusieurs personnes simultanément.",
+          "Mise en avant du jour en cours dans la vue mensuelle",
+          "Correction du Retour à la ligne automatique (wrap) des noms de collaborateurs lors du redimensionnement de la première colonne."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.07.08",
     "date": "2026-07-08",
     "news": [
@@ -18,9 +32,7 @@
       },
       {
         "title": "Performances",
-        "items": [
-          "Indexation des absences pour optimiser les performances et réduire les avertissements."
-        ]
+        "items": ["Indexation des absences pour optimiser les performances et réduire les avertissements."]
       }
     ]
   },

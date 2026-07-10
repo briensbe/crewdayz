@@ -76,7 +76,7 @@
                   [checked]="selectedEmployees().includes(emp.id || '')"
                   (change)="toggleEmployee(emp.id || '', $event)"
                 />
-                <span class="item-label">{{ emp.first_name }} {{ emp.last_name }}</span>
+                <span class="item-label">{{ emp.last_name.toUpperCase() }} {{ emp.first_name }}</span>
               </label>
             } @empty {
               <div class="dropdown-empty">Aucun résultat</div>
