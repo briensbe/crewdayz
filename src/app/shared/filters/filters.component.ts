@@ -2,9 +2,11 @@ import { Component, input, output, signal, OnInit, computed, HostListener, Eleme
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, X, Filter } from 'lucide-angular';
+import { Employee } from '../../models/types';
 
 export interface FilterState {
   search: string;
+  employees?: string[];
   service: string[];
   team: string[];
   work_site: string[];
@@ -24,6 +26,7 @@ export class FiltersComponent implements OnInit {
   private elementRef = inject(ElementRef);
 
   // Available filter options generated from the dataset
+  employees = input<Employee[]>([]);
   services = input<string[]>([]);
   teams = input<string[]>([]);
   workSites = input<string[]>([]);
@@ -43,6 +46,7 @@ export class FiltersComponent implements OnInit {
 
   // Active filter state
   search = signal('');
+  selectedEmployees = signal<string[]>([]);
   selectedService = signal<string[]>([]);
   selectedTeam = signal<string[]>([]);
   selectedWorkSite = signal<string[]>([]);
@@ -51,16 +55,29 @@ export class FiltersComponent implements OnInit {
   onlyActive = signal(true);
 
   // Dropdown states
+  openEmployeeDropdown = signal(false);
   openServiceDropdown = signal(false);
   openTeamDropdown = signal(false);
   openWorkSiteDropdown = signal(false);
   openContractTypeDropdown = signal(false);
   openProfileDropdown = signal(false);
 
+  // Search input inside employee dropdown
+  employeeSearch = signal('');
+
   // Active filter helper labels
   activeFilterLabels = computed(() => {
     const labels: { key: keyof FilterState; label: string; value: string }[] = [];
     if (this.search()) labels.push({ key: 'search', label: 'Recherche', value: this.search() });
+    
+    if (this.selectedEmployees().length > 0) {
+      const names = this.selectedEmployees().map(id => {
+        const emp = this.employees().find(e => e.id === id);
+        return emp ? `${emp.first_name} ${emp.last_name}` : id;
+      });
+      labels.push({ key: 'employees', label: 'Collaborateurs', value: names.join(', ') });
+    }
+    
     if (this.selectedService().length > 0)
       labels.push({ key: 'service', label: 'Service', value: this.selectedService().join(', ') });
     if (this.selectedTeam().length > 0)
@@ -82,41 +99,55 @@ export class FiltersComponent implements OnInit {
   }
 
   closeAllDropdowns() {
+    this.openEmployeeDropdown.set(false);
     this.openServiceDropdown.set(false);
     this.openTeamDropdown.set(false);
     this.openWorkSiteDropdown.set(false);
     this.openContractTypeDropdown.set(false);
     this.openProfileDropdown.set(false);
+    this.employeeSearch.set('');
   }
 
-  toggleDropdown(dropdown: 'service' | 'team' | 'work_site' | 'contract_type' | 'profile', event: MouseEvent) {
+  toggleDropdown(dropdown: 'employee' | 'service' | 'team' | 'work_site' | 'contract_type' | 'profile', event: MouseEvent) {
     event.stopPropagation();
-    if (dropdown === 'service') {
+    if (dropdown === 'employee') {
+      this.openEmployeeDropdown.update((val) => !val);
+      this.openServiceDropdown.set(false);
+      this.openTeamDropdown.set(false);
+      this.openWorkSiteDropdown.set(false);
+      this.openContractTypeDropdown.set(false);
+      this.openProfileDropdown.set(false);
+    } else if (dropdown === 'service') {
       this.openServiceDropdown.update((val) => !val);
+      this.openEmployeeDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
       this.openContractTypeDropdown.set(false);
       this.openProfileDropdown.set(false);
     } else if (dropdown === 'team') {
       this.openTeamDropdown.update((val) => !val);
+      this.openEmployeeDropdown.set(false);
       this.openServiceDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
       this.openContractTypeDropdown.set(false);
       this.openProfileDropdown.set(false);
     } else if (dropdown === 'work_site') {
       this.openWorkSiteDropdown.update((val) => !val);
+      this.openEmployeeDropdown.set(false);
       this.openServiceDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openContractTypeDropdown.set(false);
       this.openProfileDropdown.set(false);
     } else if (dropdown === 'contract_type') {
       this.openContractTypeDropdown.update((val) => !val);
+      this.openEmployeeDropdown.set(false);
       this.openServiceDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
       this.openProfileDropdown.set(false);
     } else if (dropdown === 'profile') {
       this.openProfileDropdown.update((val) => !val);
+      this.openEmployeeDropdown.set(false);
       this.openServiceDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
@@ -128,6 +159,7 @@ export class FiltersComponent implements OnInit {
     const initial = this.initialFilters();
     if (initial) {
       this.search.set(initial.search || '');
+      this.selectedEmployees.set(initial.employees || []);
       this.selectedService.set(initial.service || []);
       this.selectedTeam.set(initial.team || []);
       this.selectedWorkSite.set(initial.work_site || []);
@@ -140,6 +172,7 @@ export class FiltersComponent implements OnInit {
   onFilterChange() {
     this.filterChange.emit({
       search: this.search(),
+      employees: this.selectedEmployees(),
       service: this.selectedService(),
       team: this.selectedTeam(),
       work_site: this.selectedWorkSite(),
@@ -148,6 +181,28 @@ export class FiltersComponent implements OnInit {
       onlyActive: this.onlyActive(),
     });
   }
+
+  toggleEmployee(val: string, event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.selectedEmployees.update((vals) => (checked ? [...vals, val] : vals.filter((v) => v !== val)));
+    this.onFilterChange();
+  }
+
+  getEmployeeName(id: string): string {
+    const emp = this.employees().find((e) => e.id === id);
+    return emp ? `${emp.first_name} ${emp.last_name}` : id;
+  }
+
+  filteredEmployeesForDropdown = computed(() => {
+    const search = this.employeeSearch().toLowerCase().trim();
+    const allEmps = this.employees();
+    if (!search) return allEmps;
+    return allEmps.filter((emp) => {
+      const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
+      const company = (emp.company_name || '').toLowerCase();
+      return fullName.includes(search) || company.includes(search);
+    });
+  });
 
   toggleService(val: string, event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
@@ -181,6 +236,7 @@ export class FiltersComponent implements OnInit {
 
   clearFilter(key: keyof FilterState) {
     if (key === 'search') this.search.set('');
+    if (key === 'employees') this.selectedEmployees.set([]);
     if (key === 'service') this.selectedService.set([]);
     if (key === 'team') this.selectedTeam.set([]);
     if (key === 'work_site') this.selectedWorkSite.set([]);
@@ -192,6 +248,7 @@ export class FiltersComponent implements OnInit {
 
   resetFilters() {
     this.search.set('');
+    this.selectedEmployees.set([]);
     this.selectedService.set([]);
     this.selectedTeam.set([]);
     this.selectedWorkSite.set([]);
@@ -201,3 +258,4 @@ export class FiltersComponent implements OnInit {
     this.onFilterChange();
   }
 }
+

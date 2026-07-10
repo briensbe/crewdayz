@@ -147,6 +147,7 @@ export class DashboardComponent implements OnInit {
         const matchesCompany = normalizeString(emp.company_name).includes(query);
         if (!matchesName && !matchesCompany) return false;
       }
+      if (filters.employees && filters.employees.length > 0 && !filters.employees.includes(emp.id || '')) return false;
       if (filters.service && filters.service.length > 0 && !filters.service.includes(emp.service)) return false;
       if (filters.team && filters.team.length > 0 && !filters.team.includes(emp.team)) return false;
       if (filters.work_site && filters.work_site.length > 0 && !filters.work_site.includes(emp.work_site)) return false;

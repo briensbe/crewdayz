@@ -19,6 +19,73 @@
       </div>
     </div>
 
+    <!-- Collaborator Dropdown -->
+    <div class="filter-item">
+      <div
+        class="custom-select-trigger"
+        (click)="toggleDropdown('employee', $event)"
+        [class.active]="openEmployeeDropdown()"
+      >
+        <span class="filter-title">Collaborateurs</span>
+        <span class="chip-list">
+          @if (selectedEmployees().length === 0) {
+            <span class="chip placeholder">Tous</span>
+          } @else if (selectedEmployees().length === 1) {
+            <span class="chip">{{ getEmployeeName(selectedEmployees()[0]) }}</span>
+          } @else {
+            <span class="chip">{{ selectedEmployees().length }} sél.</span>
+          }
+        </span>
+      </div>
+      @if (openEmployeeDropdown()) {
+        <div class="filters-dropdown" (click)="$event.stopPropagation()">
+          <div class="dropdown-header">
+            <span>{{ selectedEmployees().length }} sélectionné(s)</span>
+            @if (selectedEmployees().length > 0) {
+              <button
+                class="btn-clear"
+                type="button"
+                (click)="selectedEmployees.set([]); onFilterChange(); $event.stopPropagation()"
+              >
+                Effacer
+              </button>
+            }
+          </div>
+          <!-- Internal Search -->
+          <div class="dropdown-search">
+            <lucide-icon [img]="Search" class="dropdown-search-icon" size="14"></lucide-icon>
+            <input
+              type="text"
+              class="dropdown-search-input"
+              [ngModel]="employeeSearch()"
+              (ngModelChange)="employeeSearch.set($event)"
+              placeholder="Rechercher..."
+              (click)="$event.stopPropagation()"
+            />
+            @if (employeeSearch()) {
+              <button class="dropdown-search-clear-btn" (click)="employeeSearch.set('')" type="button">
+                <lucide-icon [img]="X" size="12"></lucide-icon>
+              </button>
+            }
+          </div>
+          <div class="dropdown-list">
+            @for (emp of filteredEmployeesForDropdown(); track emp.id) {
+              <label class="dropdown-item">
+                <input
+                  type="checkbox"
+                  [checked]="selectedEmployees().includes(emp.id || '')"
+                  (change)="toggleEmployee(emp.id || '', $event)"
+                />
+                <span class="item-label">{{ emp.first_name }} {{ emp.last_name }}</span>
+              </label>
+            } @empty {
+              <div class="dropdown-empty">Aucun résultat</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
     <!-- Service Dropdown -->
     <div class="filter-item">
       <div

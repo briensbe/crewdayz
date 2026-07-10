@@ -41,6 +41,7 @@
 
   <!-- Reusable filters component -->
   <app-filters
+    [employees]="employeeService.employees()"
     [services]="services()"
     [teams]="teams()"
     [workSites]="workSites()"
