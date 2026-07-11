@@ -42,6 +42,19 @@ export const routes: Routes = [
         path: 'audit',
         loadComponent: () => import('./views/audit-view/audit-view.component').then((m) => m.AuditViewComponent),
       },
+      {
+        path: 'suggestions',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./views/feedback/feedback.component').then((m) => m.FeedbackComponent),
+          },
+          {
+            path: '**',
+            loadComponent: () => import('./views/feedback/feedback.component').then((m) => m.FeedbackComponent),
+          }
+        ]
+      },
       { path: 'profile', component: ProfileComponent },
     ],
   },

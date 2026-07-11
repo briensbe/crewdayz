@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Umbrella,
   History,
+  MessageSquare,
 } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
 import { ReleaseNotesService } from '../../services/release-notes.service';
@@ -46,6 +47,7 @@ export class SidebarComponent {
     { label: 'Vue Annuelle', icon: Layers, route: '/annuel' },
     { label: 'Vacances Scolaires', icon: Umbrella, route: '/vacances' },
     { label: "Historique d'Audit", icon: History, route: '/audit' },
+    { label: 'Suggestions', icon: MessageSquare, route: '/suggestions' },
     { label: 'Mon Profil', icon: User, route: '/profile' },
   ];
 
