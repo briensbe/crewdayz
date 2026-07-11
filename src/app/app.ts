@@ -5,6 +5,7 @@ import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { SidebarService } from './services/sidebar.service';
 import { SupabaseService } from './services/supabase.service';
 import { ReleaseNotesComponent } from './shared/release-notes/release-notes.component';
+import { JiraCollectorService } from './services/jira-collector.service';
 
 @Component({
   selector: 'app-root',
@@ -17,12 +18,18 @@ export class App {
   protected readonly sidebarService = inject(SidebarService);
   protected readonly supabaseService = inject(SupabaseService);
   private readonly router = inject(Router);
+  private readonly jiraCollectorService = inject(JiraCollectorService);
 
   constructor() {
     // Watch for authentication changes globally
     effect(() => {
       const user = this.supabaseService.user();
-      if (!user) {
+      if (user) {
+        // Load Jira issue collector for authenticated users
+        this.jiraCollectorService.loadAndShow().catch((err) => {
+          console.warn('Jira Issue Collector load failed:', err);
+        });
+      } else {
         const currentUrl = this.router.url;
         const publicRoutes = ['/login', '/signup', '/forgot-password', '/update-password'];
         const isPublic = publicRoutes.some((route) => currentUrl.includes(route));
