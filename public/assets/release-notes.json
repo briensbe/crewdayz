@@ -1,5 +1,15 @@
 [
   {
+    "version": "2026.07.15",
+    "date": "2026-07-15",
+    "news": [
+      {
+        "title": "Correction bug pagination",
+        "items": ["Correction d'un bug d'affichage des absences, pour cause d'absence de tri avant la pagination."]
+      }
+    ]
+  },
+  {
     "version": "2026.07.11",
     "date": "2026-07-11",
     "news": [

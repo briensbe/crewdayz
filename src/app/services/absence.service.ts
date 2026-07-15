@@ -113,7 +113,13 @@ export class AbsenceService implements OnDestroy {
       const endOfYear = `${year}-12-31`;
 
       const allAbsences = await paginateQuery<Absence>(() =>
-        this.supabase.client.from('cd_absences').select('*').gte('date', startOfYear).lte('date', endOfYear),
+        this.supabase.client
+          .from('cd_absences')
+          .select('*')
+          .gte('date', startOfYear)
+          .lte('date', endOfYear)
+          .order('date', { ascending: true })
+          .order('id', { ascending: true }),
       );
 
       //console.log(`[AbsenceService] Fetched ${allAbsences.length} absences for ${year}`);

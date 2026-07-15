@@ -155,6 +155,7 @@ export class EmployeeService implements OnDestroy {
           )
           .order('last_name', { ascending: true })
           .order('first_name', { ascending: true })
+          .order('id', { ascending: true })
       );
       this._employees.set(list);
       return list;

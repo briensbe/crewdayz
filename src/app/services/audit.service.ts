@@ -33,6 +33,7 @@ export class AuditService {
           `,
           )
           .order('changed_at', { ascending: false })
+          .order('id', { ascending: true })
       );
       this._logs.set(list);
       return list;
