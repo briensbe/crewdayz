@@ -5,6 +5,9 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:github": "ng build --base-href \"/crewdayz/\" --configuration production",
+    "deploy:github": "angular-cli-ghpages --dir=dist/crewdayz/browser",
+    "deploy": "pnpm run build:github && pnpm run deploy:github",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
