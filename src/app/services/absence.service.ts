@@ -126,6 +126,8 @@ export class AbsenceService implements OnDestroy {
             .order('date', { ascending: true })
             .order('id', { ascending: true }),
         {
+          limit: 1000,
+          maxIterations: 200,
           onWarning: (msg) => this.toastService.warning(`Attention (Absences) : ${msg}`),
         }
       );

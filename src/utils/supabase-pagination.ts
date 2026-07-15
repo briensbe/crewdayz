@@ -7,19 +7,15 @@ export interface PaginateOptions {
 /**
  * Executes a Supabase query with pagination loop using `.range()` to bypass the 1000 row limit.
  * @param queryFn A function returning a fresh query builder.
- * @param optionsOrLimit Configuration options or the limit page size.
+ * @param options Configuration options.
  */
 export async function paginateQuery<T>(
   queryFn: () => any,
-  optionsOrLimit?: number | PaginateOptions
+  options?: PaginateOptions
 ): Promise<T[]> {
-  const options = typeof optionsOrLimit === 'number' 
-    ? { limit: optionsOrLimit } 
-    : (optionsOrLimit ?? {});
-
-  const limit = options.limit ?? 1000;
-  const maxIterations = options.maxIterations ?? 200;
-  const onWarning = options.onWarning;
+  const limit = options?.limit ?? 1000;
+  const maxIterations = options?.maxIterations ?? 200;
+  const onWarning = options?.onWarning;
 
   let allData: T[] = [];
   let from = 0;
