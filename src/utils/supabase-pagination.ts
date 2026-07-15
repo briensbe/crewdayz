@@ -11,8 +11,22 @@ export async function paginateQuery<T>(queryFn: () => any, limit: number = 1000)
   let hasMore = true;
   const seenIds = new Set<any>();
   let hasSignaledDuplicate = false;
+  
+  let iterations = 0;
+  const MAX_ITERATIONS = 200; // Limite de sécurité (ex: 200 000 lignes max)
 
   while (hasMore) {
+    iterations++;
+    if (iterations > MAX_ITERATIONS) {
+      const errMsg = `Limite de sécurité dépassée (${MAX_ITERATIONS} pages). Requête interrompue pour éviter une boucle infinie.`;
+      console.error(`[Supabase Pagination Error] ${errMsg}`);
+      const toastService = ToastService.getInstance();
+      if (toastService) {
+        toastService.error(errMsg);
+      }
+      break;
+    }
+
     const { data, error } = await queryFn().range(from, from + limit - 1);
     if (error) throw error;
     if (data && data.length > 0) {
