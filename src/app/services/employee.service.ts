@@ -3,6 +3,7 @@ import { SupabaseService } from './supabase.service';
 import { Employee, EmployeeBalance } from '../models/types';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { paginateQuery } from '../../utils/supabase-pagination';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,10 @@ export class EmployeeService implements OnDestroy {
 
   private realtimeChannel: RealtimeChannel | null = null;
 
-  constructor(private supabase: SupabaseService) {
+  constructor(
+    private supabase: SupabaseService,
+    private toastService: ToastService
+  ) {
     this.setupRealtimeSubscription();
   }
 
@@ -144,23 +148,28 @@ export class EmployeeService implements OnDestroy {
   async fetchEmployees(): Promise<Employee[]> {
     this._loading.set(true);
     try {
-      const list = await paginateQuery<Employee>(() =>
-        this.supabase.client
-          .from('cd_employees')
-          .select(
-            `
-            *,
-            cd_employee_balances (*)
-          `,
-          )
-          .order('last_name', { ascending: true })
-          .order('first_name', { ascending: true })
-          .order('id', { ascending: true })
+      const list = await paginateQuery<Employee>(
+        () =>
+          this.supabase.client
+            .from('cd_employees')
+            .select(
+              `
+              *,
+              cd_employee_balances (*)
+            `,
+            )
+            .order('last_name', { ascending: true })
+            .order('first_name', { ascending: true })
+            .order('id', { ascending: true }),
+        {
+          onWarning: (msg) => this.toastService.warning(`Attention (Employés) : ${msg}`),
+        }
       );
       this._employees.set(list);
       return list;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching employees:', err);
+      this.toastService.error(`Erreur de récupération des employés : ${err.message || err}`);
       throw err;
     } finally {
       this._loading.set(false);

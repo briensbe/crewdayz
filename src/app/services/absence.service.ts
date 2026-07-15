@@ -3,6 +3,7 @@ import { SupabaseService } from './supabase.service';
 import { Absence } from '../models/types';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { paginateQuery } from '../../utils/supabase-pagination';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,10 @@ export class AbsenceService implements OnDestroy {
   private realtimeChannel: RealtimeChannel | null = null;
   private currentYear: number | null = null;
 
-  constructor(private supabase: SupabaseService) {
+  constructor(
+    private supabase: SupabaseService,
+    private toastService: ToastService
+  ) {
     this.setupRealtimeSubscription();
   }
 
@@ -112,21 +116,26 @@ export class AbsenceService implements OnDestroy {
       const startOfYear = `${year}-01-01`;
       const endOfYear = `${year}-12-31`;
 
-      const allAbsences = await paginateQuery<Absence>(() =>
-        this.supabase.client
-          .from('cd_absences')
-          .select('*')
-          .gte('date', startOfYear)
-          .lte('date', endOfYear)
-          .order('date', { ascending: true })
-          .order('id', { ascending: true }),
+      const allAbsences = await paginateQuery<Absence>(
+        () =>
+          this.supabase.client
+            .from('cd_absences')
+            .select('*')
+            .gte('date', startOfYear)
+            .lte('date', endOfYear)
+            .order('date', { ascending: true })
+            .order('id', { ascending: true }),
+        {
+          onWarning: (msg) => this.toastService.warning(`Attention (Absences) : ${msg}`),
+        }
       );
 
       //console.log(`[AbsenceService] Fetched ${allAbsences.length} absences for ${year}`);
       this._absences.set(allAbsences);
       return allAbsences;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching absences:', err);
+      this.toastService.error(`Erreur de récupération des absences : ${err.message || err}`);
       throw err;
     } finally {
       this._loading.set(false);

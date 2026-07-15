@@ -1,11 +1,26 @@
-import { ToastService } from '../app/services/toast.service';
+export interface PaginateOptions {
+  limit?: number;
+  maxIterations?: number;
+  onWarning?: (message: string) => void;
+}
 
 /**
  * Executes a Supabase query with pagination loop using `.range()` to bypass the 1000 row limit.
  * @param queryFn A function returning a fresh query builder.
- * @param limit The page size (default 1000)
+ * @param optionsOrLimit Configuration options or the limit page size.
  */
-export async function paginateQuery<T>(queryFn: () => any, limit: number = 1000): Promise<T[]> {
+export async function paginateQuery<T>(
+  queryFn: () => any,
+  optionsOrLimit?: number | PaginateOptions
+): Promise<T[]> {
+  const options = typeof optionsOrLimit === 'number' 
+    ? { limit: optionsOrLimit } 
+    : (optionsOrLimit ?? {});
+
+  const limit = options.limit ?? 1000;
+  const maxIterations = options.maxIterations ?? 200;
+  const onWarning = options.onWarning;
+
   let allData: T[] = [];
   let from = 0;
   let hasMore = true;
@@ -13,18 +28,13 @@ export async function paginateQuery<T>(queryFn: () => any, limit: number = 1000)
   let hasSignaledDuplicate = false;
   
   let iterations = 0;
-  const MAX_ITERATIONS = 200; // Limite de sécurité (ex: 200 000 lignes max)
 
   while (hasMore) {
     iterations++;
-    if (iterations > MAX_ITERATIONS) {
-      const errMsg = `Limite de sécurité dépassée (${MAX_ITERATIONS} pages). Requête interrompue pour éviter une boucle infinie.`;
+    if (iterations > maxIterations) {
+      const errMsg = `Safety limit exceeded (${maxIterations} pages). Query aborted to prevent an infinite loop.`;
       console.error(`[Supabase Pagination Error] ${errMsg}`);
-      const toastService = ToastService.getInstance();
-      if (toastService) {
-        toastService.error(errMsg);
-      }
-      break;
+      throw new Error(errMsg);
     }
 
     const { data, error } = await queryFn().range(from, from + limit - 1);
@@ -35,14 +45,12 @@ export async function paginateQuery<T>(queryFn: () => any, limit: number = 1000)
         if (item && typeof item === 'object' && 'id' in item) {
           const itemId = (item as any).id;
           if (seenIds.has(itemId)) {
-            console.warn(`[Supabase Pagination Warning] Duplicate ID detected: ${itemId}. The query may lack a stable .order() clause.`);
+            const warningMsg = `Duplicate ID detected: ${itemId}. The query may lack a stable .order() clause.`;
+            console.warn(`[Supabase Pagination Warning] ${warningMsg}`);
             if (!hasSignaledDuplicate) {
               hasSignaledDuplicate = true;
-              const toastService = ToastService.getInstance();
-              if (toastService) {
-                toastService.warning(
-                  `Attention : Des doublons d'identifiants (${itemId}) ont été détectés lors de la récupération des données. La clause .order() de tri stable est probablement absente ou incomplète sur cette requête.`
-                );
+              if (onWarning) {
+                onWarning(warningMsg);
               }
             }
           }
