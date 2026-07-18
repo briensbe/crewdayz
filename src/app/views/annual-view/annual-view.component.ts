@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, ChevronLeft, ChevronRight, BarChart3, Info, ArrowUp, ArrowDown, ArrowUpDown, Download, ChevronDown } from 'lucide-angular';
+import { LucideAngularModule, ChevronLeft, ChevronRight, BarChart3, Info, ArrowUp, ArrowDown, ArrowUpDown, Download, ChevronDown, Settings } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
 import { Employee, Absence, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
@@ -55,9 +55,11 @@ export class AnnualViewComponent implements OnInit {
   readonly ArrowUpDown = ArrowUpDown;
   readonly Download = Download;
   readonly ChevronDown = ChevronDown;
+  readonly Settings = Settings;
 
   // Export state
   showExportDropdown = signal<boolean>(false);
+  showNameFormatPopover = signal<boolean>(false);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
@@ -65,10 +67,18 @@ export class AnnualViewComponent implements OnInit {
     if (!target.closest('.export-dropdown-container')) {
       this.showExportDropdown.set(false);
     }
+    if (!target.closest('.name-format-popover-container')) {
+      this.showNameFormatPopover.set(false);
+    }
   }
 
   toggleExportDropdown() {
     this.showExportDropdown.update((v) => !v);
+  }
+
+  toggleNameFormatPopover(event: MouseEvent) {
+    event.stopPropagation();
+    this.showNameFormatPopover.update((v) => !v);
   }
 
   // Active Year State
@@ -77,6 +87,7 @@ export class AnnualViewComponent implements OnInit {
   // Sort State
   sortField = storageSignal<EmployeeSortField>('crewdayz_annual_list_sort_field', 'name');
   sortDirection = storageSignal<'asc' | 'desc'>('crewdayz_annual_list_sort_direction', 'asc');
+  nameDisplayFormat = storageSignal<'last_first' | 'first_last'>('crewdayz_annual_name_display_format', 'last_first');
 
   toggleSort(field: EmployeeSortField) {
     if (this.sortField() === field) {
@@ -207,8 +218,12 @@ export class AnnualViewComponent implements OnInit {
       let comparison = 0;
       switch (field) {
         case 'name': {
-          const nameA = `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase();
-          const nameB = `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase();
+          const nameA = this.nameDisplayFormat() === 'last_first'
+            ? `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase()
+            : `${a.first_name || ''} ${a.last_name || ''}`.toLowerCase();
+          const nameB = this.nameDisplayFormat() === 'last_first'
+            ? `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase()
+            : `${b.first_name || ''} ${b.last_name || ''}`.toLowerCase();
           comparison = nameA.localeCompare(nameB, 'fr', { sensitivity: 'base' });
           break;
         }
@@ -407,8 +422,12 @@ export class AnnualViewComponent implements OnInit {
 
       // Sort by name
       const sortedActive = [...allActiveEmps].sort((a, b) => {
-        const nameA = `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase();
-        const nameB = `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase();
+        const nameA = this.nameDisplayFormat() === 'last_first'
+          ? `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase()
+          : `${a.first_name || ''} ${a.last_name || ''}`.toLowerCase();
+        const nameB = this.nameDisplayFormat() === 'last_first'
+          ? `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase()
+          : `${b.first_name || ''} ${b.last_name || ''}`.toLowerCase();
         return nameA.localeCompare(nameB, 'fr', { sensitivity: 'base' });
       });
 
@@ -417,8 +436,9 @@ export class AnnualViewComponent implements OnInit {
 
     // Map to worksheet format
     const data = rowsToExport.map((r) => ({
-      'Collaborateur': `${(r.employee.last_name || '').toUpperCase()} ${r.employee.first_name}`,
-      'Collaborateur (Prénom NOM)': `${r.employee.first_name} ${(r.employee.last_name || '').toUpperCase()}`,
+      'Collaborateur': this.nameDisplayFormat() === 'last_first'
+        ? `${(r.employee.last_name || '').toUpperCase()} ${r.employee.first_name}`
+        : `${r.employee.first_name} ${(r.employee.last_name || '').toUpperCase()}`,
       'Service': r.employee.service || '',
       'Équipe': r.employee.team || '',
       'Site': r.employee.work_site || '',
@@ -454,7 +474,6 @@ export class AnnualViewComponent implements OnInit {
 
     data.push({
       'Collaborateur': 'TOTAL CUMULÉ',
-      'Collaborateur (Prénom NOM)': '',
       'Service': '',
       'Équipe': '',
       'Site': '',

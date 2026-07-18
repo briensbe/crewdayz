@@ -100,16 +100,51 @@
                     size="14"
                   ></lucide-icon>
                 </div>
-                <button
-                  type="button"
-                  class="collapse-toggle-btn"
-                  (click)="toggleColumns(); $event.stopPropagation()"
-                  [title]="
-                    showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'
-                  "
-                >
-                  <lucide-icon [img]="showColumns() ? ChevronLeft : ChevronRight" size="14"></lucide-icon>
-                </button>
+
+                <div class="header-actions-wrapper">
+                  <!-- Format selection popover button -->
+                  <div class="name-format-popover-container">
+                    <button 
+                      type="button" 
+                      class="name-format-popover-btn" 
+                      (click)="toggleNameFormatPopover($event)" 
+                      title="Options d'affichage du nom"
+                    >
+                      <lucide-icon [img]="Settings" size="14"></lucide-icon>
+                    </button>
+                    @if (showNameFormatPopover()) {
+                      <div class="name-format-popover-menu">
+                        <button 
+                          type="button" 
+                          class="popover-item" 
+                          [class.active]="nameDisplayFormat() === 'last_first'"
+                          (click)="nameDisplayFormat.set('last_first'); showNameFormatPopover.set(false)"
+                        >
+                          NOM Prénom
+                        </button>
+                        <button 
+                          type="button" 
+                          class="popover-item" 
+                          [class.active]="nameDisplayFormat() === 'first_last'"
+                          (click)="nameDisplayFormat.set('first_last'); showNameFormatPopover.set(false)"
+                        >
+                          Prénom NOM
+                        </button>
+                      </div>
+                    }
+                  </div>
+
+                  <button
+                    type="button"
+                    class="collapse-toggle-btn"
+                    (click)="toggleColumns(); $event.stopPropagation()"
+                    [title]="
+                      showColumns() ? 'Masquer Service, Équipe, Site, Type' : 'Afficher Service, Équipe, Site, Type'
+                    "
+                  >
+                    <lucide-icon [img]="showColumns() ? ChevronLeft : ChevronRight" size="14"></lucide-icon>
+                  </button>
+                </div>
               </div>
             </th>
             <th
@@ -197,7 +232,11 @@
               [style.min-width.px]="nameColWidth()"
               [style.max-width.px]="nameColWidth()"
             >
-              {{ row.employee.last_name.toUpperCase() }} {{ row.employee.first_name }}
+              @if (nameDisplayFormat() === 'last_first') {
+                {{ row.employee.last_name.toUpperCase() }} {{ row.employee.first_name }}
+              } @else {
+                {{ row.employee.first_name }} {{ row.employee.last_name.toUpperCase() }}
+              }
             </td>
             <td
               *ngIf="showServiceCol()"
