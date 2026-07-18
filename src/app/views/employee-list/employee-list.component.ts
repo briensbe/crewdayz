@@ -18,6 +18,7 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  Settings,
 } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
@@ -99,6 +100,9 @@ export class EmployeeListComponent implements OnInit {
         this.cancelInlineEdit();
       }
     }
+    if (!target.closest('.name-format-popover-container')) {
+      this.showNameFormatPopover.set(false);
+    }
   }
 
   // Services and dependencies
@@ -115,6 +119,16 @@ export class EmployeeListComponent implements OnInit {
   readonly ArrowUpDown = ArrowUpDown;
   readonly ArrowUp = ArrowUp;
   readonly ArrowDown = ArrowDown;
+  readonly Settings = Settings;
+
+  // Popover State
+  showNameFormatPopover = signal<boolean>(false);
+  nameDisplayFormat = storageSignal<'last_first' | 'first_last'>('crewdayz_employee_name_display_format', 'last_first');
+
+  toggleNameFormatPopover(event: MouseEvent) {
+    event.stopPropagation();
+    this.showNameFormatPopover.update((v) => !v);
+  }
 
   // Inline editing state
   editingEmployeeId = signal<string | null>(null);
@@ -242,8 +256,12 @@ export class EmployeeListComponent implements OnInit {
 
       switch (field) {
         case 'name': {
-          const nameA = `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase();
-          const nameB = `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase();
+          const nameA = this.nameDisplayFormat() === 'last_first'
+            ? `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase()
+            : `${a.first_name || ''} ${a.last_name || ''}`.toLowerCase();
+          const nameB = this.nameDisplayFormat() === 'last_first'
+            ? `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase()
+            : `${b.first_name || ''} ${b.last_name || ''}`.toLowerCase();
           comparison = nameA.localeCompare(nameB, 'fr', { sensitivity: 'base' });
           break;
         }

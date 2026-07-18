@@ -56,17 +56,52 @@
               [style.width.px]="nameColWidth()"
               [style.min-width.px]="nameColWidth()"
               [style.max-width.px]="nameColWidth()"
-              (click)="toggleSort('name')"
               class="sortable-column name-col"
             >
-              <div class="header-sort-wrapper">
-                <span>Nom complet</span>
-                <lucide-icon
-                  [img]="sortField() === 'name' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
-                  [class.active]="sortField() === 'name'"
-                  class="sort-icon"
-                  size="14"
-                ></lucide-icon>
+              <div class="name-header-content">
+                <div class="header-sort-wrapper" (click)="toggleSort('name')">
+                  <span>Nom complet</span>
+                  <lucide-icon
+                    [img]="sortField() === 'name' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                    [class.active]="sortField() === 'name'"
+                    class="sort-icon"
+                    size="14"
+                  ></lucide-icon>
+                </div>
+
+                <div class="header-actions-wrapper">
+                  <!-- Format selection popover button -->
+                  <div class="name-format-popover-container">
+                    <button 
+                      type="button" 
+                      class="name-format-popover-btn" 
+                      (click)="toggleNameFormatPopover($event)" 
+                      title="Options d'affichage du nom"
+                    >
+                      <lucide-icon [img]="Settings" size="14"></lucide-icon>
+                    </button>
+                    @if (showNameFormatPopover()) {
+                      <div class="name-format-popover-menu">
+                        <button 
+                          type="button" 
+                          class="popover-item" 
+                          [class.active]="nameDisplayFormat() === 'last_first'"
+                          (click)="nameDisplayFormat.set('last_first'); showNameFormatPopover.set(false)"
+                        >
+                          NOM Prénom
+                        </button>
+                        <button 
+                          type="button" 
+                          class="popover-item" 
+                          [class.active]="nameDisplayFormat() === 'first_last'"
+                          (click)="nameDisplayFormat.set('first_last'); showNameFormatPopover.set(false)"
+                        >
+                          Prénom NOM
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
               </div>
             </th>
             <th (click)="toggleSort('contract_type')" class="sortable-column">
@@ -156,7 +191,13 @@
                 <div class="name-cell">
                   <span class="avatar-sm">{{ emp.first_name.charAt(0) }}{{ emp.last_name.charAt(0) }}</span>
                   <div class="name-details">
-                    <span class="full-name">{{ emp.last_name.toUpperCase() }} {{ emp.first_name }}</span>
+                    <span class="full-name">
+                      @if (nameDisplayFormat() === 'last_first') {
+                        {{ emp.last_name.toUpperCase() }} {{ emp.first_name }}
+                      } @else {
+                        {{ emp.first_name }} {{ emp.last_name.toUpperCase() }}
+                      }
+                    </span>
                   </div>
                 </div>
                 @if (editingEmployeeId() === emp.id && editingField() === 'name') {

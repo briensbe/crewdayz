@@ -15,6 +15,7 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
+  Settings,
 } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
@@ -105,6 +106,16 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   readonly ArrowUp = ArrowUp;
   readonly ArrowDown = ArrowDown;
   readonly ArrowUpDown = ArrowUpDown;
+  readonly Settings = Settings;
+
+  // Popover State
+  showNameFormatPopover = signal<boolean>(false);
+  nameDisplayFormat = storageSignal<'last_first' | 'first_last'>('crewdayz_monthly_name_display_format', 'last_first');
+
+  toggleNameFormatPopover(event: MouseEvent) {
+    event.stopPropagation();
+    this.showNameFormatPopover.update((v) => !v);
+  }
 
   // Legend State
   showLegend = signal<boolean>(false);
@@ -380,8 +391,12 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
       let comparison = 0;
       switch (field) {
         case 'name': {
-          const nameA = `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase();
-          const nameB = `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase();
+          const nameA = this.nameDisplayFormat() === 'last_first'
+            ? `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase()
+            : `${a.first_name || ''} ${a.last_name || ''}`.toLowerCase();
+          const nameB = this.nameDisplayFormat() === 'last_first'
+            ? `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase()
+            : `${b.first_name || ''} ${b.last_name || ''}`.toLowerCase();
           comparison = nameA.localeCompare(nameB, 'fr', { sensitivity: 'base' });
           break;
         }
@@ -896,6 +911,14 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   }
 
   // cell hover is delegated via event delegation in ngAfterViewInit
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.name-format-popover-container')) {
+      this.showNameFormatPopover.set(false);
+    }
+  }
 
   @HostListener('document:mouseup')
   onMouseUp() {

@@ -257,6 +257,10 @@ tr:hover .sticky-col {
   z-index: 20;
 }
 
+.annual-table thead th.name-col {
+  z-index: 25;
+}
+
 /* Dynamic Last Sticky Column Border */
 .last-sticky {
   border-right: 2px solid var(--border) !important;
