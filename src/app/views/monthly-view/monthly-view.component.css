@@ -852,7 +852,7 @@ th.is-today::after {
   gap: 0.35rem;
   width: 100%;
   margin-top: -0.875rem;
-  margin-left: -0.3rem;
+  padding-left: 0.75rem;
 }
 
 .month-recall-badge {
