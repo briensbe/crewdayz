@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026.07.18",
+    "date": "2026-07-18",
+    "news": [
+      {
+        "title": "Correction Authentification google",
+        "items": [
+          "Correction d'un bug avec le HashLocationStrategy et l'authentification google. On est repassé sur le PathLocationStrategy, et en plus on a activé le flux PKCE."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.07.15",
     "date": "2026-07-15",
     "news": [

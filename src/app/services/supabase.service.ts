@@ -39,17 +39,47 @@ export class SupabaseService {
       },
       auth: {
         lock: (name, acquireTimeout, acquireFn) => this.safeLock(name, acquireFn),
+        flowType: 'pkce',
       },
     });
 
     this.initializeAuthListener();
 
-    // Initial session load to populate user signal immediately
-    this.supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        this._user.set(session.user);
-      }
+    // Handle PKCE code exchange if present in URL, then load initial session
+    this.handlePkceCallback().finally(() => {
+      // Initial session load to populate user signal immediately
+      this.supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          this._user.set(session.user);
+        }
+      });
     });
+  }
+
+  /**
+   * Handle PKCE code exchange from URL query parameters and clean up the URL
+   */
+  private async handlePkceCallback() {
+    if (typeof window !== 'undefined' && window.location) {
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get('code');
+      if (code) {
+        try {
+          const { data, error } = await this.supabase.auth.exchangeCodeForSession(code);
+          if (error) {
+            console.error('Error exchanging PKCE code for session:', error);
+          } else if (data?.session?.user) {
+            this._user.set(data.session.user);
+          }
+        } catch (err) {
+          console.error('Unexpected error during PKCE code exchange:', err);
+        } finally {
+          // Clean the code parameter from URL
+          url.searchParams.delete('code');
+          window.history.replaceState({}, document.title, url.toString());
+        }
+      }
+    }
   }
 
   private async safeLock<T>(name: string, acquireFn: () => Promise<T>, retries = 5, delayMs = 50): Promise<T> {
