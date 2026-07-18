@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Crewdayz</title>
+    <script type="text/javascript">
+      // Script de redirection Single Page App pour GitHub Pages
+      // Détermine dynamiquement si l'application est hébergée sur un sous-dossier (ex: github.io/crewdayz/)
+      // ou à la racine d'un domaine (ex: domaine.com).
+      var pathSegmentsToKeep = window.location.hostname.indexOf('github.io') !== -1 ? 1 : 0;
+
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?p=' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
