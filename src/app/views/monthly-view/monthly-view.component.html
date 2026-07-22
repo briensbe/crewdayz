@@ -448,7 +448,9 @@
             <tr>
               <th class="profile-header-col">Profil</th>
               @for (week of weeksInMonth(); track week.weekNum) {
-                <th class="text-center week-header-col">S{{ week.weekNum }}</th>
+                <th class="text-center week-header-col">
+                  S{{ week.weekNum }} <span class="week-start-date">({{ week.startDateFormatted }})</span>
+                </th>
               }
             </tr>
           </thead>

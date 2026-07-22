@@ -52,6 +52,14 @@ function getISOWeek(date: Date): number {
   return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
+function getMondayOfWeek(date: Date): Date {
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const dayOfWeek = d.getDay();
+  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  d.setDate(d.getDate() + diffToMonday);
+  return d;
+}
+
 export type EmployeeSortField = 'name' | 'contract_type' | 'service' | 'team' | 'work_site';
 
 @Component({
@@ -295,25 +303,41 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   });
 
   // Calculate weeks in the month for colspan headers
-  weeksInMonth = computed<{ weekNum: number; colSpan: number }[]>(() => {
+  weeksInMonth = computed<{ weekNum: number; colSpan: number; startDateFormatted: string }[]>(() => {
     const days = this.daysInMonth();
     if (days.length === 0) return [];
 
-    const weeks: { weekNum: number; colSpan: number }[] = [];
+    const weeks: { weekNum: number; colSpan: number; startDateFormatted: string }[] = [];
     let currentWeekNum = days[0].weekNum;
     let currentSpan = 0;
+    let currentStartDay = days[0];
 
     for (const day of days) {
       if (day.weekNum === currentWeekNum) {
         currentSpan++;
       } else {
-        weeks.push({ weekNum: currentWeekNum, colSpan: currentSpan });
+        const monday = getMondayOfWeek(currentStartDay.date);
+        const dd = String(monday.getDate()).padStart(2, '0');
+        const mm = String(monday.getMonth() + 1).padStart(2, '0');
+        weeks.push({
+          weekNum: currentWeekNum,
+          colSpan: currentSpan,
+          startDateFormatted: `${dd}/${mm}`,
+        });
         currentWeekNum = day.weekNum;
         currentSpan = 1;
+        currentStartDay = day;
       }
     }
     if (currentSpan > 0) {
-      weeks.push({ weekNum: currentWeekNum, colSpan: currentSpan });
+      const monday = getMondayOfWeek(currentStartDay.date);
+      const dd = String(monday.getDate()).padStart(2, '0');
+      const mm = String(monday.getMonth() + 1).padStart(2, '0');
+      weeks.push({
+        weekNum: currentWeekNum,
+        colSpan: currentSpan,
+        startDateFormatted: `${dd}/${mm}`,
+      });
     }
     return weeks;
   });
