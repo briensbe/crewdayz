@@ -1,4 +1,8 @@
-# Règles de pagination et tri stable
+# Règles de codage et de sécurité du projet
+
+## Sécurité & Clés API / Identifiants
+- **Règle :** Ne JAMAIS écrire, coder en dur ou insérer de variables d'environnement de type clé d'API, token ou secret directement dans les fichiers de code source ou les scripts (scripts de test, migrations, utilitaires).
+- **Action :** Importer et utiliser systématiquement la configuration dynamique issue des fichiers d'environnement dédiés (ex: `src/environments/environment.ts`, `environment.prod.ts` ou fichiers `.env`).
 
 ## Supabase / PostgreSQL Pagination & Stable Order
 - **Règle :** Chaque fois que des requêtes Supabase sont paginées (via offset, range, limit ou via la fonction utilitaire `paginateQuery`), il est obligatoire d'inclure une clause de tri `.order()` déterministe et unique AVANT le `.range()` (ex: trier par clé primaire `id` ou inclure l'index unique en fin de chaîne).
