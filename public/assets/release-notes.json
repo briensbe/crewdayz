@@ -1,5 +1,26 @@
 [
   {
+    "version": "2026.07.30",
+    "date": "2026-07-30",
+    "news": [
+      {
+        "title": "Émetteur HTTP Webhook Asynchrone (Intégration Roadmap)",
+        "items": [
+          "Notification automatique de Roadmap lors de la création, modification ou suppression d'absences (cd_absences) ou de collaborateurs/équipes (cd_employees).",
+          "Émission HTTP asynchrone non-bloquante via l'extension PostgreSQL pg_net sans ralentir l'application.",
+          "Sécurisation stricte de l'URL et du jeton Bearer Token via Supabase Vault (vault.decrypted_secrets)."
+        ]
+      },
+      {
+        "title": "Performances & Throttle Réseau à la Source",
+        "items": [
+          "Déclencheurs SQL par instruction (FOR EACH STATEMENT) et suivi d'état dans cd_webhook_state.",
+          "Filtrage anti-rafales à la source : Si plusieurs absences sont saisies en masse, 1 seule requête HTTP est transmise sur le réseau (< 2s)."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.07.18",
     "date": "2026-07-18",
     "news": [
