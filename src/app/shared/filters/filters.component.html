@@ -332,8 +332,78 @@
       </div>
     }
 
+    <!-- Pinned / Hors Filtre Dropdown -->
+    <div class="filter-item pinned-item">
+      <div
+        class="custom-select-trigger pinned-trigger"
+        (click)="toggleDropdown('pinned', $event)"
+        [class.active]="openPinnedDropdown()"
+      >
+        <span class="filter-title">
+          <lucide-icon [img]="Pin" size="10" class="pinned-title-icon"></lucide-icon>
+          Hors filtre
+        </span>
+        <span class="chip-list">
+          @if (selectedPinnedEmployees().length === 0) {
+            <span class="chip placeholder">+ Ajouter...</span>
+          } @else if (selectedPinnedEmployees().length === 1) {
+            <span class="chip pinned-chip">{{ getEmployeeName(selectedPinnedEmployees()[0]) }}</span>
+          } @else {
+            <span class="chip pinned-chip">{{ selectedPinnedEmployees().length }} ajoutés</span>
+          }
+        </span>
+      </div>
+      @if (openPinnedDropdown()) {
+        <div class="filters-dropdown" (click)="$event.stopPropagation()">
+          <div class="dropdown-header">
+            <span>{{ selectedPinnedEmployees().length }} sélectionné(s)</span>
+            @if (selectedPinnedEmployees().length > 0) {
+              <button
+                class="btn-clear"
+                type="button"
+                (click)="clearPinnedEmployees(); $event.stopPropagation()"
+              >
+                Effacer
+              </button>
+            }
+          </div>
+          <!-- Internal Search -->
+          <div class="dropdown-search">
+            <lucide-icon [img]="Search" class="dropdown-search-icon" size="14"></lucide-icon>
+            <input
+              type="text"
+              class="dropdown-search-input"
+              [ngModel]="pinnedSearch()"
+              (ngModelChange)="pinnedSearch.set($event)"
+              placeholder="Rechercher une personne à ajouter..."
+              (click)="$event.stopPropagation()"
+            />
+            @if (pinnedSearch()) {
+              <button class="dropdown-search-clear-btn" (click)="pinnedSearch.set('')" type="button">
+                <lucide-icon [img]="X" size="12"></lucide-icon>
+              </button>
+            }
+          </div>
+          <div class="dropdown-list">
+            @for (emp of filteredEmployeesForPinnedDropdown(); track emp.id) {
+              <label class="dropdown-item">
+                <input
+                  type="checkbox"
+                  [checked]="selectedPinnedEmployees().includes(emp.id || '')"
+                  (change)="togglePinnedEmployee(emp.id || '', $event)"
+                />
+                <span class="item-label">{{ emp.last_name.toUpperCase() }} {{ emp.first_name }}</span>
+              </label>
+            } @empty {
+              <div class="dropdown-empty">Aucun résultat</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
     <!-- Reset Button -->
-    @if (search() || selectedService().length > 0 || selectedTeam().length > 0 || selectedWorkSite().length > 0 || selectedContractType().length > 0 || selectedProfile().length > 0 || !onlyActive()) {
+    @if (search() || selectedEmployees().length > 0 || selectedPinnedEmployees().length > 0 || selectedService().length > 0 || selectedTeam().length > 0 || selectedWorkSite().length > 0 || selectedContractType().length > 0 || selectedProfile().length > 0 || !onlyActive()) {
       <div class="filter-item actions-item">
         <button class="btn btn-outline btn-reset" (click)="resetFilters()" type="button">
           <lucide-icon [img]="X" size="16"></lucide-icon>
@@ -355,21 +425,38 @@
     </label>
   </div>
 
-  <!-- Active Filter Badges inside the Filters Card -->
-  @if (activeFilterLabels().length > 0) {
+  <!-- Active Filter & Pinned Badges inside the Filters Card -->
+  @if (activeFilterLabels().length > 0 || pinnedEmployeeItems().length > 0) {
     <div class="active-filters-row">
-      <span class="active-filters-label">Filtres appliqués :</span>
-      <div class="active-filters-list">
-        @for (pill of activeFilterLabels(); track pill.key) {
-          <span class="filter-pill">
-            <span class="filter-pill-name">{{ pill.label }} :</span>
-            <span class="filter-pill-val">{{ pill.value }}</span>
-            <button class="filter-pill-close" (click)="clearFilter(pill.key)" title="Enlever ce filtre">
-              <lucide-icon [img]="X" size="12"></lucide-icon>
-            </button>
-          </span>
-        }
-      </div>
+      @if (activeFilterLabels().length > 0) {
+        <span class="active-filters-label">Filtres appliqués :</span>
+        <div class="active-filters-list">
+          @for (pill of activeFilterLabels(); track pill.key) {
+            <span class="filter-pill">
+              <span class="filter-pill-name">{{ pill.label }} :</span>
+              <span class="filter-pill-val">{{ pill.value }}</span>
+              <button class="filter-pill-close" (click)="clearFilter(pill.key)" title="Enlever ce filtre">
+                <lucide-icon [img]="X" size="12"></lucide-icon>
+              </button>
+            </span>
+          }
+        </div>
+      }
+
+      @if (pinnedEmployeeItems().length > 0) {
+        <span class="active-filters-label pinned-label">Hors filtre :</span>
+        <div class="active-filters-list">
+          @for (item of pinnedEmployeeItems(); track item.id) {
+            <span class="filter-pill pinned-pill">
+              <lucide-icon [img]="Pin" size="12" class="pinned-icon-small"></lucide-icon>
+              <span class="filter-pill-val">{{ item.name }}</span>
+              <button class="filter-pill-close" (click)="unpinEmployee(item.id)" title="Retirer cette personne">
+                <lucide-icon [img]="X" size="12"></lucide-icon>
+              </button>
+            </span>
+          }
+        </div>
+      }
     </div>
   }
 </div>

@@ -147,148 +147,171 @@
                 </div>
               </div>
             </th>
-            <th
-              *ngIf="showServiceCol()"
-              class="sticky-col service-col sortable-column"
-              [class.last-sticky]="lastVisibleStickyCol() === 'service'"
-              [style.left.px]="nameColWidth()"
-              (click)="toggleSort('service')"
-            >
-              <div class="header-sort-wrapper">
-                <span>Service</span>
-                <lucide-icon
-                  [img]="sortField() === 'service' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
-                  [class.active]="sortField() === 'service'"
-                  class="sort-icon"
-                  size="14"
-                ></lucide-icon>
-              </div>
-            </th>
-            <th
-              *ngIf="showTeamCol()"
-              class="sticky-col team-col sortable-column"
-              [class.last-sticky]="lastVisibleStickyCol() === 'team'"
-              [style.left]="teamColLeft()"
-              (click)="toggleSort('team')"
-            >
-              <div class="header-sort-wrapper">
-                <span>Équipe</span>
-                <lucide-icon
-                  [img]="sortField() === 'team' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
-                  [class.active]="sortField() === 'team'"
-                  class="sort-icon"
-                  size="14"
-                ></lucide-icon>
-              </div>
-            </th>
-            <th
-              *ngIf="showSiteCol()"
-              class="sticky-col site-col sortable-column"
-              [class.last-sticky]="lastVisibleStickyCol() === 'site'"
-              [style.left]="siteColLeft()"
-              (click)="toggleSort('work_site')"
-            >
-              <div class="header-sort-wrapper">
-                <span>Site</span>
-                <lucide-icon
-                  [img]="sortField() === 'work_site' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
-                  [class.active]="sortField() === 'work_site'"
-                  class="sort-icon"
-                  size="14"
-                ></lucide-icon>
-              </div>
-            </th>
-            <th
-              *ngIf="showTypeCol()"
-              class="sticky-col type-col sortable-column"
-              [class.last-sticky]="lastVisibleStickyCol() === 'type'"
-              [style.left]="typeColLeft()"
-              (click)="toggleSort('contract_type')"
-            >
-              <div class="header-sort-wrapper">
-                <span>Type</span>
-                <lucide-icon
-                  [img]="sortField() === 'contract_type' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
-                  [class.active]="sortField() === 'contract_type'"
-                  class="sort-icon"
-                  size="14"
-                ></lucide-icon>
-              </div>
-            </th>
+            @if (showServiceCol()) {
+              <th
+                class="sticky-col service-col sortable-column"
+                [class.last-sticky]="lastVisibleStickyCol() === 'service'"
+                [style.left.px]="nameColWidth()"
+                (click)="toggleSort('service')"
+              >
+                <div class="header-sort-wrapper">
+                  <span>Service</span>
+                  <lucide-icon
+                    [img]="sortField() === 'service' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                    [class.active]="sortField() === 'service'"
+                    class="sort-icon"
+                    size="14"
+                  ></lucide-icon>
+                </div>
+              </th>
+            }
+            @if (showTeamCol()) {
+              <th
+                class="sticky-col team-col sortable-column"
+                [class.last-sticky]="lastVisibleStickyCol() === 'team'"
+                [style.left]="teamColLeft()"
+                (click)="toggleSort('team')"
+              >
+                <div class="header-sort-wrapper">
+                  <span>Équipe</span>
+                  <lucide-icon
+                    [img]="sortField() === 'team' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                    [class.active]="sortField() === 'team'"
+                    class="sort-icon"
+                    size="14"
+                  ></lucide-icon>
+                </div>
+              </th>
+            }
+            @if (showSiteCol()) {
+              <th
+                class="sticky-col site-col sortable-column"
+                [class.last-sticky]="lastVisibleStickyCol() === 'site'"
+                [style.left]="siteColLeft()"
+                (click)="toggleSort('work_site')"
+              >
+                <div class="header-sort-wrapper">
+                  <span>Site</span>
+                  <lucide-icon
+                    [img]="sortField() === 'work_site' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                    [class.active]="sortField() === 'work_site'"
+                    class="sort-icon"
+                    size="14"
+                  ></lucide-icon>
+                </div>
+              </th>
+            }
+            @if (showTypeCol()) {
+              <th
+                class="sticky-col type-col sortable-column"
+                [class.last-sticky]="lastVisibleStickyCol() === 'type'"
+                [style.left]="typeColLeft()"
+                (click)="toggleSort('contract_type')"
+              >
+                <div class="header-sort-wrapper">
+                  <span>Type</span>
+                  <lucide-icon
+                    [img]="sortField() === 'contract_type' ? (sortDirection() === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown"
+                    [class.active]="sortField() === 'contract_type'"
+                    class="sort-icon"
+                    size="14"
+                  ></lucide-icon>
+                </div>
+              </th>
+            }
 
             <!-- 12 Months -->
-            <th *ngFor="let m of months" class="month-col text-center">{{ m }}</th>
+            @for (m of months; track m) {
+              <th class="month-col text-center">{{ m }}</th>
+            }
 
             <th class="balance-col text-center">Solde Déc.</th>
             <th class="total-col text-center">Total Annuel</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let row of employeesAnnualRows()">
-            <td
-              class="sticky-col name-col font-semibold"
-              [class.last-sticky]="lastVisibleStickyCol() === 'name'"
-              [style.width.px]="nameColWidth()"
-              [style.min-width.px]="nameColWidth()"
-              [style.max-width.px]="nameColWidth()"
-            >
-              @if (nameDisplayFormat() === 'last_first') {
-                {{ row.employee.last_name.toUpperCase() }} {{ row.employee.first_name }}
-              } @else {
-                {{ row.employee.first_name }} {{ row.employee.last_name.toUpperCase() }}
+          @for (row of employeesAnnualRows(); track row.employee.id) {
+            <tr [class.row-hors-filtre]="isHorsFiltre(row.employee)">
+              <td
+                class="sticky-col name-col font-semibold"
+                [class.last-sticky]="lastVisibleStickyCol() === 'name'"
+                [style.width.px]="nameColWidth()"
+                [style.min-width.px]="nameColWidth()"
+                [style.max-width.px]="nameColWidth()"
+              >
+                <div class="name-cell-wrapper">
+                  @if (isHorsFiltre(row.employee)) {
+                    <span class="pinned-indicator-badge" title="Collaborateur ajouté en dehors des filtres">
+                      <lucide-icon [img]="Pin" size="11"></lucide-icon>
+                    </span>
+                  }
+                  <span class="employee-name-label" [title]="(row.employee.last_name || '') + ' ' + (row.employee.first_name || '')">
+                    @if (nameDisplayFormat() === 'last_first') {
+                      {{ row.employee.last_name.toUpperCase() }} {{ row.employee.first_name }}
+                    } @else {
+                      {{ row.employee.first_name }} {{ row.employee.last_name.toUpperCase() }}
+                    }
+                  </span>
+                </div>
+              </td>
+              @if (showServiceCol()) {
+                <td
+                  class="sticky-col service-col subtle-text"
+                  [class.last-sticky]="lastVisibleStickyCol() === 'service'"
+                  [style.left.px]="nameColWidth()"
+                >
+                  {{ row.employee.service }}
+                </td>
               }
-            </td>
-            <td
-              *ngIf="showServiceCol()"
-              class="sticky-col service-col subtle-text"
-              [class.last-sticky]="lastVisibleStickyCol() === 'service'"
-              [style.left.px]="nameColWidth()"
-            >
-              {{ row.employee.service }}
-            </td>
-            <td
-              *ngIf="showTeamCol()"
-              class="sticky-col team-col"
-              [class.last-sticky]="lastVisibleStickyCol() === 'team'"
-              [style.left]="teamColLeft()"
-            >
-              <span
-                class="team-badge"
-                [style.background-color]="getTeamStyle(row.employee.team).background"
-                [style.color]="getTeamStyle(row.employee.team).color"
-                [style.border-color]="getTeamStyle(row.employee.team).borderColor"
-                >{{ row.employee.team }}</span
-              >
-            </td>
-            <td
-              *ngIf="showSiteCol()"
-              class="sticky-col site-col subtle-text"
-              [class.last-sticky]="lastVisibleStickyCol() === 'site'"
-              [style.left]="siteColLeft()"
-            >
-              {{ row.employee.work_site }}
-            </td>
-            <td
-              *ngIf="showTypeCol()"
-              class="sticky-col type-col"
-              [class.last-sticky]="lastVisibleStickyCol() === 'type'"
-              [style.left]="typeColLeft()"
-            >
-              <span
-                class="type-text"
-                [class.type-interne]="row.employee.contract_type === 'Interne'"
-                [class.type-externe]="row.employee.contract_type === 'Externe'"
-              >
-                {{ row.employee.contract_type }}
-              </span>
-            </td>
+              @if (showTeamCol()) {
+                <td
+                  class="sticky-col team-col"
+                  [class.last-sticky]="lastVisibleStickyCol() === 'team'"
+                  [style.left]="teamColLeft()"
+                >
+                  <span
+                    class="team-badge"
+                    [style.background-color]="getTeamStyle(row.employee.team).background"
+                    [style.color]="getTeamStyle(row.employee.team).color"
+                    [style.border-color]="getTeamStyle(row.employee.team).borderColor"
+                    >{{ row.employee.team }}</span
+                  >
+                </td>
+              }
+              @if (showSiteCol()) {
+                <td
+                  class="sticky-col site-col subtle-text"
+                  [class.last-sticky]="lastVisibleStickyCol() === 'site'"
+                  [style.left]="siteColLeft()"
+                >
+                  {{ row.employee.work_site }}
+                </td>
+              }
+              @if (showTypeCol()) {
+                <td
+                  class="sticky-col type-col"
+                  [class.last-sticky]="lastVisibleStickyCol() === 'type'"
+                  [style.left]="typeColLeft()"
+                >
+                  <span
+                    class="type-text"
+                    [class.type-interne]="row.employee.contract_type === 'Interne'"
+                    [class.type-externe]="row.employee.contract_type === 'Externe'"
+                  >
+                    {{ row.employee.contract_type }}
+                  </span>
+                </td>
+              }
 
-            <!-- Monthly worked days values -->
-            <td *ngFor="let workedVal of row.monthlyWorked" class="text-center font-medium">{{ workedVal }} j</td>
+              <!-- Monthly worked days values -->
+              @for (workedVal of row.monthlyWorked; track $index) {
+                <td class="text-center font-medium">{{ workedVal }} j</td>
+              }
 
-            <td class="balance-col text-center font-medium balance-value">{{ row.decemberBalance }} j</td>
-            <td class="total-col text-center font-bold value-total">{{ row.annualTotal }} j</td>
-          </tr>
+              <td class="balance-col text-center font-medium balance-value">{{ row.decemberBalance }} j</td>
+              <td class="total-col text-center font-bold value-total">{{ row.annualTotal }} j</td>
+            </tr>
+          }
         </tbody>
 
         <!-- Totals Footer Row -->
@@ -303,33 +326,39 @@
             >
               TOTAL CUMULÉ
             </td>
-            <td
-              *ngIf="showServiceCol()"
-              class="sticky-col service-col"
-              [class.last-sticky]="lastVisibleStickyCol() === 'service'"
-              [style.left.px]="nameColWidth()"
-            ></td>
-            <td
-              *ngIf="showTeamCol()"
-              class="sticky-col team-col"
-              [class.last-sticky]="lastVisibleStickyCol() === 'team'"
-              [style.left]="teamColLeft()"
-            ></td>
-            <td
-              *ngIf="showSiteCol()"
-              class="sticky-col site-col"
-              [class.last-sticky]="lastVisibleStickyCol() === 'site'"
-              [style.left]="siteColLeft()"
-            ></td>
-            <td
-              *ngIf="showTypeCol()"
-              class="sticky-col type-col"
-              [class.last-sticky]="lastVisibleStickyCol() === 'type'"
-              [style.left]="typeColLeft()"
-            ></td>
+            @if (showServiceCol()) {
+              <td
+                class="sticky-col service-col"
+                [class.last-sticky]="lastVisibleStickyCol() === 'service'"
+                [style.left.px]="nameColWidth()"
+              ></td>
+            }
+            @if (showTeamCol()) {
+              <td
+                class="sticky-col team-col"
+                [class.last-sticky]="lastVisibleStickyCol() === 'team'"
+                [style.left]="teamColLeft()"
+              ></td>
+            }
+            @if (showSiteCol()) {
+              <td
+                class="sticky-col site-col"
+                [class.last-sticky]="lastVisibleStickyCol() === 'site'"
+                [style.left]="siteColLeft()"
+              ></td>
+            }
+            @if (showTypeCol()) {
+              <td
+                class="sticky-col type-col"
+                [class.last-sticky]="lastVisibleStickyCol() === 'type'"
+                [style.left]="typeColLeft()"
+              ></td>
+            }
 
             <!-- Column monthly sums -->
-            <td *ngFor="let mSum of totals().monthly" class="text-center font-bold footer-sum">{{ mSum }} j</td>
+            @for (mSum of totals().monthly; track $index) {
+              <td class="text-center font-bold footer-sum">{{ mSum }} j</td>
+            }
 
             <td class="balance-col text-center font-bold footer-sum">{{ totals().balance }} j</td>
             <td class="total-col text-center font-extrabold grand-total-value">{{ totals().grand }} j</td>

@@ -309,7 +309,7 @@
         </thead>
         <tbody #tableBody>
           @for (emp of filteredEmployees(); track emp.id) {
-            <tr>
+            <tr [class.row-hors-filtre]="isHorsFiltre(emp)">
               <td
                 class="sticky-col name-col font-semibold"
                 [class.last-sticky]="lastVisibleStickyCol() === 'name'"
@@ -317,11 +317,20 @@
                 [style.min-width.px]="nameColWidth()"
                 [style.max-width.px]="nameColWidth()"
               >
-                @if (nameDisplayFormat() === 'last_first') {
-                  {{ emp.last_name.toUpperCase() }} {{ emp.first_name }}
-                } @else {
-                  {{ emp.first_name }} {{ emp.last_name.toUpperCase() }}
-                }
+                <div class="name-cell-wrapper">
+                  @if (isHorsFiltre(emp)) {
+                    <span class="pinned-indicator-badge" title="Collaborateur ajouté en dehors des filtres">
+                      <lucide-icon [img]="Pin" size="11"></lucide-icon>
+                    </span>
+                  }
+                  <span class="employee-name-label" [title]="(emp.last_name || '') + ' ' + (emp.first_name || '')">
+                    @if (nameDisplayFormat() === 'last_first') {
+                      {{ emp.last_name.toUpperCase() }} {{ emp.first_name }}
+                    } @else {
+                      {{ emp.first_name }} {{ emp.last_name.toUpperCase() }}
+                    }
+                  </span>
+                </div>
               </td>
               @if (showServiceCol()) {
                 <td

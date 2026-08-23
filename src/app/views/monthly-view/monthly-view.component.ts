@@ -16,6 +16,8 @@ import {
   ArrowDown,
   ArrowUpDown,
   Settings,
+  Pin,
+  X,
 } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
@@ -115,6 +117,8 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   readonly ArrowDown = ArrowDown;
   readonly ArrowUpDown = ArrowUpDown;
   readonly Settings = Settings;
+  readonly Pin = Pin;
+  readonly X = X;
 
   // Popover State
   showNameFormatPopover = signal<boolean>(false);
@@ -366,6 +370,40 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  matchesStandardFilters(emp: Employee, filters: FilterState): boolean {
+    if (filters.employees && filters.employees.length > 0 && !filters.employees.includes(emp.id || '')) return false;
+    if (filters.service && filters.service.length > 0 && !filters.service.includes(emp.service)) return false;
+    if (filters.team && filters.team.length > 0 && !filters.team.includes(emp.team)) return false;
+    if (filters.work_site && filters.work_site.length > 0 && !filters.work_site.includes(emp.work_site)) return false;
+    if (
+      filters.contract_type &&
+      filters.contract_type.length > 0 &&
+      !filters.contract_type.includes(emp.contract_type)
+    )
+      return false;
+    if (filters.profile && filters.profile.length > 0 && !filters.profile.includes(emp.profile)) return false;
+    return true;
+  }
+
+  isHorsFiltre(emp: Employee): boolean {
+    const filters = this.activeFilters();
+    const isPinned = (filters.pinnedEmployees || []).includes(emp.id || '');
+    if (!isPinned) return false;
+    return !this.matchesStandardFilters(emp, filters);
+  }
+
+  unpinEmployee(empId: string, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    const current = this.activeFilters();
+    const updatedPinned = (current.pinnedEmployees || []).filter((id) => id !== empId);
+    this.activeFilters.set({
+      ...current,
+      pinnedEmployees: updatedPinned,
+    });
+  }
+
   // List of filtered employees
   filteredEmployees = computed(() => {
     const filters = this.activeFilters();
@@ -397,18 +435,9 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
         const matchesCompany = normalizeString(emp.company_name).includes(query);
         if (!matchesName && !matchesCompany) return false;
       }
-      if (filters.employees && filters.employees.length > 0 && !filters.employees.includes(emp.id || '')) return false;
-      if (filters.service && filters.service.length > 0 && !filters.service.includes(emp.service)) return false;
-      if (filters.team && filters.team.length > 0 && !filters.team.includes(emp.team)) return false;
-      if (filters.work_site && filters.work_site.length > 0 && !filters.work_site.includes(emp.work_site)) return false;
-      if (
-        filters.contract_type &&
-        filters.contract_type.length > 0 &&
-        !filters.contract_type.includes(emp.contract_type)
-      )
-        return false;
-      if (filters.profile && filters.profile.length > 0 && !filters.profile.includes(emp.profile)) return false;
-      return true;
+      const isPinned = (filters.pinnedEmployees || []).includes(emp.id || '');
+      const matchesStandard = this.matchesStandardFilters(emp, filters);
+      return matchesStandard || isPinned;
     });
 
     return [...list].sort((a, b) => {

@@ -1,3 +1,7 @@
+## Purpose
+
+Fournir une gestion complète des thèmes (clair, sombre, automatique) avec persistance locale, synchronisation système et styles adaptés à toute l'application.
+
 ## Requirements
 
 ### Requirement: Theme preference state management

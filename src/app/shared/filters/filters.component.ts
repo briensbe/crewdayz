@@ -1,12 +1,13 @@
 import { Component, input, output, signal, OnInit, computed, HostListener, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, X, Filter } from 'lucide-angular';
+import { LucideAngularModule, Search, X, Filter, Pin } from 'lucide-angular';
 import { Employee } from '../../models/types';
 
 export interface FilterState {
   search: string;
   employees?: string[];
+  pinnedEmployees?: string[];
   service: string[];
   team: string[];
   work_site: string[];
@@ -43,10 +44,12 @@ export class FiltersComponent implements OnInit {
   readonly Search = Search;
   readonly X = X;
   readonly Filter = Filter;
+  readonly Pin = Pin;
 
   // Active filter state
   search = signal('');
   selectedEmployees = signal<string[]>([]);
+  selectedPinnedEmployees = signal<string[]>([]);
   selectedService = signal<string[]>([]);
   selectedTeam = signal<string[]>([]);
   selectedWorkSite = signal<string[]>([]);
@@ -56,14 +59,16 @@ export class FiltersComponent implements OnInit {
 
   // Dropdown states
   openEmployeeDropdown = signal(false);
+  openPinnedDropdown = signal(false);
   openServiceDropdown = signal(false);
   openTeamDropdown = signal(false);
   openWorkSiteDropdown = signal(false);
   openContractTypeDropdown = signal(false);
   openProfileDropdown = signal(false);
 
-  // Search input inside employee dropdown
+  // Search inputs inside dropdowns
   employeeSearch = signal('');
+  pinnedSearch = signal('');
 
   // Active filter helper labels
   activeFilterLabels = computed(() => {
@@ -91,6 +96,17 @@ export class FiltersComponent implements OnInit {
     return labels;
   });
 
+  // Pinned employees helper for badges
+  pinnedEmployeeItems = computed(() => {
+    return this.selectedPinnedEmployees().map((id) => {
+      const emp = this.employees().find((e) => e.id === id);
+      return {
+        id,
+        name: emp ? `${emp.last_name.toUpperCase()} ${emp.first_name}` : id,
+      };
+    });
+  });
+
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent) {
     if (!this.elementRef.nativeElement.contains(event.target)) {
@@ -100,18 +116,32 @@ export class FiltersComponent implements OnInit {
 
   closeAllDropdowns() {
     this.openEmployeeDropdown.set(false);
+    this.openPinnedDropdown.set(false);
     this.openServiceDropdown.set(false);
     this.openTeamDropdown.set(false);
     this.openWorkSiteDropdown.set(false);
     this.openContractTypeDropdown.set(false);
     this.openProfileDropdown.set(false);
     this.employeeSearch.set('');
+    this.pinnedSearch.set('');
   }
 
-  toggleDropdown(dropdown: 'employee' | 'service' | 'team' | 'work_site' | 'contract_type' | 'profile', event: MouseEvent) {
+  toggleDropdown(
+    dropdown: 'employee' | 'pinned' | 'service' | 'team' | 'work_site' | 'contract_type' | 'profile',
+    event: MouseEvent
+  ) {
     event.stopPropagation();
     if (dropdown === 'employee') {
       this.openEmployeeDropdown.update((val) => !val);
+      this.openPinnedDropdown.set(false);
+      this.openServiceDropdown.set(false);
+      this.openTeamDropdown.set(false);
+      this.openWorkSiteDropdown.set(false);
+      this.openContractTypeDropdown.set(false);
+      this.openProfileDropdown.set(false);
+    } else if (dropdown === 'pinned') {
+      this.openPinnedDropdown.update((val) => !val);
+      this.openEmployeeDropdown.set(false);
       this.openServiceDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
@@ -120,6 +150,7 @@ export class FiltersComponent implements OnInit {
     } else if (dropdown === 'service') {
       this.openServiceDropdown.update((val) => !val);
       this.openEmployeeDropdown.set(false);
+      this.openPinnedDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
       this.openContractTypeDropdown.set(false);
@@ -127,6 +158,7 @@ export class FiltersComponent implements OnInit {
     } else if (dropdown === 'team') {
       this.openTeamDropdown.update((val) => !val);
       this.openEmployeeDropdown.set(false);
+      this.openPinnedDropdown.set(false);
       this.openServiceDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
       this.openContractTypeDropdown.set(false);
@@ -134,6 +166,7 @@ export class FiltersComponent implements OnInit {
     } else if (dropdown === 'work_site') {
       this.openWorkSiteDropdown.update((val) => !val);
       this.openEmployeeDropdown.set(false);
+      this.openPinnedDropdown.set(false);
       this.openServiceDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openContractTypeDropdown.set(false);
@@ -141,6 +174,7 @@ export class FiltersComponent implements OnInit {
     } else if (dropdown === 'contract_type') {
       this.openContractTypeDropdown.update((val) => !val);
       this.openEmployeeDropdown.set(false);
+      this.openPinnedDropdown.set(false);
       this.openServiceDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
@@ -148,6 +182,7 @@ export class FiltersComponent implements OnInit {
     } else if (dropdown === 'profile') {
       this.openProfileDropdown.update((val) => !val);
       this.openEmployeeDropdown.set(false);
+      this.openPinnedDropdown.set(false);
       this.openServiceDropdown.set(false);
       this.openTeamDropdown.set(false);
       this.openWorkSiteDropdown.set(false);
@@ -160,6 +195,7 @@ export class FiltersComponent implements OnInit {
     if (initial) {
       this.search.set(initial.search || '');
       this.selectedEmployees.set(initial.employees || []);
+      this.selectedPinnedEmployees.set(initial.pinnedEmployees || []);
       this.selectedService.set(initial.service || []);
       this.selectedTeam.set(initial.team || []);
       this.selectedWorkSite.set(initial.work_site || []);
@@ -173,6 +209,7 @@ export class FiltersComponent implements OnInit {
     this.filterChange.emit({
       search: this.search(),
       employees: this.selectedEmployees(),
+      pinnedEmployees: this.selectedPinnedEmployees(),
       service: this.selectedService(),
       team: this.selectedTeam(),
       work_site: this.selectedWorkSite(),
@@ -188,6 +225,22 @@ export class FiltersComponent implements OnInit {
     this.onFilterChange();
   }
 
+  togglePinnedEmployee(val: string, event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.selectedPinnedEmployees.update((vals) => (checked ? [...vals, val] : vals.filter((v) => v !== val)));
+    this.onFilterChange();
+  }
+
+  unpinEmployee(id: string) {
+    this.selectedPinnedEmployees.update((vals) => vals.filter((v) => v !== id));
+    this.onFilterChange();
+  }
+
+  clearPinnedEmployees() {
+    this.selectedPinnedEmployees.set([]);
+    this.onFilterChange();
+  }
+
   getEmployeeName(id: string): string {
     const emp = this.employees().find((e) => e.id === id);
     return emp ? `${emp.last_name.toUpperCase()} ${emp.first_name}` : id;
@@ -195,6 +248,24 @@ export class FiltersComponent implements OnInit {
 
   filteredEmployeesForDropdown = computed(() => {
     const search = this.employeeSearch().toLowerCase().trim();
+    const allEmps = this.employees();
+    let result = allEmps;
+    if (search) {
+      result = allEmps.filter((emp) => {
+        const fullName = `${emp.last_name} ${emp.first_name}`.toLowerCase();
+        const company = (emp.company_name || '').toLowerCase();
+        return fullName.includes(search) || company.includes(search);
+      });
+    }
+    return [...result].sort((a, b) => {
+      const nameA = `${a.last_name} ${a.first_name}`.toLowerCase();
+      const nameB = `${b.last_name} ${b.first_name}`.toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+  });
+
+  filteredEmployeesForPinnedDropdown = computed(() => {
+    const search = this.pinnedSearch().toLowerCase().trim();
     const allEmps = this.employees();
     let result = allEmps;
     if (search) {
@@ -244,6 +315,7 @@ export class FiltersComponent implements OnInit {
   clearFilter(key: keyof FilterState) {
     if (key === 'search') this.search.set('');
     if (key === 'employees') this.selectedEmployees.set([]);
+    if (key === 'pinnedEmployees') this.selectedPinnedEmployees.set([]);
     if (key === 'service') this.selectedService.set([]);
     if (key === 'team') this.selectedTeam.set([]);
     if (key === 'work_site') this.selectedWorkSite.set([]);
@@ -256,6 +328,7 @@ export class FiltersComponent implements OnInit {
   resetFilters() {
     this.search.set('');
     this.selectedEmployees.set([]);
+    this.selectedPinnedEmployees.set([]);
     this.selectedService.set([]);
     this.selectedTeam.set([]);
     this.selectedWorkSite.set([]);

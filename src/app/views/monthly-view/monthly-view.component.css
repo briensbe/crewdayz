@@ -981,3 +981,56 @@ th.is-today::after {
   background-color: var(--primary-light);
   color: var(--primary);
 }
+
+/* ===== Pinned / Hors Filtre Row Styles ===== */
+.name-cell-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  position: relative;
+}
+
+.employee-name-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pinned-indicator-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-radius: 4px;
+  padding: 2px 4px;
+  flex-shrink: 0;
+}
+
+.unpin-row-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+  opacity: 0.5;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.unpin-row-action-btn:hover {
+  opacity: 1;
+  background-color: var(--danger-light);
+  color: var(--danger);
+}
+
+.row-hors-filtre .name-col {
+  border-left: 3px solid var(--primary);
+}

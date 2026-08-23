@@ -19,6 +19,7 @@ import {
   ArrowUp,
   ArrowDown,
   Settings,
+  Pin,
 } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
@@ -120,6 +121,7 @@ export class EmployeeListComponent implements OnInit {
   readonly ArrowUp = ArrowUp;
   readonly ArrowDown = ArrowDown;
   readonly Settings = Settings;
+  readonly Pin = Pin;
 
   // Popover State
   showNameFormatPopover = signal<boolean>(false);
@@ -128,6 +130,40 @@ export class EmployeeListComponent implements OnInit {
   toggleNameFormatPopover(event: MouseEvent) {
     event.stopPropagation();
     this.showNameFormatPopover.update((v) => !v);
+  }
+
+  matchesStandardFilters(emp: Employee, filters: FilterState): boolean {
+    if (filters.employees && filters.employees.length > 0 && !filters.employees.includes(emp.id || '')) return false;
+    if (filters.service && filters.service.length > 0 && !filters.service.includes(emp.service)) return false;
+    if (filters.team && filters.team.length > 0 && !filters.team.includes(emp.team)) return false;
+    if (filters.work_site && filters.work_site.length > 0 && !filters.work_site.includes(emp.work_site)) return false;
+    if (
+      filters.contract_type &&
+      filters.contract_type.length > 0 &&
+      !filters.contract_type.includes(emp.contract_type)
+    )
+      return false;
+    if (filters.profile && filters.profile.length > 0 && !filters.profile.includes(emp.profile)) return false;
+    return true;
+  }
+
+  isHorsFiltre(emp: Employee): boolean {
+    const filters = this.activeFilters();
+    const isPinned = (filters.pinnedEmployees || []).includes(emp.id || '');
+    if (!isPinned) return false;
+    return !this.matchesStandardFilters(emp, filters);
+  }
+
+  unpinEmployee(empId: string, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    const current = this.activeFilters();
+    const updatedPinned = (current.pinnedEmployees || []).filter((id) => id !== empId);
+    this.activeFilters.set({
+      ...current,
+      pinnedEmployees: updatedPinned,
+    });
   }
 
   // Inline editing state
@@ -210,20 +246,6 @@ export class EmployeeListComponent implements OnInit {
           const matchesCompany = normalizeString(emp.company_name).includes(query);
           if (!matchesName && !matchesCompany) return false;
         }
-        if (filters.employees && filters.employees.length > 0 && !filters.employees.includes(emp.id || '')) return false;
-        // Dropdown filters
-        if (filters.service && filters.service.length > 0 && !filters.service.includes(emp.service)) return false;
-        if (filters.team && filters.team.length > 0 && !filters.team.includes(emp.team)) return false;
-        if (filters.work_site && filters.work_site.length > 0 && !filters.work_site.includes(emp.work_site))
-          return false;
-        if (
-          filters.contract_type &&
-          filters.contract_type.length > 0 &&
-          !filters.contract_type.includes(emp.contract_type)
-        )
-          return false;
-        if (filters.profile && filters.profile.length > 0 && !filters.profile.includes(emp.profile)) return false;
-
         if (filters.onlyActive) {
           if (emp.arrival_date) {
             const arrParts = emp.arrival_date.split('-');
@@ -237,7 +259,9 @@ export class EmployeeListComponent implements OnInit {
           }
         }
 
-        return true;
+        const isPinned = (filters.pinnedEmployees || []).includes(emp.id || '');
+        const matchesStandard = this.matchesStandardFilters(emp, filters);
+        return matchesStandard || isPinned;
       })
       .map((emp): Employee => {
         // Find balance for the selected year

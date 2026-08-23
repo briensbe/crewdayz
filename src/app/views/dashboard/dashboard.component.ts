@@ -136,6 +136,21 @@ export class DashboardComponent implements OnInit {
     return Array.from(new Set(list)).filter(Boolean).sort();
   });
 
+  matchesStandardFilters(emp: Employee, filters: FilterState): boolean {
+    if (filters.employees && filters.employees.length > 0 && !filters.employees.includes(emp.id || '')) return false;
+    if (filters.service && filters.service.length > 0 && !filters.service.includes(emp.service)) return false;
+    if (filters.team && filters.team.length > 0 && !filters.team.includes(emp.team)) return false;
+    if (filters.work_site && filters.work_site.length > 0 && !filters.work_site.includes(emp.work_site)) return false;
+    if (
+      filters.contract_type &&
+      filters.contract_type.length > 0 &&
+      !filters.contract_type.includes(emp.contract_type)
+    )
+      return false;
+    if (filters.profile && filters.profile.length > 0 && !filters.profile.includes(emp.profile)) return false;
+    return true;
+  }
+
   // Filtered employees list
   filteredEmployees = computed(() => {
     const filters = this.activeFilters();
@@ -147,17 +162,6 @@ export class DashboardComponent implements OnInit {
         const matchesCompany = normalizeString(emp.company_name).includes(query);
         if (!matchesName && !matchesCompany) return false;
       }
-      if (filters.employees && filters.employees.length > 0 && !filters.employees.includes(emp.id || '')) return false;
-      if (filters.service && filters.service.length > 0 && !filters.service.includes(emp.service)) return false;
-      if (filters.team && filters.team.length > 0 && !filters.team.includes(emp.team)) return false;
-      if (filters.work_site && filters.work_site.length > 0 && !filters.work_site.includes(emp.work_site)) return false;
-      if (
-        filters.contract_type &&
-        filters.contract_type.length > 0 &&
-        !filters.contract_type.includes(emp.contract_type)
-      )
-        return false;
-      if (filters.profile && filters.profile.length > 0 && !filters.profile.includes(emp.profile)) return false;
 
       if (filters.onlyActive) {
         const year = this.currentYear();
@@ -173,7 +177,9 @@ export class DashboardComponent implements OnInit {
         }
       }
 
-      return true;
+      const isPinned = (filters.pinnedEmployees || []).includes(emp.id || '');
+      const matchesStandard = this.matchesStandardFilters(emp, filters);
+      return matchesStandard || isPinned;
     });
   });
 

@@ -180,7 +180,7 @@
         </thead>
         <tbody>
           @for (emp of filteredEmployees(); track emp.id) {
-            <tr class="clickable-row">
+            <tr class="clickable-row" [class.row-hors-filtre]="isHorsFiltre(emp)">
               <td
                 (click)="startInlineEdit(emp, 'name', $event)"
                 class="name-col"
@@ -189,6 +189,11 @@
                 [style.max-width.px]="nameColWidth()"
               >
                 <div class="name-cell">
+                  @if (isHorsFiltre(emp)) {
+                    <span class="pinned-indicator-badge" title="Collaborateur ajouté en dehors des filtres">
+                      <lucide-icon [img]="Pin" size="11"></lucide-icon>
+                    </span>
+                  }
                   <span class="avatar-sm">{{ emp.first_name.charAt(0) }}{{ emp.last_name.charAt(0) }}</span>
                   <div class="name-details">
                     <span class="full-name">
