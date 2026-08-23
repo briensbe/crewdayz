@@ -13,9 +13,12 @@ import {
   Umbrella,
   History,
   MessageSquare,
+  Sun,
+  Moon,
 } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
 import { ReleaseNotesService } from '../../services/release-notes.service';
+import { ThemeService } from '../../services/theme.service';
 import { environment } from '../../../environments/environment';
 
 interface NavigationItem {
@@ -33,11 +36,14 @@ interface NavigationItem {
 })
 export class SidebarComponent {
   protected readonly sidebarService = inject(SidebarService);
+  public readonly themeService = inject(ThemeService);
   private readonly releaseNotesService = inject(ReleaseNotesService);
 
   // Expose icons
   readonly ChevronLeft = ChevronLeft;
   readonly ChevronRight = ChevronRight;
+  readonly Sun = Sun;
+  readonly Moon = Moon;
   readonly version = environment.version;
 
   navigationItems: NavigationItem[] = [
@@ -53,6 +59,10 @@ export class SidebarComponent {
 
   toggleSidebar() {
     this.sidebarService.toggleCollapsed();
+  }
+
+  toggleTheme() {
+    this.themeService.toggleTheme();
   }
 
   showReleaseNotes() {

@@ -176,23 +176,23 @@
 }
 
 .kpi-icon-wrapper.blue {
-  background-color: hsl(217, 91%, 95%);
-  color: hsl(217, 91%, 50%);
+  background-color: var(--primary-light);
+  color: var(--primary);
 }
 
 .kpi-icon-wrapper.green {
-  background-color: hsl(142, 76%, 95%);
-  color: hsl(142, 76%, 35%);
+  background-color: var(--success-light);
+  color: var(--success);
 }
 
 .kpi-icon-wrapper.purple {
-  background-color: hsl(262, 83%, 95%);
-  color: hsl(262, 83%, 55%);
+  background-color: var(--abs-cp-bg);
+  color: var(--abs-cp);
 }
 
 .kpi-icon-wrapper.orange {
-  background-color: hsl(36, 100%, 95%);
-  color: hsl(36, 100%, 45%);
+  background-color: var(--warning-light);
+  color: var(--warning);
 }
 
 .kpi-content {
@@ -299,7 +299,7 @@
 }
 
 .axis-label {
-  fill: var(--text-light);
+  fill: var(--text-muted);
   font-size: 9px;
   font-weight: 500;
 }
@@ -338,16 +338,13 @@
 /* Premium Tooltip Styling */
 .chart-tooltip {
   position: absolute;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow:
-    0 10px 25px -10px rgba(0, 0, 0, 0.15),
-    0 1px 1px 0 rgba(255, 255, 255, 0.5) inset;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-main);
   border-radius: var(--radius-md);
   padding: 10px;
-  z-index: 10;
+  z-index: 100;
   width: 220px;
   pointer-events: none;
   font-family: inherit;
@@ -623,23 +620,23 @@
 }
 
 .absent-tag.arrival {
-  background-color: hsl(142, 76%, 95%);
-  color: hsl(142, 76%, 30%);
-  border-color: hsl(142, 76%, 90%);
+  background-color: var(--success-light);
+  color: var(--success);
+  border-color: var(--border);
 }
 
 .absent-tag.arrival:hover {
-  background-color: hsl(142, 76%, 90%);
+  background-color: var(--surface);
 }
 
 .absent-tag.departure {
-  background-color: hsl(36, 100%, 95%);
-  color: hsl(36, 100%, 40%);
-  border-color: hsl(36, 100%, 90%);
+  background-color: var(--warning-light);
+  color: var(--warning);
+  border-color: var(--border);
 }
 
 .absent-tag.departure:hover {
-  background-color: hsl(36, 100%, 90%);
+  background-color: var(--surface);
 }
 
 .no-absents-text {

@@ -371,13 +371,11 @@ tr:hover .sticky-col {
 }
 
 .team-badge {
-  background-color: hsl(262, 83%, 95%);
-  color: var(--abs-rtt);
   font-weight: 600;
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
   font-size: 0.75rem;
-  border: 1px solid hsl(262, 83%, 90%);
+  border: 1px solid transparent;
 }
 
 .subtle-text {

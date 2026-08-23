@@ -35,6 +35,21 @@
   </div>
 
   <div class="sidebar-footer">
+    <button
+      class="theme-toggle-btn"
+      (click)="toggleTheme()"
+      [title]="themeService.isDarkMode() ? 'Passer en thème clair' : 'Passer en thème sombre'"
+    >
+      <div class="theme-toggle-icon">
+        <lucide-icon [img]="themeService.isDarkMode() ? Sun : Moon" size="18"></lucide-icon>
+      </div>
+      @if (!sidebarService.collapsed()) {
+        <span class="theme-toggle-label">
+          {{ themeService.isDarkMode() ? 'Thème Clair' : 'Thème Sombre' }}
+        </span>
+      }
+    </button>
+
     <div
       class="sidebar-version"
       [class.collapsed]="sidebarService.collapsed()"

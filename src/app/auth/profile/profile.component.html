@@ -35,6 +35,27 @@
       </div>
     </div>
 
+    <div class="theme-selector-section">
+      <div class="theme-header">
+        <span class="info-label">Thème de l'interface</span>
+        <span class="theme-subtitle">Personnalisez l'apparence visuelle</span>
+      </div>
+      <div class="theme-buttons">
+        @for (theme of themeOptions; track theme.value) {
+          <button
+            type="button"
+            class="theme-btn"
+            [class.active]="themeService.preference() === theme.value"
+            (click)="setTheme(theme.value)"
+            [title]="theme.label"
+          >
+            <lucide-icon [img]="theme.icon" [size]="18"></lucide-icon>
+            <span>{{ theme.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
     <div class="profile-actions">
       <button class="btn btn-outline btn-logout" (click)="logout()">
         <lucide-icon [img]="LogOut" size="18"></lucide-icon>

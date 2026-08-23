@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 :root {
+  color-scheme: light;
+
   /* Colors */
   --primary: hsl(217, 91%, 60%);
   --primary-hover: hsl(217, 91%, 52%);
@@ -64,6 +66,47 @@
   --abs-previsionnel-bg: hsl(25, 95%, 97%);
   --abs-previsionnel-border: hsl(25, 95%, 90%);
 
+  /* Team Badge Colors - Light Mode */
+  --team-bg-0: hsl(220, 85%, 96%); --team-color-0: hsl(220, 85%, 30%); --team-border-0: hsl(220, 85%, 90%);
+  --team-bg-1: hsl(145, 80%, 96%); --team-color-1: hsl(145, 80%, 25%); --team-border-1: hsl(145, 80%, 90%);
+  --team-bg-2: hsl(270, 80%, 96%); --team-color-2: hsl(270, 80%, 30%); --team-border-2: hsl(270, 80%, 90%);
+  --team-bg-3: hsl(35, 90%, 95%); --team-color-3: hsl(35, 90%, 25%); --team-border-3: hsl(35, 90%, 88%);
+  --team-bg-4: hsl(325, 80%, 96%); --team-color-4: hsl(325, 80%, 30%); --team-border-4: hsl(325, 80%, 90%);
+  --team-bg-5: hsl(180, 75%, 95%); --team-color-5: hsl(180, 75%, 25%); --team-border-5: hsl(180, 75%, 88%);
+  --team-bg-6: hsl(15, 85%, 96%); --team-color-6: hsl(15, 85%, 30%); --team-border-6: hsl(15, 85%, 90%);
+  --team-bg-7: hsl(295, 75%, 96%); --team-color-7: hsl(295, 75%, 30%); --team-border-7: hsl(295, 75%, 90%);
+  --team-bg-8: hsl(80, 65%, 94%); --team-color-8: hsl(80, 75%, 23%); --team-border-8: hsl(80, 65%, 85%);
+  --team-bg-9: hsl(200, 80%, 95%); --team-color-9: hsl(200, 85%, 28%); --team-border-9: hsl(200, 80%, 88%);
+  --team-bg-10: hsl(345, 80%, 96%); --team-color-10: hsl(345, 80%, 30%); --team-border-10: hsl(345, 80%, 90%);
+  --team-bg-11: hsl(50, 80%, 94%); --team-color-11: hsl(50, 85%, 25%); --team-border-11: hsl(50, 80%, 85%);
+
+  /* Calendar Table Grid Variables - Light Mode */
+  --weekend-bg: hsl(210, 20%, 95%);
+  --weekend-cell-bg: hsl(210, 20%, 96%);
+  --weekend-text: var(--text-light);
+  --holiday-bg: hsl(350, 40%, 96%);
+  --holiday-text: var(--danger);
+  --worked-col-bg: var(--primary-light);
+  --worked-col-hover-bg: hsl(217, 91%, 92%);
+  --worked-col-text: var(--primary-dark);
+  --zone-a-strip-bg: #e0e7ff;
+  --zone-a-strip-border: #c7d2fe;
+  --zone-b-strip-bg: #d1fae5;
+  --zone-b-strip-border: #a7f3d0;
+  --zone-c-strip-bg: #fce7f3;
+  --zone-c-strip-border: #fbcfe8;
+
+  /* Weekly Availability Badges - Light Mode */
+  --avail-high-bg: hsl(142, 70%, 93%);
+  --avail-high-color: hsl(142, 76%, 25%);
+  --avail-high-border: hsl(142, 70%, 85%);
+  --avail-med-bg: hsl(35, 92%, 93%);
+  --avail-med-color: hsl(35, 92%, 28%);
+  --avail-med-border: hsl(35, 92%, 85%);
+  --avail-zero-bg: hsl(350, 89%, 94%);
+  --avail-zero-color: hsl(350, 89%, 36%);
+  --avail-zero-border: hsl(350, 89%, 88%);
+
   /* Borders & Shadows */
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -76,6 +119,121 @@
   --shadow-card: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
 
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark-mode,
+:root.dark-mode {
+  color-scheme: dark;
+
+  /* Colors */
+  --primary: hsl(217, 91%, 60%);
+  --primary-hover: hsl(217, 91%, 68%);
+  --primary-light: hsl(217, 91%, 20%);
+  --primary-dark: hsl(217, 91%, 80%);
+
+  --background: hsl(222, 47%, 11%);
+  --surface: hsl(217, 33%, 17%);
+  --sidebar-bg: hsl(222, 47%, 8%);
+
+  --text-main: hsl(210, 40%, 98%);
+  --text-muted: hsl(215, 20%, 65%);
+  --text-light: hsl(215, 16%, 47%);
+
+  --border: hsl(217, 33%, 25%);
+  --border-light: hsl(217, 33%, 20%);
+
+  --success: hsl(142, 71%, 45%);
+  --success-light: hsl(142, 71%, 15%);
+  --info: hsl(200, 95%, 45%);
+  --info-light: hsl(200, 95%, 15%);
+  --warning: hsl(38, 92%, 50%);
+  --warning-light: hsl(38, 92%, 15%);
+  --danger: hsl(350, 89%, 60%);
+  --danger-light: hsl(350, 89%, 15%);
+
+  /* Absence Colors - Dark Mode Adjustments */
+  --abs-cp: hsl(262, 83%, 68%);
+  --abs-cp-bg: hsl(262, 83%, 20%);
+  --abs-cp-border: hsl(262, 83%, 30%);
+
+  --abs-rtt: hsl(36, 100%, 55%);
+  --abs-rtt-bg: hsl(36, 100%, 18%);
+  --abs-rtt-border: hsl(36, 100%, 28%);
+
+  --abs-maladie: hsl(0, 84%, 65%);
+  --abs-maladie-bg: hsl(0, 84%, 20%);
+  --abs-maladie-border: hsl(0, 84%, 30%);
+
+  --abs-maternite: hsl(322, 81%, 65%);
+  --abs-maternite-bg: hsl(322, 81%, 20%);
+  --abs-maternite-border: hsl(322, 81%, 30%);
+
+  --abs-exceptionnel: hsl(215, 20%, 65%);
+  --abs-exceptionnel-bg: hsl(215, 20%, 20%);
+  --abs-exceptionnel-border: hsl(215, 20%, 30%);
+
+  --abs-formation: hsl(142, 71%, 55%);
+  --abs-formation-bg: hsl(142, 71%, 18%);
+  --abs-formation-border: hsl(142, 71%, 28%);
+
+  --abs-autre: hsl(199, 89%, 58%);
+  --abs-autre-bg: hsl(199, 89%, 18%);
+  --abs-autre-border: hsl(199, 89%, 28%);
+
+  --abs-partiel: hsl(215, 25%, 55%);
+  --abs-partiel-bg: hsl(215, 25%, 20%);
+  --abs-partiel-border: hsl(215, 25%, 30%);
+
+  --abs-previsionnel: hsl(25, 95%, 55%);
+  --abs-previsionnel-bg: hsl(25, 95%, 18%);
+  --abs-previsionnel-border: hsl(25, 95%, 28%);
+
+  /* Team Badge Colors - Dark Mode */
+  --team-bg-0: hsl(220, 70%, 20%); --team-color-0: hsl(220, 90%, 85%); --team-border-0: hsl(220, 70%, 32%);
+  --team-bg-1: hsl(145, 60%, 18%); --team-color-1: hsl(145, 80%, 80%); --team-border-1: hsl(145, 60%, 28%);
+  --team-bg-2: hsl(270, 60%, 22%); --team-color-2: hsl(270, 80%, 85%); --team-border-2: hsl(270, 60%, 32%);
+  --team-bg-3: hsl(35, 70%, 18%); --team-color-3: hsl(35, 90%, 80%); --team-border-3: hsl(35, 70%, 28%);
+  --team-bg-4: hsl(325, 60%, 20%); --team-color-4: hsl(325, 80%, 85%); --team-border-4: hsl(325, 60%, 30%);
+  --team-bg-5: hsl(180, 60%, 18%); --team-color-5: hsl(180, 80%, 80%); --team-border-5: hsl(180, 60%, 28%);
+  --team-bg-6: hsl(15, 65%, 20%); --team-color-6: hsl(15, 85%, 85%); --team-border-6: hsl(15, 65%, 30%);
+  --team-bg-7: hsl(295, 60%, 20%); --team-color-7: hsl(295, 80%, 85%); --team-border-7: hsl(295, 60%, 30%);
+  --team-bg-8: hsl(80, 50%, 18%); --team-color-8: hsl(80, 70%, 80%); --team-border-8: hsl(80, 50%, 28%);
+  --team-bg-9: hsl(200, 65%, 18%); --team-color-9: hsl(200, 85%, 82%); --team-border-9: hsl(200, 65%, 28%);
+  --team-bg-10: hsl(345, 60%, 20%); --team-color-10: hsl(345, 80%, 85%); --team-border-10: hsl(345, 60%, 30%);
+  --team-bg-11: hsl(50, 60%, 18%); --team-color-11: hsl(50, 80%, 80%); --team-border-11: hsl(50, 60%, 28%);
+
+  /* Calendar Table Grid Variables - Dark Mode */
+  --weekend-bg: hsl(222, 47%, 8%);
+  --weekend-cell-bg: hsl(222, 47%, 8%);
+  --weekend-text: hsl(215, 16%, 50%);
+  --holiday-bg: hsl(350, 50%, 16%);
+  --holiday-text: hsl(350, 89%, 75%);
+  --worked-col-bg: hsl(217, 91%, 18%);
+  --worked-col-hover-bg: hsl(217, 91%, 24%);
+  --worked-col-text: hsl(217, 91%, 80%);
+  --zone-a-strip-bg: hsl(226, 60%, 22%);
+  --zone-a-strip-border: hsl(226, 60%, 32%);
+  --zone-b-strip-bg: hsl(152, 50%, 18%);
+  --zone-b-strip-border: hsl(152, 50%, 28%);
+  --zone-c-strip-bg: hsl(330, 50%, 20%);
+  --zone-c-strip-border: hsl(330, 50%, 30%);
+
+  /* Weekly Availability Badges - Dark Mode */
+  --avail-high-bg: hsl(142, 60%, 18%);
+  --avail-high-color: hsl(142, 80%, 75%);
+  --avail-high-border: hsl(142, 60%, 28%);
+  --avail-med-bg: hsl(35, 70%, 18%);
+  --avail-med-color: hsl(35, 90%, 75%);
+  --avail-med-border: hsl(35, 70%, 28%);
+  --avail-zero-bg: hsl(350, 60%, 18%);
+  --avail-zero-color: hsl(350, 85%, 75%);
+  --avail-zero-border: hsl(350, 60%, 28%);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
 }
 
 /* Resets */
@@ -93,6 +251,7 @@ body {
   color: var(--text-main);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 h1,
@@ -210,6 +369,12 @@ textarea::placeholder {
   color: var(--text-light);
 }
 
+select option,
+optgroup {
+  background-color: var(--surface);
+  color: var(--text-main);
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -296,19 +461,19 @@ textarea::placeholder {
 .alert-info {
   background-color: var(--info-light);
   color: var(--info);
-  border: 1px solid hsl(200, 95%, 90%);
+  border: 1px solid var(--border);
 }
 
 .alert-danger {
   background-color: var(--danger-light);
   color: var(--danger);
-  border: 1px solid hsl(350, 89%, 92%);
+  border: 1px solid var(--border);
 }
 
 .alert-success {
   background-color: var(--success-light);
   color: var(--success);
-  border: 1px solid hsl(142, 76%, 92%);
+  border: 1px solid var(--border);
 }
 
 /* Fade in animations */

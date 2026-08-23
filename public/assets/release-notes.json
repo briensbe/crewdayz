@@ -1,5 +1,20 @@
 [
   {
+    "version": "2026.08.23",
+    "date": "2026-08-23",
+    "news": [
+      {
+        "title": "Mode Sombre (Dark Mode)",
+        "items": [
+          "Arrivée du mode sombre complet",
+          "Choix de thème flexible : Clair, Sombre ou Automatique (synchronisé avec les préférences de votre système d'exploitation).",
+          "Raccourci rapide dans la barre latérale pour basculer instantanément de thème en un seul clic.",
+          "Sélecteur de thème dédié avec aperçu dans la page 'Mon Profil'."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.07.30",
     "date": "2026-07-30",
     "news": [

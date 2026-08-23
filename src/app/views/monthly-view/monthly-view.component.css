@@ -444,13 +444,13 @@ tr:hover .sticky-right-1 {
 
 .sticky-right-1.worked-col,
 .sticky-right-1.worked-value {
-  background-color: var(--primary-light) !important;
-  color: var(--primary-dark);
+  background-color: var(--worked-col-bg) !important;
+  color: var(--worked-col-text);
 }
 
 tr:hover .sticky-right-1.worked-col,
 tr:hover .sticky-right-1.worked-value {
-  background-color: hsl(217, 91%, 95%) !important;
+  background-color: var(--worked-col-hover-bg) !important;
 }
 
 /* Daily Columns */
@@ -503,13 +503,13 @@ tr:hover .sticky-right-1.worked-value {
 }
 
 .col-weekend {
-  background-color: hsl(210, 20%, 95%) !important;
-  color: var(--text-light);
+  background-color: var(--weekend-bg) !important;
+  color: var(--weekend-text);
 }
 
 .col-holiday {
-  background-color: hsl(350, 40%, 96%) !important;
-  color: var(--danger) !important;
+  background-color: var(--holiday-bg) !important;
+  color: var(--holiday-text) !important;
 }
 
 /* Cells styling */
@@ -526,12 +526,12 @@ tr:hover .sticky-right-1.worked-value {
 }
 
 .cell-weekend {
-  background-color: hsl(210, 20%, 96%);
+  background-color: var(--weekend-cell-bg);
   cursor: not-allowed;
 }
 
 .cell-unavailable {
-  background-color: hsl(210, 8%, 91%) !important;
+  background-color: var(--weekend-cell-bg) !important;
   cursor: not-allowed;
 }
 
@@ -641,13 +641,11 @@ th.is-today::after {
 }
 
 .team-badge {
-  background-color: hsl(262, 83%, 95%);
-  color: var(--abs-rtt);
   font-weight: 600;
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
   font-size: 0.75rem;
-  border: 1px solid hsl(262, 83%, 90%);
+  border: 1px solid transparent;
 }
 
 .select-none {
@@ -789,21 +787,21 @@ th.is-today::after {
 
 /* Color codes for availability percentages */
 .availability-badge.avail-high {
-  background-color: hsl(142, 70%, 93%);
-  color: hsl(142, 76%, 25%);
-  border: 1px solid hsl(142, 70%, 85%);
+  background-color: var(--avail-high-bg);
+  color: var(--avail-high-color);
+  border: 1px solid var(--avail-high-border);
 }
 
 .availability-badge.avail-med {
-  background-color: hsl(35, 92%, 93%);
-  color: hsl(35, 92%, 30%);
-  border: 1px solid hsl(35, 92%, 85%);
+  background-color: var(--avail-med-bg);
+  color: var(--avail-med-color);
+  border: 1px solid var(--avail-med-border);
 }
 
 .availability-badge.avail-zero {
-  background-color: hsl(350, 89%, 94%);
-  color: hsl(350, 89%, 36%);
-  border: 1px solid hsl(350, 89%, 88%);
+  background-color: var(--avail-zero-bg);
+  color: var(--avail-zero-color);
+  border: 1px solid var(--avail-zero-border);
 }
 
 /* Zone Holiday Rows & Strips (Post Office style) */
@@ -841,18 +839,18 @@ th.is-today::after {
 }
 
 .zone-a-strip {
-  background-color: #e0e7ff; /* Light Indigo */
-  border: 1px solid #c7d2fe;
+  background-color: var(--zone-a-strip-bg);
+  border: 1px solid var(--zone-a-strip-border);
 }
 
 .zone-b-strip {
-  background-color: #d1fae5; /* Light Emerald */
-  border: 1px solid #a7f3d0;
+  background-color: var(--zone-b-strip-bg);
+  border: 1px solid var(--zone-b-strip-border);
 }
 
 .zone-c-strip {
-  background-color: #fce7f3; /* Light Rose/Pink */
-  border: 1px solid #fbcfe8;
+  background-color: var(--zone-c-strip-bg);
+  border: 1px solid var(--zone-c-strip-border);
 }
 
 /* Month recall styles */

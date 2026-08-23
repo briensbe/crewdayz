@@ -5,18 +5,18 @@ export interface TeamStyle {
 }
 
 const TEAM_PALETTE: TeamStyle[] = [
-  { background: 'hsl(220, 85%, 96%)', color: 'hsl(220, 85%, 30%)', borderColor: 'hsl(220, 85%, 90%)' }, // Bleu
-  { background: 'hsl(145, 80%, 96%)', color: 'hsl(145, 80%, 25%)', borderColor: 'hsl(145, 80%, 90%)' }, // Vert (Émeraude)
-  { background: 'hsl(270, 80%, 96%)', color: 'hsl(270, 80%, 30%)', borderColor: 'hsl(270, 80%, 90%)' }, // Violet
-  { background: 'hsl(35, 90%, 95%)', color: 'hsl(35, 90%, 25%)', borderColor: 'hsl(35, 90%, 88%)' }, // Ambre/Orange
-  { background: 'hsl(325, 80%, 96%)', color: 'hsl(325, 80%, 30%)', borderColor: 'hsl(325, 80%, 90%)' }, // Rose/Fuchsia
-  { background: 'hsl(180, 75%, 95%)', color: 'hsl(180, 75%, 25%)', borderColor: 'hsl(180, 75%, 88%)' }, // Turquoise/Teal
-  { background: 'hsl(15, 85%, 96%)', color: 'hsl(15, 85%, 30%)', borderColor: 'hsl(15, 85%, 90%)' }, // Corail
-  { background: 'hsl(295, 75%, 96%)', color: 'hsl(295, 75%, 30%)', borderColor: 'hsl(295, 75%, 90%)' }, // Mauve
-  { background: 'hsl(80, 65%, 94%)', color: 'hsl(80, 75%, 23%)', borderColor: 'hsl(80, 65%, 85%)' }, // Tilleul/Vert Olive
-  { background: 'hsl(200, 80%, 95%)', color: 'hsl(200, 85%, 28%)', borderColor: 'hsl(200, 80%, 88%)' }, // Cyan
-  { background: 'hsl(345, 80%, 96%)', color: 'hsl(345, 80%, 30%)', borderColor: 'hsl(345, 80%, 90%)' }, // Rouge Rubis
-  { background: 'hsl(50, 80%, 94%)', color: 'hsl(50, 85%, 25%)', borderColor: 'hsl(50, 80%, 85%)' }, // Or/Jaune doré
+  { background: 'var(--team-bg-0)', color: 'var(--team-color-0)', borderColor: 'var(--team-border-0)' }, // Bleu
+  { background: 'var(--team-bg-1)', color: 'var(--team-color-1)', borderColor: 'var(--team-border-1)' }, // Vert (Émeraude)
+  { background: 'var(--team-bg-2)', color: 'var(--team-color-2)', borderColor: 'var(--team-border-2)' }, // Violet
+  { background: 'var(--team-bg-3)', color: 'var(--team-color-3)', borderColor: 'var(--team-border-3)' }, // Ambre/Orange
+  { background: 'var(--team-bg-4)', color: 'var(--team-color-4)', borderColor: 'var(--team-border-4)' }, // Rose/Fuchsia
+  { background: 'var(--team-bg-5)', color: 'var(--team-color-5)', borderColor: 'var(--team-border-5)' }, // Turquoise/Teal
+  { background: 'var(--team-bg-6)', color: 'var(--team-color-6)', borderColor: 'var(--team-border-6)' }, // Corail
+  { background: 'var(--team-bg-7)', color: 'var(--team-color-7)', borderColor: 'var(--team-border-7)' }, // Mauve
+  { background: 'var(--team-bg-8)', color: 'var(--team-color-8)', borderColor: 'var(--team-border-8)' }, // Tilleul/Vert Olive
+  { background: 'var(--team-bg-9)', color: 'var(--team-color-9)', borderColor: 'var(--team-border-9)' }, // Cyan
+  { background: 'var(--team-bg-10)', color: 'var(--team-color-10)', borderColor: 'var(--team-border-10)' }, // Rouge Rubis
+  { background: 'var(--team-bg-11)', color: 'var(--team-color-11)', borderColor: 'var(--team-border-11)' }, // Or/Jaune doré
 ];
 
 // Dictionnaire de surcharges pour forcer une couleur spécifique par équipe (index de 0 à 11)
