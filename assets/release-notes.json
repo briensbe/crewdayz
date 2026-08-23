@@ -11,6 +11,17 @@
           "Raccourci rapide dans la barre latérale pour basculer instantanément de thème en un seul clic.",
           "Sélecteur de thème dédié avec aperçu dans la page 'Mon Profil'."
         ]
+      },
+      {
+        "title": "Ajout de collaborateurs hors filtre (Épinglage)",
+        "imageUrl": "assets/2026-08-23-pinned-collaborator-filtre.png",
+        "items": [
+          "Possibilité d'ajouter et d'épingler un ou plusieurs collaborateurs au planning sans réinitialiser ni modifier vos filtres actifs (Équipe, Service, Site, etc.).",
+          "Menu déroulant dédié 'Hors filtre' avec recherche intégrée et sélection multiple.",
+          "Indicateur visuel distinctif (icône 📌) sur les lignes du tableau pour repérer facilement les personnes ajoutées en exception.",
+          "Intégration automatique des collaborateurs épinglés dans les calculs de disponibilité hebdomadaires par profil et les compteurs.",
+          "Gestion et retrait rapide des collaborateurs épinglés via les pastilles sous la barre de filtres, avec persistance automatique de votre sélection."
+        ]
       }
     ]
   },
