@@ -1,5 +1,18 @@
 [
   {
+    "version": "2026.09.05",
+    "date": "2026-09-05",
+    "news": [
+      {
+        "title": "SIDE-91 - Export Excel de la présence d'un collaborateur",
+        "imageUrl": "assets/2026-09-05-export-presence.png",
+        "items": [
+          "Export individuel au format Excel (.xlsx) de la synthèse mensuelle d'un collaborateur depuis la Vue Mensuelle."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.08.23",
     "date": "2026-08-23",
     "news": [

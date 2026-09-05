@@ -330,6 +330,14 @@
                       {{ emp.first_name }} {{ emp.last_name.toUpperCase() }}
                     }
                   </span>
+                  <button
+                    type="button"
+                    class="row-export-action-btn"
+                    (click)="exportCollaborator(emp, $event)"
+                    title="Exporter le relevé mensuel Excel (.xlsx)"
+                  >
+                    <lucide-icon [img]="FileDown" size="13"></lucide-icon>
+                  </button>
                 </div>
               </td>
               @if (showServiceCol()) {
