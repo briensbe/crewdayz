@@ -32,3 +32,8 @@ Permet d'importer un export Excel Triskell (.xlsx ou .xlsm) pour comparer les jo
 - L'interface DOIT permettre de filtrer par statut (Tous, Écarts uniquement, Conformes, Non matchés) et par section (ESN, Interne).
 - Le clic sur une ligne DOIT ouvrir une vue détaillée présentant les absences Crewdayz du mois.
 - L'interface DOIT proposer un export du rapport de contrôle au format Excel (.xlsx).
+
+### Requirement: Persistance de l'état de navigation (Session)
+- Le système DOIT conserver en mémoire le résultat du parsing, le nom du fichier et le mois sélectionné lors de la navigation vers d'autres routes de l'application.
+- Le retour sur la vue `/reconciliation` DOIT restaurer immédiatement l'état du dernier fichier analysé sans rechargement.
+- L'action "Changer de fichier" DOIT réinitialiser l'état en mémoire du service.

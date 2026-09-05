@@ -69,15 +69,17 @@ export class TriskellReconciliationComponent implements OnInit {
 
   readonly frenchMonths = FRENCH_MONTHS_NAMES;
 
-  // File state
+  // UI State
   isDragging = signal<boolean>(false);
   isLoading = signal<boolean>(false);
-  fileName = signal<string>('');
-  parseResult = signal<TriskellParseResult | null>(null);
 
-  // View & Filters State
-  selectedMonthIndex = signal<number>(new Date().getMonth());
-  filterStatus = signal<'all' | 'anomalies' | 'unmatched' | 'ok'>('all');
+  // Persistent State bound to Service Singleton
+  readonly parseResult = this.reconciliationService.parseResult;
+  readonly fileName = this.reconciliationService.fileName;
+  readonly selectedMonthIndex = this.reconciliationService.selectedMonthIndex;
+
+  // Local View & Filters State (defaults to anomalies only)
+  filterStatus = signal<'all' | 'anomalies' | 'unmatched' | 'ok'>('anomalies');
   filterSection = signal<'all' | 'ESN' | 'Interne'>('all');
   searchQuery = signal<string>('');
 
@@ -140,7 +142,6 @@ export class TriskellReconciliationComponent implements OnInit {
     }
 
     this.isLoading.set(true);
-    this.fileName.set(file.name);
 
     try {
       // Ensure employees are fetched if not yet available
@@ -154,14 +155,7 @@ export class TriskellReconciliationComponent implements OnInit {
       // Ensure absences for detected year are loaded
       await this.absenceService.fetchAbsencesForYear(result.year);
 
-      this.parseResult.set(result);
-
-      // Select first available month
-      if (result.availableMonths.length > 0) {
-        if (!result.availableMonths.includes(this.selectedMonthIndex())) {
-          this.selectedMonthIndex.set(result.availableMonths[0]);
-        }
-      }
+      this.reconciliationService.setParseResult(result, file.name);
 
       this.toastService.success(
         `Fichier analysé avec succès : ${result.rawEntries.length} lignes extraites pour l'année ${result.year}.`
@@ -169,7 +163,7 @@ export class TriskellReconciliationComponent implements OnInit {
     } catch (err: any) {
       console.error('Erreur de parsing Triskell:', err);
       this.toastService.error(err.message || 'Erreur lors de la lecture du fichier Excel Triskell.');
-      this.parseResult.set(null);
+      this.reconciliationService.resetState();
     } finally {
       this.isLoading.set(false);
     }
@@ -278,8 +272,11 @@ export class TriskellReconciliationComponent implements OnInit {
   }
 
   selectMonth(monthIndex: number): void {
-    this.selectedMonthIndex.set(monthIndex);
+    this.reconciliationService.setSelectedMonthIndex(monthIndex);
   }
+
+  // Confirmation Dialog State
+  showResetConfirm = signal<boolean>(false);
 
   openRowDetail(row: ReconciliationRow): void {
     this.selectedDetailRow.set(row);
@@ -295,9 +292,20 @@ export class TriskellReconciliationComponent implements OnInit {
     this.reconciliationService.exportReconciliationToExcel(summary);
   }
 
-  resetUpload(): void {
-    this.parseResult.set(null);
-    this.fileName.set('');
+  promptResetUpload(): void {
+    this.showResetConfirm.set(true);
+  }
+
+  confirmResetUpload(): void {
+    this.reconciliationService.resetState();
     this.selectedDetailRow.set(null);
+    this.filterStatus.set('anomalies');
+    this.filterSection.set('all');
+    this.searchQuery.set('');
+    this.showResetConfirm.set(false);
+  }
+
+  cancelResetUpload(): void {
+    this.showResetConfirm.set(false);
   }
 }

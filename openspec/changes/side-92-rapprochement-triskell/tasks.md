@@ -6,3 +6,4 @@
 - [x] Configurer la route `/reconciliation` dans `app.routes.ts` <!-- id: 4 -->
 - [x] Ajouter l'entrée "Rapprochement Triskell" dans le menu de navigation de `SidebarComponent` <!-- id: 5 -->
 - [x] Valider les tests unitaires et le build de production <!-- id: 6 -->
+- [x] Déplacer l'état du parsing et de navigation dans le service singleton pour conserver l'affichage lors du changement de route <!-- id: 7 -->

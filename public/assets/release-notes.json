@@ -4,6 +4,16 @@
     "date": "2026-09-05",
     "news": [
       {
+        "title": "SIDE-92 - Rapprochement Triskell & Crewdayz",
+        "imageUrl": "assets/2026-09-05-rapprochement-triskell.png",
+        "items": [
+          "Import d'un fichier Triskell (.xlsx ou .xlsm - de type Plan_De_Charge_Unité) pour réconcilier à la volée le temps consommé déclaré dans Triskell face aux jours travaillés de Crewdayz.",
+          "Détection automatique des anomalies et écarts d'activité par mois avec badges dynamiques sur les onglets mensuels.",
+          "Tableau de contrôle interactif avec filtres d'écarts par défaut, tri multi-colonnes, recherche et consultation du détail des absences au clic sur la ligne.",
+          "Export du rapport complet de réconciliation au format Excel (.xlsx)."
+        ]
+      },
+      {
         "title": "SIDE-91 - Export Excel de la présence d'un collaborateur",
         "imageUrl": "assets/2026-09-05-export-presence.png",
         "items": [

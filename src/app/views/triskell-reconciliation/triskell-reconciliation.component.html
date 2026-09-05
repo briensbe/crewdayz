@@ -15,7 +15,7 @@
 
     @if (parseResult(); as result) {
       <div class="header-actions">
-        <button class="btn btn-secondary" (click)="resetUpload()">
+        <button class="btn btn-secondary" (click)="promptResetUpload()">
           <lucide-icon [img]="RefreshCw" class="btn-icon"></lucide-icon>
           Changer de fichier
         </button>
@@ -252,7 +252,12 @@
           </thead>
           <tbody>
             @for (row of filteredRows(); track row.resourceNameTriskell + row.unit) {
-              <tr [class.row-anomaly]="row.hasAnomaly" [class.row-unmatched]="!row.isMatched">
+              <tr
+                class="clickable-row"
+                [class.row-anomaly]="row.hasAnomaly"
+                [class.row-unmatched]="!row.isMatched"
+                (click)="openRowDetail(row)"
+              >
                 <!-- Ressource Triskell -->
                 <td class="cell-primary">
                   <div class="resource-name">{{ row.resourceNameTriskell }}</div>
@@ -334,15 +339,13 @@
 
                 <!-- Action / Detail Button -->
                 <td class="text-center">
-                  @if (row.isMatched) {
-                    <button
-                      class="btn-icon-subtle"
-                      title="Voir le détail des absences du mois"
-                      (click)="openRowDetail(row)"
-                    >
-                      <lucide-icon [img]="ChevronRight" class="action-icon"></lucide-icon>
-                    </button>
-                  }
+                  <button
+                    class="btn-icon-subtle"
+                    title="Voir le détail des absences du mois"
+                    (click)="$event.stopPropagation(); openRowDetail(row)"
+                  >
+                    <lucide-icon [img]="ChevronRight" class="action-icon"></lucide-icon>
+                  </button>
                 </td>
               </tr>
             } @empty {
@@ -366,7 +369,11 @@
         <div class="modal-header">
           <div class="modal-title-group">
             <h3 class="modal-title">
-              {{ detail.employee?.first_name }} {{ detail.employee?.last_name | uppercase }}
+              @if (detail.employee) {
+                {{ detail.employee.first_name }} {{ detail.employee.last_name | uppercase }}
+              } @else {
+                {{ detail.resourceNameTriskell }}
+              }
             </h3>
             <span class="modal-subtitle">
               Détail d'activité pour {{ currentMonthSummary()?.monthName }} {{ parseResult()?.year }}
@@ -411,23 +418,23 @@
               <table class="absences-table">
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Type d'absence</th>
-                    <th>Période</th>
-                    <th>Commentaire</th>
+                    <th class="col-date">Date</th>
+                    <th class="col-type">Type d'absence</th>
+                    <th class="col-period">Période</th>
+                    <th class="col-comment">Commentaire</th>
                   </tr>
                 </thead>
                 <tbody>
                   @for (abs of detail.monthAbsences; track abs.id || abs.date) {
                     <tr>
-                      <td class="font-medium">{{ abs.date }}</td>
-                      <td>
+                      <td class="font-medium col-date">{{ abs.date }}</td>
+                      <td class="col-type">
                         <span class="absence-category-badge">{{ abs.category }}</span>
                       </td>
-                      <td>
+                      <td class="col-period">
                         {{ abs.period === 'full' ? 'Journée entière (1.0 j)' : abs.period === 'morning' ? 'Matin (0.5 j)' : 'Après-midi (0.5 j)' }}
                       </td>
-                      <td class="text-muted">{{ abs.comment || '-' }}</td>
+                      <td class="col-comment comment-text">{{ abs.comment || '-' }}</td>
                     </tr>
                   }
                 </tbody>
@@ -471,6 +478,47 @@
 
         <div class="modal-footer">
           <button class="btn btn-secondary" (click)="closeRowDetail()">Fermer</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Confirm Reset Modal -->
+  @if (showResetConfirm()) {
+    <div class="modal-backdrop" (click)="cancelResetUpload()">
+      <div class="modal-card confirm-modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="confirm-header-content">
+            <div class="confirm-icon-wrapper">
+              <lucide-icon [img]="AlertTriangle" class="confirm-icon"></lucide-icon>
+            </div>
+            <div>
+              <h3 class="modal-title">Changer de fichier ?</h3>
+              <span class="modal-subtitle">Confirmation de réinitialisation</span>
+            </div>
+          </div>
+          <button class="btn-close" (click)="cancelResetUpload()">
+            <lucide-icon [img]="X" class="close-icon"></lucide-icon>
+          </button>
+        </div>
+
+        <div class="modal-body confirm-body">
+          <p class="confirm-text">
+            Attention : si vous changez de fichier, l'analyse en cours et l'ensemble des données du fichier <strong>{{ fileName() }}</strong> seront réinitialisées.
+          </p>
+          <p class="confirm-subtext">
+            Souhaitez-vous continuer et charger un nouveau classeur Excel ?
+          </p>
+        </div>
+
+        <div class="modal-footer confirm-footer">
+          <button class="btn btn-secondary" (click)="cancelResetUpload()">
+            Annuler
+          </button>
+          <button class="btn btn-danger" (click)="confirmResetUpload()">
+            <lucide-icon [img]="RefreshCw" class="btn-icon"></lucide-icon>
+            Oui, réinitialiser
+          </button>
         </div>
       </div>
     </div>

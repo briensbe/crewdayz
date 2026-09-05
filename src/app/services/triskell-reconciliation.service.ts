@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import * as XLSX from 'xlsx-js-style';
 import { Employee, Absence } from '../models/types';
 import { EmployeeService } from './employee.service';
@@ -115,9 +115,30 @@ export class TriskellReconciliationService {
   private readonly absenceService = inject(AbsenceService);
   private readonly toastService = inject(ToastService);
 
-  /**
-   * Parse Triskell Excel file (.xlsx or .xlsm) into structured raw entries
-   */
+  // Persistent session state across route navigation
+  public readonly parseResult = signal<TriskellParseResult | null>(null);
+  public readonly fileName = signal<string>('');
+  public readonly selectedMonthIndex = signal<number>(new Date().getMonth());
+
+  public setParseResult(result: TriskellParseResult | null, fileName: string = ''): void {
+    this.parseResult.set(result);
+    this.fileName.set(fileName);
+    if (result && result.availableMonths.length > 0) {
+      if (!result.availableMonths.includes(this.selectedMonthIndex())) {
+        this.selectedMonthIndex.set(result.availableMonths[0]);
+      }
+    }
+  }
+
+  public setSelectedMonthIndex(monthIndex: number): void {
+    this.selectedMonthIndex.set(monthIndex);
+  }
+
+  public resetState(): void {
+    this.parseResult.set(null);
+    this.fileName.set('');
+  }
+
   /**
    * Parse Triskell Excel file (.xlsx or .xlsm) into structured raw entries
    */
