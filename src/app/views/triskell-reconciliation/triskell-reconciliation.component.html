@@ -1,0 +1,478 @@
+<div class="reconciliation-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="title-with-icon">
+        <lucide-icon [img]="FileSpreadsheet" class="title-icon"></lucide-icon>
+        <div>
+          <h1 class="page-title">Rapprochement Triskell & Crewdayz</h1>
+          <p class="page-subtitle">
+            Contrôle à la volée de la consommation d'activité mensuelle déclarée face aux présences réelles
+          </p>
+        </div>
+      </div>
+    </div>
+
+    @if (parseResult(); as result) {
+      <div class="header-actions">
+        <button class="btn btn-secondary" (click)="resetUpload()">
+          <lucide-icon [img]="RefreshCw" class="btn-icon"></lucide-icon>
+          Changer de fichier
+        </button>
+        <button class="btn btn-primary" (click)="exportCurrentMonth()">
+          <lucide-icon [img]="Download" class="btn-icon"></lucide-icon>
+          Exporter le rapport (.xlsx)
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Main Content -->
+  @if (!parseResult()) {
+    <!-- Upload Zone -->
+    <div
+      class="upload-card"
+      [class.dragging]="isDragging()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+    >
+      <div class="upload-content">
+        <div class="upload-icon-wrapper">
+          <lucide-icon [img]="UploadCloud" class="upload-icon"></lucide-icon>
+        </div>
+        <h2 class="upload-title">Déposez votre export Triskell</h2>
+        <p class="upload-desc">
+          Glissez-déposez le fichier Excel (format <strong>.xlsx</strong> ou <strong>.xlsm</strong>) ou parcourez vos dossiers.
+        </p>
+
+        <label class="btn btn-primary upload-btn">
+          <lucide-icon [img]="FileSpreadsheet" class="btn-icon"></lucide-icon>
+          Sélectionner un fichier
+          <input
+            type="file"
+            accept=".xlsx, .xlsm, .xls"
+            class="hidden-file-input"
+            (change)="onFileInputChange($event)"
+          />
+        </label>
+
+        @if (isLoading()) {
+          <div class="upload-loading">
+            <div class="spinner"></div>
+            <span>Analyse et matching du fichier en cours...</span>
+          </div>
+        }
+
+        <div class="upload-hint">
+          <span>💡 Le traitement est 100% sécurisé et s'exécute localement dans votre navigateur sans transfert externe.</span>
+        </div>
+      </div>
+    </div>
+  } @else {
+    @let summary = currentMonthSummary();
+    @let res = parseResult()!;
+
+    <!-- Month Selector Bar -->
+    <div class="month-tabs-container">
+      <div class="month-tabs">
+        @for (m of res.availableMonths; track m) {
+          @let anomalyCount = monthAnomalyBadges()[m] || 0;
+          <button
+            class="month-tab"
+            [class.active]="selectedMonthIndex() === m"
+            (click)="selectMonth(m)"
+          >
+            <span>{{ frenchMonths[m] }} {{ res.year }}</span>
+            @if (anomalyCount > 0) {
+              <span class="badge badge-warning" title="{{ anomalyCount }} anomalie(s) détectée(s)">
+                {{ anomalyCount }}
+              </span>
+            } @else {
+              <span class="badge badge-success" title="Aucune anomalie">✓</span>
+            }
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Summary KPIs -->
+    @if (summary) {
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Consommé Triskell</span>
+            <lucide-icon [img]="FileSpreadsheet" class="kpi-icon text-blue"></lucide-icon>
+          </div>
+          <div class="kpi-value text-blue">{{ summary.totalTriskellConsumed }} <span class="kpi-unit">j</span></div>
+          <div class="kpi-sub">Total saisi sur {{ summary.rows.length }} lignes</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Travaillé Crewdayz</span>
+            <lucide-icon [img]="Calendar" class="kpi-icon text-indigo"></lucide-icon>
+          </div>
+          <div class="kpi-value text-indigo">{{ summary.totalCrewdayzWorked }} <span class="kpi-unit">j</span></div>
+          <div class="kpi-sub">Présence théorique déduite</div>
+        </div>
+
+        <div class="kpi-card" [class.kpi-card-alert]="summary.anomalyCount > 0">
+          <div class="kpi-header">
+            <span class="kpi-label">Écarts / Anomalies</span>
+            <lucide-icon [img]="AlertTriangle" class="kpi-icon text-amber"></lucide-icon>
+          </div>
+          <div class="kpi-value text-amber">{{ summary.anomalyCount }}</div>
+          <div class="kpi-sub">Différences de consommation</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Non Reconnus</span>
+            <lucide-icon [img]="HelpCircle" class="kpi-icon text-slate"></lucide-icon>
+          </div>
+          <div class="kpi-value text-slate">{{ summary.unmatchedCount }}</div>
+          <div class="kpi-sub">Introuvables dans Crewdayz</div>
+        </div>
+      </div>
+    }
+
+    <!-- Toolbar Filters -->
+    <div class="table-toolbar">
+      <div class="toolbar-left">
+        <!-- Status Filter -->
+        <div class="segmented-control">
+          <button
+            class="segment-btn"
+            [class.active]="filterStatus() === 'all'"
+            (click)="filterStatus.set('all')"
+          >
+            Tous ({{ summary?.rows?.length || 0 }})
+          </button>
+          <button
+            class="segment-btn segment-btn-warning"
+            [class.active]="filterStatus() === 'anomalies'"
+            (click)="filterStatus.set('anomalies')"
+          >
+            <lucide-icon [img]="AlertTriangle" class="btn-mini-icon"></lucide-icon>
+            Écarts uniquement
+          </button>
+          <button
+            class="segment-btn segment-btn-success"
+            [class.active]="filterStatus() === 'ok'"
+            (click)="filterStatus.set('ok')"
+          >
+            <lucide-icon [img]="CheckCircle2" class="btn-mini-icon"></lucide-icon>
+            Conformes
+          </button>
+          <button
+            class="segment-btn segment-btn-muted"
+            [class.active]="filterStatus() === 'unmatched'"
+            (click)="filterStatus.set('unmatched')"
+          >
+            <lucide-icon [img]="HelpCircle" class="btn-mini-icon"></lucide-icon>
+            Non matchés
+          </button>
+        </div>
+
+        <!-- Section Filter -->
+        <div class="section-filter">
+          <select
+            class="select-control"
+            [ngModel]="filterSection()"
+            (ngModelChange)="filterSection.set($event)"
+          >
+            <option value="all">Toutes sections</option>
+            <option value="ESN">ESN (Prestataires)</option>
+            <option value="Interne">Internes</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="toolbar-right">
+        <!-- Search Input -->
+        <div class="search-box">
+          <lucide-icon [img]="Search" class="search-icon"></lucide-icon>
+          <input
+            type="text"
+            placeholder="Rechercher une ressource, prestataire..."
+            class="search-input"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+          />
+          @if (searchQuery()) {
+            <button class="clear-btn" (click)="searchQuery.set('')">
+              <lucide-icon [img]="X" class="clear-icon"></lucide-icon>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-card">
+      <div class="table-responsive">
+        <table class="reconciliation-table">
+          <thead>
+            <tr>
+              <th (click)="toggleSort('name')" class="sortable-th">
+                <div class="th-content">
+                  <span>Ressource (Triskell)</span>
+                  <lucide-icon [img]="ArrowUpDown" class="th-icon"></lucide-icon>
+                </div>
+              </th>
+              <th>Section / Contrat</th>
+              <th>Collaborateur Crewdayz</th>
+              <th (click)="toggleSort('consumed')" class="sortable-th text-right">
+                <div class="th-content justify-end">
+                  <span>Consommé Triskell</span>
+                  <lucide-icon [img]="ArrowUpDown" class="th-icon"></lucide-icon>
+                </div>
+              </th>
+              <th (click)="toggleSort('worked')" class="sortable-th text-right">
+                <div class="th-content justify-end">
+                  <span>Travaillé Crewdayz</span>
+                  <lucide-icon [img]="ArrowUpDown" class="th-icon"></lucide-icon>
+                </div>
+              </th>
+              <th (click)="toggleSort('diff')" class="sortable-th text-right">
+                <div class="th-content justify-end">
+                  <span>Écart (Δ)</span>
+                  <lucide-icon [img]="ArrowUpDown" class="th-icon"></lucide-icon>
+                </div>
+              </th>
+              <th (click)="toggleSort('status')" class="sortable-th text-center">
+                <div class="th-content justify-center">
+                  <span>Diagnostic</span>
+                  <lucide-icon [img]="ArrowUpDown" class="th-icon"></lucide-icon>
+                </div>
+              </th>
+              <th class="text-center">Détail</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of filteredRows(); track row.resourceNameTriskell + row.unit) {
+              <tr [class.row-anomaly]="row.hasAnomaly" [class.row-unmatched]="!row.isMatched">
+                <!-- Ressource Triskell -->
+                <td class="cell-primary">
+                  <div class="resource-name">{{ row.resourceNameTriskell }}</div>
+                  @if (row.unit) {
+                    <div class="resource-sub">{{ row.unit }}</div>
+                  }
+                </td>
+
+                <!-- Section & Supplier -->
+                <td>
+                  <span class="badge" [class.badge-esn]="row.sectionType === 'ESN'" [class.badge-interne]="row.sectionType === 'Interne'">
+                    {{ row.sectionType }}
+                  </span>
+                  @if (row.supplier && row.supplier !== '(vide)') {
+                    <span class="supplier-tag">{{ row.supplier }}</span>
+                  }
+                </td>
+
+                <!-- Collaborateur Crewdayz -->
+                <td>
+                  @if (row.isMatched && row.employee) {
+                    <div class="matched-emp">
+                      <span class="emp-name">{{ row.employee.last_name | uppercase }} {{ row.employee.first_name }}</span>
+                      <span class="emp-team">{{ row.employee.team || '-' }}</span>
+                    </div>
+                  } @else {
+                    <span class="unmatched-label">
+                      <lucide-icon [img]="HelpCircle" class="mini-icon"></lucide-icon>
+                      Non trouvé
+                    </span>
+                  }
+                </td>
+
+                <!-- Consommé Triskell -->
+                <td class="text-right font-medium">
+                  {{ row.consumedDays }} j
+                </td>
+
+                <!-- Travaillé Crewdayz -->
+                <td class="text-right font-medium">
+                  @if (row.isMatched) {
+                    {{ row.crewdayzWorkedDays }} j
+                  } @else {
+                    <span class="text-muted">-</span>
+                  }
+                </td>
+
+                <!-- Écart (Delta) -->
+                <td class="text-right">
+                  @if (row.isMatched) {
+                    @if (row.difference === 0) {
+                      <span class="diff-badge diff-ok">0.0 j</span>
+                    } @else if (row.difference > 0) {
+                      <span class="diff-badge diff-over">+{{ row.difference }} j</span>
+                    } @else {
+                      <span class="diff-badge diff-under">{{ row.difference }} j</span>
+                    }
+                  } @else {
+                    <span class="text-muted">-</span>
+                  }
+                </td>
+
+                <!-- Diagnostic -->
+                <td class="text-center">
+                  @if (!row.isMatched) {
+                    <span class="diag-tag diag-unmatched">Non référencé</span>
+                  } @else if (!row.hasAnomaly) {
+                    <span class="diag-tag diag-ok">
+                      <lucide-icon [img]="CheckCircle2" class="mini-icon"></lucide-icon>
+                      Conforme
+                    </span>
+                  } @else {
+                    <span class="diag-tag diag-anomaly">
+                      <lucide-icon [img]="AlertTriangle" class="mini-icon"></lucide-icon>
+                      Écart détecté
+                    </span>
+                  }
+                </td>
+
+                <!-- Action / Detail Button -->
+                <td class="text-center">
+                  @if (row.isMatched) {
+                    <button
+                      class="btn-icon-subtle"
+                      title="Voir le détail des absences du mois"
+                      (click)="openRowDetail(row)"
+                    >
+                      <lucide-icon [img]="ChevronRight" class="action-icon"></lucide-icon>
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="8" class="empty-state">
+                  <lucide-icon [img]="Search" class="empty-icon"></lucide-icon>
+                  <p>Aucun résultat ne correspond aux filtres appliqués.</p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- Detail Modal / Drawer -->
+  @if (selectedDetailRow(); as detail) {
+    <div class="modal-backdrop" (click)="closeRowDetail()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h3 class="modal-title">
+              {{ detail.employee?.first_name }} {{ detail.employee?.last_name | uppercase }}
+            </h3>
+            <span class="modal-subtitle">
+              Détail d'activité pour {{ currentMonthSummary()?.monthName }} {{ parseResult()?.year }}
+            </span>
+          </div>
+          <button class="btn-close" (click)="closeRowDetail()">
+            <lucide-icon [img]="X" class="close-icon"></lucide-icon>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Quick Recap Cards -->
+          <div class="detail-kpis">
+            <div class="detail-kpi-item">
+              <span class="detail-kpi-label">Consommé Triskell</span>
+              <span class="detail-kpi-value text-blue">{{ detail.consumedDays }} j</span>
+            </div>
+            <div class="detail-kpi-item">
+              <span class="detail-kpi-label">Travaillé Crewdayz</span>
+              <span class="detail-kpi-value text-indigo">{{ detail.crewdayzWorkedDays }} j</span>
+            </div>
+            <div class="detail-kpi-item">
+              <span class="detail-kpi-label">Écart constaté</span>
+              <span
+                class="detail-kpi-value"
+                [class.text-amber]="detail.difference !== 0"
+                [class.text-emerald]="detail.difference === 0"
+              >
+                {{ detail.difference > 0 ? '+' : '' }}{{ detail.difference }} j
+              </span>
+            </div>
+          </div>
+
+          <!-- Absences List in Crewdayz -->
+          <h4 class="section-title">
+            <lucide-icon [img]="Calendar" class="section-icon"></lucide-icon>
+            Absences enregistrées dans Crewdayz ({{ detail.monthAbsences.length }})
+          </h4>
+
+          @if (detail.monthAbsences.length > 0) {
+            <div class="absences-table-wrapper">
+              <table class="absences-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type d'absence</th>
+                    <th>Période</th>
+                    <th>Commentaire</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (abs of detail.monthAbsences; track abs.id || abs.date) {
+                    <tr>
+                      <td class="font-medium">{{ abs.date }}</td>
+                      <td>
+                        <span class="absence-category-badge">{{ abs.category }}</span>
+                      </td>
+                      <td>
+                        {{ abs.period === 'full' ? 'Journée entière (1.0 j)' : abs.period === 'morning' ? 'Matin (0.5 j)' : 'Après-midi (0.5 j)' }}
+                      </td>
+                      <td class="text-muted">{{ abs.comment || '-' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="no-absences-banner">
+              <lucide-icon [img]="CheckCircle2" class="banner-icon"></lucide-icon>
+              <span>Aucune absence enregistrée pour ce collaborateur sur ce mois dans Crewdayz.</span>
+            </div>
+          }
+
+          <!-- Metadata info -->
+          @if (detail.employee) {
+            <div class="collaborator-meta">
+              <div class="meta-item">
+                <span class="meta-label">Service :</span>
+                <span>{{ detail.employee.service || '-' }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Îlot / Équipe :</span>
+                <span>{{ detail.employee.team || '-' }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Site :</span>
+                <span>{{ detail.employee.work_site || '-' }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Date d'arrivée :</span>
+                <span>{{ detail.employee.arrival_date || 'Non renseignée' }}</span>
+              </div>
+              @if (detail.employee.departure_date) {
+                <div class="meta-item text-amber">
+                  <span class="meta-label">Date de départ :</span>
+                  <span>{{ detail.employee.departure_date }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeRowDetail()">Fermer</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

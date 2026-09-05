@@ -13,6 +13,7 @@ import {
   Umbrella,
   History,
   MessageSquare,
+  FileSpreadsheet,
   Sun,
   Moon,
 } from 'lucide-angular';
@@ -51,6 +52,7 @@ export class SidebarComponent {
     { label: 'Collaborateurs', icon: Users, route: '/collaborateurs' },
     { label: 'Vue Mensuelle', icon: Calendar, route: '/mensuel' },
     { label: 'Vue Annuelle', icon: Layers, route: '/annuel' },
+    { label: 'Rapprochement Triskell', icon: FileSpreadsheet, route: '/reconciliation' },
     { label: 'Vacances Scolaires', icon: Umbrella, route: '/vacances' },
     { label: "Historique d'Audit", icon: History, route: '/audit' },
     { label: 'Suggestions', icon: MessageSquare, route: '/suggestions' },

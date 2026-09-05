@@ -43,6 +43,13 @@ export const routes: Routes = [
         loadComponent: () => import('./views/audit-view/audit-view.component').then((m) => m.AuditViewComponent),
       },
       {
+        path: 'reconciliation',
+        loadComponent: () =>
+          import('./views/triskell-reconciliation/triskell-reconciliation.component').then(
+            (m) => m.TriskellReconciliationComponent
+          ),
+      },
+      {
         path: 'suggestions',
         children: [
           {
