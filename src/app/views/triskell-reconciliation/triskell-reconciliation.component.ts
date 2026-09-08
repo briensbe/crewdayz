@@ -178,6 +178,29 @@ export class TriskellReconciliationComponent implements OnInit {
     return this.reconciliationService.buildMonthReconciliation(res, monthIdx);
   });
 
+  // Filter chips counts for current month
+  statusCounts = computed<{ all: number; anomalies: number; ok: number; unmatched: number }>(() => {
+    const summary = this.currentMonthSummary();
+    if (!summary) return { all: 0, anomalies: 0, ok: 0, unmatched: 0 };
+
+    const all = summary.rows.length;
+    let anomalies = 0;
+    let ok = 0;
+    let unmatched = 0;
+
+    for (const r of summary.rows) {
+      if (!r.isMatched) {
+        unmatched++;
+      } else if (r.hasAnomaly) {
+        anomalies++;
+      } else {
+        ok++;
+      }
+    }
+
+    return { all, anomalies, ok, unmatched };
+  });
+
   // Month anomaly counters for tabs
   monthAnomalyBadges = computed<{ [monthIdx: number]: number }>(() => {
     const res = this.parseResult();

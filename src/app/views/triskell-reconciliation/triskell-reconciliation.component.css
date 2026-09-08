@@ -421,52 +421,183 @@
   flex-wrap: wrap;
 }
 
-/* Segmented Control */
-.segmented-control {
-  display: inline-flex;
-  background: var(--background);
-  padding: 0.25rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  gap: 0.25rem;
-}
-
-.segment-btn {
+/* Filter Chips & Toolbar Controls */
+.filter-chips {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  line-height: 1.2;
-  transition: var(--transition);
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.segment-btn.active {
-  background: var(--surface);
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  height: 34px;
+  padding: 0 0.875rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  line-height: 1;
+  user-select: none;
+}
+
+.filter-chip span {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.filter-chip:hover {
+  background-color: var(--background);
   color: var(--text-main);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--text-light);
+}
+
+/* Active State - Default (Tous) */
+.filter-chip.active {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
   font-weight: 600;
 }
 
-.select-control {
-  padding: 0.4375rem 0.75rem;
-  border-radius: var(--radius-sm);
+.chip-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  min-width: 0.875rem;
+  min-height: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chip-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.25rem;
+  min-width: 1.25rem;
+  padding: 0 0.375rem;
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background-color: var(--border);
+  color: var(--text-main);
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.filter-chip.active .chip-count {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Variant: Warning (Écarts) */
+.filter-chip-warning:hover {
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.filter-chip-warning.active {
+  background-color: var(--warning-light);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.filter-chip-warning.active .chip-count {
+  background-color: var(--warning);
+  color: #ffffff;
+}
+
+/* Variant: Success (Conformes) */
+.filter-chip-success:hover {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.filter-chip-success.active {
+  background-color: var(--success-light);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.filter-chip-success.active .chip-count {
+  background-color: var(--success);
+  color: #ffffff;
+}
+
+/* Variant: Muted (Non matchés) */
+.filter-chip-muted:hover {
+  border-color: var(--text-light);
+  color: var(--text-main);
+}
+
+.filter-chip-muted.active {
+  background-color: var(--background);
+  border-color: var(--text-muted);
+  color: var(--text-main);
+}
+
+.filter-chip-muted.active .chip-count {
+  background-color: var(--text-muted);
+  color: #ffffff;
+}
+
+/* Toolbar Divider */
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--border);
+  margin: 0 0.25rem;
+}
+
+/* Section Filter Dropdown Chip */
+.section-filter-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.section-filter-wrapper .select-icon {
+  position: absolute;
+  left: 0.625rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.select-chip {
+  height: 34px;
+  padding: 0 0.875rem 0 1.875rem;
+  border-radius: var(--radius-full);
   border: 1px solid var(--border);
   background-color: var(--surface);
   color: var(--text-main);
   font-size: 0.8125rem;
+  font-weight: 500;
   outline: none;
-  transition: var(--transition);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  appearance: auto;
 }
 
-.select-control:focus {
+.select-chip:hover {
   border-color: var(--primary);
+  background-color: var(--background);
+}
+
+.select-chip:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-light);
 }
 
 /* Search Box */
