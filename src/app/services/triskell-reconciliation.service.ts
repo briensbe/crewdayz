@@ -23,6 +23,15 @@ export interface TriskellRawEntry {
   months: { [monthIndex: number]: number }; // monthIndex (0-11) -> consumed days
 }
 
+export interface TriskellSourceEntry {
+  resourceId: string;
+  resourceName: string;
+  unit: string;
+  supplier: string;
+  sectionType: 'ESN' | 'Interne';
+  consumedDays: number;
+}
+
 export interface ReconciliationRow {
   resourceNameTriskell: string;
   unit: string;
@@ -36,6 +45,7 @@ export interface ReconciliationRow {
   difference: number; // consumedDays - crewdayzWorkedDays
   hasAnomaly: boolean;
   monthAbsences: Absence[];
+  sourceEntries: TriskellSourceEntry[];
 }
 
 export interface MonthReconciliationSummary {
@@ -812,68 +822,116 @@ export class TriskellReconciliationService {
     const employees = this.employeeService.employees();
     const allAbsences = this.absenceService.absences();
 
-    const rows: ReconciliationRow[] = [];
+    const matchedGroups = new Map<string, { employee: Employee; sourceEntries: TriskellSourceEntry[] }>();
+    const unmatchedEntries: TriskellSourceEntry[] = [];
     let totalTriskellConsumed = 0;
-    let totalCrewdayzWorked = 0;
-    let matchedCount = 0;
-    let unmatchedCount = 0;
-    let anomalyCount = 0;
 
     for (const raw of parseResult.rawEntries) {
       const consumedDays = raw.months[targetMonthIndex] ?? 0;
       totalTriskellConsumed += consumedDays;
 
+      const sourceEntry: TriskellSourceEntry = {
+        resourceId: raw.resourceId,
+        resourceName: raw.resourceName,
+        unit: raw.unit,
+        supplier: raw.supplier,
+        sectionType: raw.sectionType,
+        consumedDays,
+      };
+
       const matchedEmp = this.matchEmployee(raw.resourceName, employees);
 
       if (matchedEmp) {
-        matchedCount++;
-        const { workedDays, monthAbsences } = this.computeCrewdayzWorkedDays(
-          matchedEmp,
-          parseResult.year,
-          targetMonthIndex,
-          allAbsences
-        );
-
-        totalCrewdayzWorked += workedDays;
-        const diff = Math.round((consumedDays - workedDays) * 10) / 10;
-        const hasAnomaly = Math.abs(diff) >= 0.01;
-
-        if (hasAnomaly) {
-          anomalyCount++;
+        const empKey = matchedEmp.id || `${matchedEmp.last_name}_${matchedEmp.first_name}`;
+        if (!matchedGroups.has(empKey)) {
+          matchedGroups.set(empKey, {
+            employee: matchedEmp,
+            sourceEntries: [],
+          });
         }
-
-        rows.push({
-          resourceNameTriskell: raw.resourceName,
-          unit: raw.unit,
-          supplier: raw.supplier,
-          sectionType: raw.sectionType,
-          employee: matchedEmp,
-          isMatched: true,
-          matchScore: 1,
-          consumedDays,
-          crewdayzWorkedDays: workedDays,
-          difference: diff,
-          hasAnomaly,
-          monthAbsences,
-        });
+        matchedGroups.get(empKey)!.sourceEntries.push(sourceEntry);
       } else {
-        unmatchedCount++;
-        anomalyCount++; // Unmatched is treated as an anomaly needing attention
-
-        rows.push({
-          resourceNameTriskell: raw.resourceName,
-          unit: raw.unit,
-          supplier: raw.supplier,
-          sectionType: raw.sectionType,
-          employee: null,
-          isMatched: false,
-          consumedDays,
-          crewdayzWorkedDays: 0,
-          difference: consumedDays,
-          hasAnomaly: true,
-          monthAbsences: [],
-        });
+        unmatchedEntries.push(sourceEntry);
       }
+    }
+
+    const rows: ReconciliationRow[] = [];
+    let totalCrewdayzWorked = 0;
+    let matchedCount = 0;
+    let unmatchedCount = 0;
+    let anomalyCount = 0;
+
+    // Process matched employees (consolidated)
+    for (const group of matchedGroups.values()) {
+      matchedCount++;
+      const { employee, sourceEntries } = group;
+
+      const sumConsumed = Math.round(sourceEntries.reduce((sum, s) => sum + s.consumedDays, 0) * 10) / 10;
+      const { workedDays, monthAbsences } = this.computeCrewdayzWorkedDays(
+        employee,
+        parseResult.year,
+        targetMonthIndex,
+        allAbsences
+      );
+
+      totalCrewdayzWorked += workedDays;
+      const diff = Math.round((sumConsumed - workedDays) * 10) / 10;
+      const hasAnomaly = Math.abs(diff) >= 0.01;
+
+      if (hasAnomaly) {
+        anomalyCount++;
+      }
+
+      // Determine primary metadata for display:
+      // 1. If any entries have consumedDays > 0, pick the one with highest consumedDays
+      // 2. If all are 0j, prefer 'Interne' if available, otherwise the last entry
+      const activeEntries = sourceEntries.filter((s) => s.consumedDays > 0);
+      let primaryEntry: TriskellSourceEntry;
+
+      if (activeEntries.length > 0) {
+        const sortedActive = [...activeEntries].sort((a, b) => b.consumedDays - a.consumedDays);
+        primaryEntry = sortedActive[0];
+      } else {
+        const interneEntry = sourceEntries.find((s) => s.sectionType === 'Interne');
+        primaryEntry = interneEntry || sourceEntries[sourceEntries.length - 1];
+      }
+
+      rows.push({
+        resourceNameTriskell: primaryEntry.resourceName,
+        unit: primaryEntry.unit,
+        supplier: primaryEntry.supplier,
+        sectionType: primaryEntry.sectionType,
+        employee,
+        isMatched: true,
+        matchScore: 1,
+        consumedDays: sumConsumed,
+        crewdayzWorkedDays: workedDays,
+        difference: diff,
+        hasAnomaly,
+        monthAbsences,
+        sourceEntries,
+      });
+    }
+
+    // Process unmatched entries
+    for (const unmatched of unmatchedEntries) {
+      unmatchedCount++;
+      anomalyCount++; // Unmatched is treated as an anomaly needing attention
+
+      rows.push({
+        resourceNameTriskell: unmatched.resourceName,
+        unit: unmatched.unit,
+        supplier: unmatched.supplier,
+        sectionType: unmatched.sectionType,
+        employee: null,
+        isMatched: false,
+        consumedDays: unmatched.consumedDays,
+        crewdayzWorkedDays: 0,
+        difference: unmatched.consumedDays,
+        hasAnomaly: true,
+        monthAbsences: [],
+        sourceEntries: [unmatched],
+      });
     }
 
     return {
@@ -927,7 +985,7 @@ export class TriskellReconciliationService {
         let diagnostic = 'Non trouvé dans Crewdayz';
 
         if (row.isMatched && row.employee) {
-          statusMatching = 'Reconnu';
+          statusMatching = row.sourceEntries.length > 1 ? `Reconnu (${row.sourceEntries.length} lignes)` : 'Reconnu';
           empName = `${row.employee.last_name.toUpperCase()} ${row.employee.first_name}`;
           if (row.hasAnomaly) {
             diagnostic = row.difference > 0 ? 'Surconsommation Triskell' : 'Sous-consommation Triskell';

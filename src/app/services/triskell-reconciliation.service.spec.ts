@@ -211,4 +211,66 @@ describe('TriskellReconciliationService', () => {
       expect(result.rawEntries[2].months[2]).toBe(8.5);
     });
   });
+
+  describe('buildMonthReconciliation (Consolidation)', () => {
+    it('should consolidate multiple Triskell lines matching the same employee into a single row', () => {
+      const parseResult = {
+        year: 2026,
+        availableMonths: [0, 1, 2, 3, 4, 5],
+        rawEntries: [
+          // ESN line for Adrien MOREL (emp-1)
+          {
+            unit: 'SIDI-DED',
+            resourceId: '1203',
+            resourceName: 'Adrien MOREL (MAP TECH)',
+            supplier: 'MAP TECH',
+            contract: '2025-01',
+            sectionType: 'ESN' as const,
+            months: { 4: 4.0, 5: 0.0 }, // Mois 5 (Mai): 4j, Mois 6 (Juin): 0j
+          },
+          // Internal line for Adrien MOREL (emp-1)
+          {
+            unit: 'SIDI-DED',
+            resourceId: '1628',
+            resourceName: 'Adrien MOREL',
+            supplier: '',
+            contract: '',
+            sectionType: 'Interne' as const,
+            months: { 4: 16.0, 5: 22.0 }, // Mois 5 (Mai): 16j, Mois 6 (Juin): 22j
+          },
+        ],
+        unmatchedNames: [],
+      };
+
+      // In May 2026 (index 4): 20 business days (ignoring holidays in pure math or based on service computation)
+      const maySummary = service.buildMonthReconciliation(parseResult, 4);
+
+      // Should have only 1 consolidated row instead of 2 separate rows
+      expect(maySummary.rows.length).toBe(1);
+      const rowMay = maySummary.rows[0];
+      expect(rowMay.employee?.id).toBe('emp-1');
+      // Sum of 4.0 + 16.0 = 20.0
+      expect(rowMay.consumedDays).toBe(20.0);
+      expect(rowMay.sourceEntries.length).toBe(2);
+      expect(rowMay.sourceEntries[0].resourceId).toBe('1203');
+      expect(rowMay.sourceEntries[1].resourceId).toBe('1628');
+      // Active line with majority consumption on May is Interne (16.0 > 4.0)
+      expect(rowMay.sectionType).toBe('Interne');
+
+      // In June 2026 (index 5): 22 business days
+      const juneSummary = service.buildMonthReconciliation(parseResult, 5);
+      expect(juneSummary.rows.length).toBe(1);
+      const rowJune = juneSummary.rows[0];
+      // Sum of 0.0 + 22.0 = 22.0
+      expect(rowJune.consumedDays).toBe(22.0);
+      expect(rowJune.crewdayzWorkedDays).toBe(22);
+      expect(rowJune.difference).toBe(0);
+      expect(rowJune.hasAnomaly).toBe(false);
+      // Primary section is Interne (22.0 > 0.0)
+      expect(rowJune.sectionType).toBe('Interne');
+      // Ensure totalCrewdayzWorked is counted only once (22j, not 44j)
+      expect(juneSummary.totalCrewdayzWorked).toBe(22);
+      expect(juneSummary.matchedCount).toBe(1);
+    });
+  });
 });

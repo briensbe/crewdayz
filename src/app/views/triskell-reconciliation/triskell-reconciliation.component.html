@@ -260,7 +260,14 @@
               >
                 <!-- Ressource Triskell -->
                 <td class="cell-primary">
-                  <div class="resource-name">{{ row.resourceNameTriskell }}</div>
+                  <div class="resource-name">
+                    {{ row.resourceNameTriskell }}
+                    @if (row.sourceEntries && row.sourceEntries.length > 1) {
+                      <span class="badge badge-consolidated" title="Consolidé sur {{ row.sourceEntries.length }} lignes Triskell">
+                        {{ row.sourceEntries.length }} lignes
+                      </span>
+                    }
+                  </div>
                   @if (row.unit) {
                     <div class="resource-sub">{{ row.unit }}</div>
                   }
@@ -406,6 +413,43 @@
               </span>
             </div>
           </div>
+
+          <!-- Triskell Source Lines (if consolidated from multiple rows) -->
+          @if (detail.sourceEntries && detail.sourceEntries.length > 1) {
+            <h4 class="section-title">
+              <lucide-icon [img]="Layers" class="section-icon"></lucide-icon>
+              Décomposition des lignes Triskell consolidées ({{ detail.sourceEntries.length }})
+            </h4>
+
+            <div class="absences-table-wrapper">
+              <table class="absences-table">
+                <thead>
+                  <tr>
+                    <th class="col-id">ID Triskell</th>
+                    <th>Libellé Ressource</th>
+                    <th class="col-type">Section</th>
+                    <th>Fournisseur</th>
+                    <th class="text-right col-conso">Consommé</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (src of detail.sourceEntries; track src.resourceId || src.resourceName) {
+                    <tr>
+                      <td class="font-medium font-mono text-muted">{{ src.resourceId || '-' }}</td>
+                      <td class="font-medium">{{ src.resourceName }}</td>
+                      <td>
+                        <span class="badge" [class.badge-esn]="src.sectionType === 'ESN'" [class.badge-interne]="src.sectionType === 'Interne'">
+                          {{ src.sectionType }}
+                        </span>
+                      </td>
+                      <td>{{ src.supplier || '-' }}</td>
+                      <td class="text-right font-medium">{{ src.consumedDays }} j</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
 
           <!-- Absences List in Crewdayz -->
           <h4 class="section-title">
