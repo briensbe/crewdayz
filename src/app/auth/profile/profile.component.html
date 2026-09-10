@@ -30,7 +30,12 @@
         <lucide-icon [img]="Shield" class="info-icon" size="20"></lucide-icon>
         <div class="info-details">
           <span class="info-label">Rôle de sécurité</span>
-          <span class="info-value">Gestionnaire RH</span>
+          <div class="role-badge-container">
+            <span class="info-value role-badge" [class]="'role-' + supabaseService.userRole()">
+              {{ roleLabel() }}
+            </span>
+          </div>
+          <span class="role-description">{{ roleDescription() }}</span>
         </div>
       </div>
     </div>

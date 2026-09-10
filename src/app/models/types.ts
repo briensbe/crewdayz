@@ -64,10 +64,21 @@ export interface Absence {
   created_at?: string;
 }
 
+export type UserRole = 'viewer' | 'editor' | 'admin';
+
+export interface UserProfile {
+  id: string;
+  email?: string;
+  role: UserRole;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface User {
   id: string;
   email?: string;
   phone?: string;
+  role?: UserRole;
   user_metadata: {
     displayName?: string;
   };

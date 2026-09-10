@@ -5,6 +5,7 @@ import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.
 import { UpdatePasswordComponent } from './auth/update-password/update-password.component';
 import { ProfileComponent } from './auth/profile/profile.component';
 import { AuthGuard } from './guards/auth.guard';
+import { RoleGuard, RootRedirectGuard } from './guards/role.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -15,13 +16,22 @@ export const routes: Routes = [
     path: '',
     canActivate: [AuthGuard],
     children: [
-      { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+      {
+        path: '',
+        pathMatch: 'full',
+        canActivate: [RootRedirectGuard],
+        children: [],
+      },
       {
         path: 'dashboard',
+        canActivate: [RoleGuard],
+        data: { roles: ['editor', 'admin'] },
         loadComponent: () => import('./views/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
         path: 'collaborateurs',
+        canActivate: [RoleGuard],
+        data: { roles: ['editor', 'admin'] },
         loadComponent: () =>
           import('./views/employee-list/employee-list.component').then((m) => m.EmployeeListComponent),
       },
@@ -40,10 +50,14 @@ export const routes: Routes = [
       },
       {
         path: 'audit',
+        canActivate: [RoleGuard],
+        data: { roles: ['admin'] },
         loadComponent: () => import('./views/audit-view/audit-view.component').then((m) => m.AuditViewComponent),
       },
       {
         path: 'reconciliation',
+        canActivate: [RoleGuard],
+        data: { roles: ['editor', 'admin'] },
         loadComponent: () =>
           import('./views/triskell-reconciliation/triskell-reconciliation.component').then(
             (m) => m.TriskellReconciliationComponent
@@ -59,8 +73,8 @@ export const routes: Routes = [
           {
             path: '**',
             loadComponent: () => import('./views/feedback/feedback.component').then((m) => m.FeedbackComponent),
-          }
-        ]
+          },
+        ],
       },
       { path: 'profile', component: ProfileComponent },
     ],

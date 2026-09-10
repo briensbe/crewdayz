@@ -1,10 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { AuthTokenResponse, createClient, SupabaseClient, UserResponse, User } from '@supabase/supabase-js';
 import { BehaviorSubject } from 'rxjs';
-import { LoginPayload, SignupPayload } from '../models/types';
+import { LoginPayload, SignupPayload, UserProfile, UserRole } from '../models/types';
 import { environment } from '../../environments/environment';
 
 const sessionStorageUserKey = 'crewdayzUser';
+const sessionStorageProfileKey = 'crewdayzUserProfile';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ const sessionStorageUserKey = 'crewdayzUser';
 export class SupabaseService {
   private supabase: SupabaseClient<any, any>;
   private _user = signal<User | null>(null);
+  private _userProfile = signal<UserProfile | null>(null);
   private _isLocalLogout = false;
 
   /**
@@ -25,6 +27,21 @@ export class SupabaseService {
   public user = this._user.asReadonly();
 
   /**
+   * Reactive signal for current user profile and role
+   */
+  public userProfile = this._userProfile.asReadonly();
+
+  /**
+   * Reactive role of the user (defaults to 'viewer' if not yet loaded or unassigned)
+   */
+  public userRole = computed<UserRole>(() => this._userProfile()?.role ?? 'viewer');
+
+  /**
+   * Reactive flag indicating if the current user has read-only access
+   */
+  public isReadOnly = computed<boolean>(() => this.userRole() === 'viewer');
+
+  /**
    * Flag indicating if the user manually logged out from this browser tab
    */
   get isLocalLogout() {
@@ -32,7 +49,7 @@ export class SupabaseService {
   }
 
   constructor() {
-    // We configure the DB client to use the standard "public" schema
+    // We configure the DB client to use the standard "crewdayz" schema
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey, {
       db: {
         schema: 'crewdayz',
@@ -51,6 +68,7 @@ export class SupabaseService {
       this.supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user) {
           this._user.set(session.user);
+          this.fetchUserProfile(session.user.id);
         }
       });
     });
@@ -156,17 +174,60 @@ export class SupabaseService {
   }
 
   /**
+   * Fetch current user's profile and role from Supabase database
+   */
+  async fetchUserProfile(userId?: string): Promise<UserProfile | null> {
+    const uid = userId || this._user()?.id;
+    if (!uid) {
+      this._userProfile.set(null);
+      return null;
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('cd_user_profiles')
+        .select('*')
+        .eq('id', uid)
+        .maybeSingle();
+
+      if (error || !data) {
+        // Fallback default profile with 'viewer' role
+        const defaultProfile: UserProfile = {
+          id: uid,
+          email: this._user()?.email,
+          role: 'viewer',
+        };
+        this._userProfile.set(defaultProfile);
+        return defaultProfile;
+      }
+
+      this._userProfile.set(data as UserProfile);
+      return data as UserProfile;
+    } catch {
+      const fallback: UserProfile = {
+        id: uid,
+        email: this._user()?.email,
+        role: 'viewer',
+      };
+      this._userProfile.set(fallback);
+      return fallback;
+    }
+  }
+
+  /**
    * Log out the current user
    */
   async signOut() {
     this._isLocalLogout = true;
     this._user.set(null);
+    this._userProfile.set(null);
     this.authState$.next(null);
 
     try {
       await this.supabase.auth.signOut();
     } finally {
       sessionStorage.removeItem(sessionStorageUserKey);
+      sessionStorage.removeItem(sessionStorageProfileKey);
       setTimeout(() => (this._isLocalLogout = false), 1000);
     }
   }
@@ -219,8 +280,11 @@ export class SupabaseService {
 
       if (session?.user) {
         sessionStorage.setItem(sessionStorageUserKey, JSON.stringify(session.user));
+        this.fetchUserProfile(session.user.id);
       } else {
         sessionStorage.removeItem(sessionStorageUserKey);
+        sessionStorage.removeItem(sessionStorageProfileKey);
+        this._userProfile.set(null);
       }
     });
   }

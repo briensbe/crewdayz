@@ -22,6 +22,7 @@ import {
 } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
+import { SupabaseService } from '../../services/supabase.service';
 import { CollaboratorPresenceExportService } from '../../services/collaborator-presence-export.service';
 import { Employee, Absence, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
@@ -104,6 +105,7 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   // Services
   protected readonly employeeService = inject(EmployeeService);
   protected readonly absenceService = inject(AbsenceService);
+  protected readonly supabaseService = inject(SupabaseService);
   protected readonly holidayService = inject(SchoolHolidayService);
   protected readonly exportService = inject(CollaboratorPresenceExportService);
 
@@ -958,6 +960,7 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   // ----------------------------------------------------
 
   onCellMouseDown(employeeId: string, dateStr: string, event: MouseEvent) {
+    if (this.supabaseService.isReadOnly()) return;
     if (event.button !== 0) return; // Only left click
 
     this.isSelecting.set(true);
@@ -1064,6 +1067,7 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   // ----------------------------------------------------
 
   openAddAbsenceModal(employeeId: string, startDateStr: string, endDateStr?: string) {
+    if (this.supabaseService.isReadOnly()) return;
     this.modalEmployeeId.set(employeeId);
     this.modalInitialDate.set(startDateStr);
     this.modalInitialEndDate.set(endDateStr || '');
@@ -1072,6 +1076,7 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   }
 
   openEditAbsenceModal(employeeId: string, absence: Absence) {
+    if (this.supabaseService.isReadOnly()) return;
     this.modalEmployeeId.set(employeeId);
     this.modalInitialDate.set(absence.date);
     this.modalInitialEndDate.set('');
