@@ -335,6 +335,39 @@ a:hover {
   justify-content: center;
   top: 50%;
   transform: translateY(-50%);
+  z-index: 1;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-wrapper input {
+  padding-right: 2.75rem !important;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  z-index: 1;
+}
+
+.toggle-password:hover {
+  color: var(--text-muted);
+  background-color: var(--background);
 }
 
 input:not([type="checkbox"]):not([type="radio"]),
@@ -353,7 +386,7 @@ textarea {
 
 .input-icon-wrapper input:not([type="checkbox"]):not([type="radio"]),
 .input-icon-wrapper select {
-  padding-left: 2.5rem;
+  padding-left: 2.5rem !important;
 }
 
 input:not([type="checkbox"]):not([type="radio"]):focus,
