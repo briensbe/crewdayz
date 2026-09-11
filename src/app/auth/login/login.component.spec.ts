@@ -52,28 +52,28 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should expose enableGoogleAuth matching environment configuration', () => {
-    expect(component.enableGoogleAuth).toBe(environment.enableGoogleAuth);
+  it('should initialize showGoogleAuth matching environment configuration', () => {
+    expect(component.showGoogleAuth()).toBe(environment.enableGoogleAuth);
   });
 
-  it('should not render google button if enableGoogleAuth is false', () => {
-    (component as any).enableGoogleAuth = false;
+  it('should not render google button if showGoogleAuth is false', () => {
+    component.showGoogleAuth.set(false);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.google-btn')).toBeNull();
     expect(compiled.querySelector('.divider')).toBeNull();
   });
 
-  it('should render google button if enableGoogleAuth is true', () => {
-    (component as any).enableGoogleAuth = true;
+  it('should render google button if showGoogleAuth is true', () => {
+    component.showGoogleAuth.set(true);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.google-btn')).not.toBeNull();
     expect(compiled.querySelector('.divider')).not.toBeNull();
   });
 
-  it('should prevent signInWithGoogle if enableGoogleAuth is false', async () => {
-    (component as any).enableGoogleAuth = false;
+  it('should prevent signInWithGoogle if showGoogleAuth is false', async () => {
+    component.showGoogleAuth.set(false);
     let googleCalled = false;
     mockSupabaseService.signInWithGoogle = () => {
       googleCalled = true;
