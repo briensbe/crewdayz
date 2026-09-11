@@ -106,7 +106,8 @@ supabase/.storage/
 #env
 /environments
 environment.ts
-environment*
+environment.*.ts
+!src/environments/environment.example.ts
 .env*
 
 # perso 
