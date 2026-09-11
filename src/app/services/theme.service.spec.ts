@@ -50,7 +50,7 @@ describe('ThemeService', () => {
 
   it('should read stored preference from localStorage', () => {
     localStorage.setItem(THEME_STORAGE_KEY, 'dark');
-    const newService = new ThemeService();
+    const newService = TestBed.runInInjectionContext(() => new ThemeService());
     expect(newService.preference()).toBe('dark');
     expect(newService.effectiveTheme()).toBe('dark');
   });

@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Eye, EyeOff, Info, Lock, Mail } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -13,6 +14,8 @@ import { CommonModule } from '@angular/common';
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
+  readonly enableGoogleAuth = environment.enableGoogleAuth;
+
   email = signal('');
   password = signal('');
   showPassword = signal(false);
@@ -67,6 +70,10 @@ export class LoginComponent implements OnInit {
   }
 
   async signInWithGoogle() {
+    if (!this.enableGoogleAuth) {
+      this.errorMessage.set('La connexion avec Google est désactivée.');
+      return;
+    }
     this.loading.set(true);
     this.errorMessage.set(null);
     try {
