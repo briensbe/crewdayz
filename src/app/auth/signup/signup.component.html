@@ -47,7 +47,7 @@
           [ngModel]="email()"
           (ngModelChange)="email.set($event)"
           name="email"
-          placeholder="jean.dupont@entreprise.com"
+          [placeholder]="emailPlaceholder()"
           required
           autocomplete="email"
         />

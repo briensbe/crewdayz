@@ -1,9 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Eye, EyeOff, User, Mail, Lock } from 'lucide-angular';
+import { environment } from '../../../environments/environment';
+import { validateSignupEmail } from '../../../utils/email-validator';
 
 @Component({
   selector: 'app-signup',
@@ -22,6 +24,15 @@ export class SignupComponent {
   loading = signal(false);
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
+
+  emailPlaceholder = computed(() => {
+    const domains = environment.allowedEmailDomains;
+    if (domains && domains.length > 0) {
+      const clean = domains[0].replace(/^@+/, '');
+      return `jean.dupont@${clean}`;
+    }
+    return 'jean.dupont@entreprise.com';
+  });
 
   // Expose icons for template usage
   readonly Eye = Eye;
@@ -48,6 +59,13 @@ export class SignupComponent {
     // Form validation
     if (!this.name() || !this.email() || !this.password() || !this.confirmPassword()) {
       this.errorMessage.set('Veuillez remplir tous les champs.');
+      return;
+    }
+
+    // Email domain validation
+    const emailValidation = validateSignupEmail(this.email(), environment.allowedEmailDomains);
+    if (!emailValidation.isValid) {
+      this.errorMessage.set(emailValidation.errorMessage || 'Adresse e-mail non valide.');
       return;
     }
 

@@ -3,6 +3,7 @@ import { AuthTokenResponse, createClient, SupabaseClient, UserResponse, User } f
 import { BehaviorSubject } from 'rxjs';
 import { LoginPayload, SignupPayload, UserProfile, UserRole } from '../models/types';
 import { environment } from '../../environments/environment';
+import { validateSignupEmail } from '../../utils/email-validator';
 
 const sessionStorageUserKey = 'crewdayzUser';
 const sessionStorageProfileKey = 'crewdayzUserProfile';
@@ -135,6 +136,18 @@ export class SupabaseService {
    * Sign up a new user
    */
   async signUpWithEmail(payload: SignupPayload) {
+    const validation = validateSignupEmail(payload.email, environment.allowedEmailDomains);
+    if (!validation.isValid) {
+      return {
+        data: { user: null, session: null },
+        error: {
+          name: 'AuthApiError',
+          message: validation.errorMessage || 'Domaine email non autorisé.',
+          status: 400,
+        } as any,
+      };
+    }
+
     const authRedirectUrl = environment.authRedirectUrl;
     return await this.supabase.auth.signUp({
       email: payload.email,
