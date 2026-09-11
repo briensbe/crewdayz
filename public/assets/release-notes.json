@@ -1,5 +1,67 @@
 [
   {
+    "version": "2026.09.11",
+    "date": "2026-09-11",
+    "news": [
+      {
+        "title": "Restriction du domaine e-mail à l'inscription",
+        "items": [
+          "Contrôle strict du ou des domaines d'adresses e-mail autorisés à la création de compte via la configuration d'environnement (allowedEmailDomains)."
+        ]
+      },
+      {
+        "title": "Gestion de l'authentification et modèle d'environnement",
+        "items": [
+          "Possibilité d'activer ou désactiver l'authentification Google OAuth via la configuration d'environnement",
+          "Ajout d'un modèle d'environnement documenté (environment.example.ts) pour guider le paramétrage des instances locales et de production."
+        ]
+      },
+      {
+        "title": "Ergonomie & Expérience de Connexion",
+        "items": [
+          "Améliorations ergonomiques du formulaire d'authentification et raccourcis d'accès rapide (\"à la confluence\" et confettis.)"
+        ]
+      }
+    ]
+  },
+  {
+    "version": "2026.09.10",
+    "date": "2026-09-10",
+    "news": [
+      {
+        "title": "Contrôle d'Accès Basé sur les Rôles (RBAC) & Mode Lecture Seule",
+        "items": [
+          "Attribution automatique du rôle de consultation ('viewer') par défaut à la création de compte.",
+          "Restriction des vues accessibles pour les profils consultation (accès réservé aux vues Mensuelle, Annuelle et Profil).",
+          "Désactivation des boutons d'action et des interactions d'édition sur les calendriers pour les utilisateurs en mode lecture seule.",
+          "Protection multi-niveaux robuste combinant les guards Angular (RoleGuard) et les politiques de sécurité Row Level Security (RLS) PostgreSQL / Supabase."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "2026.09.08",
+    "date": "2026-09-08",
+    "news": [
+      {
+        "title": "Rapprochement Triskell : Consolidation des doublons & transitions",
+        "items": [
+          "Consolidation automatique des multiples lignes Triskell associées à un même collaborateur (ex: transition prestataire externe vers salarié interne).",
+          "Sommation préalable des jours consommés Triskell avant comparaison avec les jours travaillés Crewdayz afin d'éliminer les fausses anomalies.",
+          "Présentation en ligne unique consolidée dans le tableau de réconciliation avec statut dynamique reflétant l'activité du mois.",
+          "Détail complet des sous-lignes Triskell et de leurs consommations respectives consultable dans la modale d'inspection.",
+          "Export Excel du rapport de réconciliation intégrant la vue consolidée par collaborateur."
+        ]
+      },
+      {
+        "title": "Ergonomie & Filtres de Réconciliation",
+        "items": [
+          "Améliorations de l'interface et du filtrage des anomalies pour une analyse plus intuitive des écarts de saisie."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.09.05",
     "date": "2026-09-05",
     "news": [

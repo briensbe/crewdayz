@@ -17,6 +17,8 @@ describe('SignupComponent', () => {
   const initialAllowedDomains = environment.allowedEmailDomains;
 
   beforeEach(async () => {
+    environment.allowedEmailDomains = [];
+
     mockSupabaseService = {
       signUpWithEmail: () => Promise.resolve({ error: null }),
     };

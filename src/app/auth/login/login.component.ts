@@ -1,10 +1,11 @@
-import { Component, inject, signal, OnInit, HostListener } from '@angular/core';
+import { Component, computed, inject, signal, OnInit, HostListener } from '@angular/core';
 import { SupabaseService } from '../../services/supabase.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Eye, EyeOff, Info, Lock, Mail } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../environments/environment';
+import { getEmailPlaceholder } from '../../../utils/email-validator';
 
 @Component({
   selector: 'app-login',
@@ -22,6 +23,8 @@ export class LoginComponent implements OnInit {
   sessionExpired = signal(false);
   loading = signal(false);
   errorMessage = signal<string | null>(null);
+
+  emailPlaceholder = computed(() => getEmailPlaceholder(environment.allowedEmailDomains));
 
   private keyBuffer: string[] = [];
   private readonly SECRET_HASH = '105e3bbbe4a711daa0f47fca6e83588f6be3f3937f4a2b2a780305ccce5530b0';

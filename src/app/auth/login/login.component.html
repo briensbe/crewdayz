@@ -33,7 +33,7 @@
           [ngModel]="email()"
           (ngModelChange)="email.set($event)"
           name="email"
-          placeholder="nom@entreprise.com"
+          [placeholder]="emailPlaceholder()"
           required
           autocomplete="email"
         />

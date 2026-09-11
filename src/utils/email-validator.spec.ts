@@ -3,6 +3,7 @@ import {
   extractEmailDomain,
   isEmailDomainAllowed,
   validateSignupEmail,
+  getEmailPlaceholder,
 } from './email-validator';
 
 describe('EmailValidator Utility', () => {
@@ -87,6 +88,23 @@ describe('EmailValidator Utility', () => {
       expect(result.errorMessage).toBe(
         'Seules les adresses e-mail des domaines suivants sont autorisées : @soprasteria.com, @orange.com.'
       );
+    });
+  });
+
+  describe('getEmailPlaceholder', () => {
+    it('should return default fallback when allowedDomains is empty or undefined', () => {
+      expect(getEmailPlaceholder([])).toBe('jean.dupont@entreprise.com');
+      expect(getEmailPlaceholder(undefined)).toBe('jean.dupont@entreprise.com');
+    });
+
+    it('should return placeholder using first allowed domain', () => {
+      expect(getEmailPlaceholder(['soprasteria.com', 'orange.com'])).toBe('jean.dupont@soprasteria.com');
+      expect(getEmailPlaceholder(['@societe.fr'])).toBe('jean.dupont@societe.fr');
+    });
+
+    it('should respect custom prefix or fallback', () => {
+      expect(getEmailPlaceholder(['mon-domaine.com'], 'nom')).toBe('nom@mon-domaine.com');
+      expect(getEmailPlaceholder([], 'nom', 'nom@entreprise.com')).toBe('nom@entreprise.com');
     });
   });
 });

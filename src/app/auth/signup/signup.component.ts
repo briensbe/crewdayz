@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Eye, EyeOff, User, Mail, Lock } from 'lucide-angular';
 import { environment } from '../../../environments/environment';
-import { validateSignupEmail } from '../../../utils/email-validator';
+import { validateSignupEmail, getEmailPlaceholder } from '../../../utils/email-validator';
 
 @Component({
   selector: 'app-signup',
@@ -25,14 +25,7 @@ export class SignupComponent {
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
 
-  emailPlaceholder = computed(() => {
-    const domains = environment.allowedEmailDomains;
-    if (domains && domains.length > 0) {
-      const clean = domains[0].replace(/^@+/, '');
-      return `jean.dupont@${clean}`;
-    }
-    return 'jean.dupont@entreprise.com';
-  });
+  emailPlaceholder = computed(() => getEmailPlaceholder(environment.allowedEmailDomains));
 
   // Expose icons for template usage
   readonly Eye = Eye;

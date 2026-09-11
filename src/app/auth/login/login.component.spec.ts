@@ -4,6 +4,7 @@ import { SupabaseService } from '../../services/supabase.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { getEmailPlaceholder } from '../../../utils/email-validator';
 
 describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
@@ -70,6 +71,10 @@ describe('LoginComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.google-btn')).not.toBeNull();
     expect(compiled.querySelector('.divider')).not.toBeNull();
+  });
+
+  it('should compute emailPlaceholder matching configured allowed domains', () => {
+    expect(component.emailPlaceholder()).toBe(getEmailPlaceholder(environment.allowedEmailDomains));
   });
 
   it('should prevent signInWithGoogle if showGoogleAuth is false', async () => {

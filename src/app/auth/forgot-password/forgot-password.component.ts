@@ -1,9 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { SupabaseService } from '../../services/supabase.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Mail, ChevronLeft } from 'lucide-angular';
+import { environment } from '../../../environments/environment';
+import { getEmailPlaceholder } from '../../../utils/email-validator';
 
 @Component({
   selector: 'app-forgot-password',
@@ -17,6 +19,8 @@ export class ForgotPasswordComponent {
   message = signal<string | null>(null);
   isError = signal(false);
   loading = signal(false);
+
+  emailPlaceholder = computed(() => getEmailPlaceholder(environment.allowedEmailDomains));
 
   // Expose icons for template
   readonly Mail = Mail;

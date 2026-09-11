@@ -94,3 +94,21 @@ export function validateSignupEmail(
 
   return { isValid: true };
 }
+
+/**
+ * Génère un exemple / placeholder d'adresse e-mail adapté aux domaines autorisés configurés.
+ */
+export function getEmailPlaceholder(
+  allowedDomains?: string[],
+  defaultPrefix = 'jean.dupont',
+  defaultFallback = 'jean.dupont@entreprise.com'
+): string {
+  if (allowedDomains && allowedDomains.length > 0) {
+    const cleanDomain = normalizeDomain(allowedDomains[0]);
+    if (cleanDomain) {
+      return `${defaultPrefix}@${cleanDomain}`;
+    }
+  }
+  return defaultFallback;
+}
+
