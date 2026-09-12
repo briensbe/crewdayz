@@ -19,7 +19,8 @@
       {
         "title": "Ergonomie & Expérience de Connexion",
         "items": [
-          "Améliorations ergonomiques du formulaire d'authentification et raccourcis d'accès rapide (\"à la confluence\" et confettis.)"
+          "Améliorations ergonomiques du formulaire d'authentification et raccourcis d'accès rapide (\"à la confluence\" et confettis.)",
+          "Amélioration formulaire de mise à jour du mot de passe et du profil"
         ]
       }
     ]
