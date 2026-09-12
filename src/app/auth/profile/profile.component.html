@@ -27,6 +27,23 @@
       </div>
 
       <div class="info-row">
+        <lucide-icon [img]="isGoogleUser() ? Globe : Lock" class="info-icon" size="20"></lucide-icon>
+        <div class="info-details">
+          <span class="info-label">Méthode d'authentification</span>
+          <div class="provider-badge-container">
+            <span class="info-value provider-badge" [class.provider-google]="isGoogleUser()" [class.provider-email]="!isGoogleUser()">
+              {{ authProviderLabel() }}
+            </span>
+          </div>
+          @if (isGoogleUser()) {
+            <span class="auth-hint">
+              Authentifié via Google. Votre mot de passe est géré de manière sécurisée directement depuis votre compte Google.
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="info-row">
         <lucide-icon [img]="Shield" class="info-icon" size="20"></lucide-icon>
         <div class="info-details">
           <span class="info-label">Rôle de sécurité</span>
@@ -62,6 +79,12 @@
     </div>
 
     <div class="profile-actions">
+      @if (!isGoogleUser()) {
+        <button class="btn btn-secondary btn-action" (click)="goToUpdatePassword()">
+          <lucide-icon [img]="KeyRound" size="18"></lucide-icon>
+          Modifier le mot de passe
+        </button>
+      }
       <button class="btn btn-outline btn-logout" (click)="logout()">
         <lucide-icon [img]="LogOut" size="18"></lucide-icon>
         Se déconnecter

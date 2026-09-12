@@ -3,7 +3,21 @@ import { SupabaseService } from '../../services/supabase.service';
 import { ThemeService, type ThemePreference } from '../../services/theme.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, LucideIconData, LogOut, User, Mail, Shield, Sun, Moon, Monitor } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  LucideIconData,
+  LogOut,
+  User,
+  Mail,
+  Shield,
+  Sun,
+  Moon,
+  Monitor,
+  Globe,
+  Lock,
+  KeyRound,
+  ShieldCheck,
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-profile',
@@ -23,6 +37,22 @@ export class ProfileComponent {
   readonly User = User;
   readonly Mail = Mail;
   readonly Shield = Shield;
+  readonly Globe = Globe;
+  readonly Lock = Lock;
+  readonly KeyRound = KeyRound;
+  readonly ShieldCheck = ShieldCheck;
+
+  readonly isGoogleUser = computed(() => {
+    const user = this.supabaseService.user();
+    if (!user) return false;
+    const provider = user.app_metadata?.['provider'];
+    const providers = user.app_metadata?.['providers'];
+    return provider === 'google' || (Array.isArray(providers) && providers.includes('google'));
+  });
+
+  readonly authProviderLabel = computed(() => {
+    return this.isGoogleUser() ? 'Compte Google' : 'Email et mot de passe';
+  });
 
   readonly roleLabel = computed(() => {
     const role = this.supabaseService.userRole();
@@ -59,6 +89,10 @@ export class ProfileComponent {
 
   setTheme(theme: ThemePreference): void {
     this.themeService.setPreference(theme);
+  }
+
+  goToUpdatePassword(): void {
+    this.router.navigate(['/update-password']);
   }
 
   async logout() {
