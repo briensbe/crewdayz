@@ -6,7 +6,7 @@
       {
         "title": "Restriction du domaine e-mail à l'inscription",
         "items": [
-          "Contrôle strict du ou des domaines d'adresses e-mail autorisés à la création de compte via la configuration d'environnement (allowedEmailDomains)."
+          "Contrôle strict du ou des domaines d'adresses e-mail autorisés à la création de compte via la configuration d'environnement."
         ]
       },
       {
