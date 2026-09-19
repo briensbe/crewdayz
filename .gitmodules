@@ -1,0 +1,3 @@
+[submodule "supabase-shared"]
+	path = supabase-shared
+	url = git@github.com:briensbe/supabase-roadmap-shared.git
