@@ -35,13 +35,28 @@
 
 .btn-refresh {
   height: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+lucide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
 }
 
 .spin {
-  animation: spin 1.2s linear infinite;
+  display: inline-flex;
+  transform-origin: center center;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
   to {
     transform: rotate(360deg);
   }

@@ -463,6 +463,19 @@ optgroup {
   cursor: not-allowed;
 }
 
+/* Lucide Icons Host */
+lucide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 0;
+}
+
+lucide-icon svg {
+  display: block;
+}
+
 /* Spinners */
 .spinner {
   width: 1.2rem;
@@ -474,7 +487,16 @@ optgroup {
   display: inline-block;
 }
 
+.spin {
+  display: inline-flex;
+  transform-origin: center center;
+  animation: spin 1s linear infinite;
+}
+
 @keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
   to {
     transform: rotate(360deg);
   }

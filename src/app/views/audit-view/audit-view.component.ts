@@ -11,7 +11,7 @@ import {
   Calendar,
   FileText,
   Filter,
-  RefreshCw,
+  RotateCw,
   Database,
   ArrowRight,
   Eye,
@@ -53,7 +53,7 @@ export class AuditViewComponent implements OnInit {
   readonly Calendar = Calendar;
   readonly FileText = FileText;
   readonly Filter = Filter;
-  readonly RefreshCw = RefreshCw;
+  readonly RotateCw = RotateCw;
   readonly Database = Database;
   readonly ArrowRight = ArrowRight;
   readonly Eye = Eye;
