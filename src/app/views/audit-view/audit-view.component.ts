@@ -124,7 +124,7 @@ export class AuditViewComponent implements OnInit {
       // Text Search
       if (query) {
         const tableNameFr = normalizeString(this.translateTable(log.table_name));
-        const userName = normalizeString(log.profiles?.full_name || '');
+        const userName = normalizeString(log.profiles?.email || '');
         const changedBy = normalizeString(log.changed_by || '');
         const actionStr = normalizeString(log.action);
         const rowId = normalizeString(log.row_id);

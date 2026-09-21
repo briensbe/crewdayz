@@ -20,7 +20,7 @@ export class AuditService {
   ) {}
 
   /**
-   * Fetch audit logs from the Supabase audit_logs table, joining the profiles table to get full_name
+   * Fetch audit logs from the Supabase audit_logs table, joining the cd_user_profiles table to get email
    */
   async fetchAuditLogs(): Promise<AuditLog[]> {
     this._loading.set(true);
@@ -33,7 +33,7 @@ export class AuditService {
               `
               *,
               profiles:changed_by (
-                full_name
+                email
               )
             `,
             )

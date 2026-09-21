@@ -119,6 +119,6 @@ export interface AuditLog {
   changed_by: string | null;
   changed_at: string;
   profiles?: {
-    full_name: string;
+    email?: string;
   } | null;
 }

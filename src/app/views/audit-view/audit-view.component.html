@@ -114,11 +114,11 @@
                 <td>
                   <div class="user-cell">
                     <lucide-icon [img]="User" size="14" class="user-icon"></lucide-icon>
-                    @if (log.profiles?.full_name) {
-                      <span class="user-name">{{ log.profiles?.full_name }}</span>
+                    @if (log.profiles?.email) {
+                      <span class="user-name">{{ log.profiles?.email }}</span>
                     } @else if (log.changed_by === supabaseService.user()?.id) {
                       <span class="user-name text-primary-color"
-                        >Vous ({{ supabaseService.user()?.user_metadata?.['displayName'] || 'Utilisateur' }})</span
+                        >Vous ({{ supabaseService.user()?.email || supabaseService.user()?.user_metadata?.['displayName'] || 'Utilisateur' }})</span
                       >
                     } @else if (log.changed_by) {
                       <span class="user-name font-mono text-xs" [title]="log.changed_by">
