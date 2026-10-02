@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthTokenResponse, createClient, SupabaseClient, UserResponse, User } from '@supabase/supabase-js';
 import { BehaviorSubject } from 'rxjs';
 import { LoginPayload, SignupPayload, UserProfile, UserRole } from '../models/types';
@@ -12,9 +13,11 @@ const sessionStorageProfileKey = 'crewdayzUserProfile';
   providedIn: 'root',
 })
 export class SupabaseService {
+  private readonly router = inject(Router);
   private supabase: SupabaseClient<any, any>;
   private _user = signal<User | null>(null);
   private _userProfile = signal<UserProfile | null>(null);
+  private _isPasswordRecovery = signal(false);
   private _isLocalLogout = false;
 
   /**
@@ -26,6 +29,11 @@ export class SupabaseService {
    * Reactive signal for currently logged in user
    */
   public user = this._user.asReadonly();
+
+  /**
+   * Reactive signal indicating if current session was triggered by password recovery
+   */
+  public isPasswordRecovery = this._isPasswordRecovery.asReadonly();
 
   /**
    * Reactive signal for current user profile and role
@@ -93,9 +101,16 @@ export class SupabaseService {
         } catch (err) {
           console.error('Unexpected error during PKCE code exchange:', err);
         } finally {
+          const isUpdatePasswordUrl =
+            url.pathname.includes('update-password') || url.hash.includes('update-password');
           // Clean the code parameter from URL
           url.searchParams.delete('code');
           window.history.replaceState({}, document.title, url.toString());
+
+          if (isUpdatePasswordUrl) {
+            this._isPasswordRecovery.set(true);
+            setTimeout(() => this.router.navigate(['/update-password']), 50);
+          }
         }
       }
     }
@@ -234,6 +249,7 @@ export class SupabaseService {
     this._isLocalLogout = true;
     this._user.set(null);
     this._userProfile.set(null);
+    this._isPasswordRecovery.set(false);
     this.authState$.next(null);
 
     try {
@@ -279,6 +295,7 @@ export class SupabaseService {
       password: newPassword,
     });
     if (response.error) throw new Error(response.error.message);
+    this._isPasswordRecovery.set(false);
     return response;
   }
 
@@ -288,6 +305,13 @@ export class SupabaseService {
 
   private initializeAuthListener() {
     this.supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        this._isPasswordRecovery.set(true);
+        this.router.navigate(['/update-password']);
+      } else if (event === 'SIGNED_OUT') {
+        this._isPasswordRecovery.set(false);
+      }
+
       this.authState$.next({ event, session });
       this._user.set(session?.user ?? null);
 
