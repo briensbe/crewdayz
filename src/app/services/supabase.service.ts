@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthTokenResponse, createClient, SupabaseClient, UserResponse, User } from '@supabase/supabase-js';
+import { AuthResponse, AuthTokenResponse, createClient, SupabaseClient, UserResponse, User } from '@supabase/supabase-js';
 import { BehaviorSubject } from 'rxjs';
 import { LoginPayload, SignupPayload, UserProfile, UserRole } from '../models/types';
 import { environment } from '../../environments/environment';
@@ -278,20 +278,35 @@ export class SupabaseService {
   }
 
   /**
+   * Verify 6-digit OTP code received by email for password recovery and establish session
+   */
+  async verifyRecoveryOtp(email: string, token: string): Promise<AuthResponse> {
+    const response = await this.supabase.auth.verifyOtp({
+      email: email.trim(),
+      token: token.trim(),
+      type: 'recovery',
+    });
+
+    if (response.error) {
+      throw new Error('Code de confirmation invalide ou expiré.');
+    }
+
+    if (response.data?.session?.user) {
+      this._user.set(response.data.session.user);
+      this._isPasswordRecovery.set(true);
+      await this.fetchUserProfile(response.data.session.user.id);
+    }
+
+    return response;
+  }
+
+  /**
    * Reset user password using a 6-digit OTP code received by email
    */
   async resetPasswordWithOtp(email: string, token: string, newPassword: string): Promise<void> {
     try {
       // 1. Verify OTP code and establish recovery session
-      const { error: verifyError } = await this.supabase.auth.verifyOtp({
-        email: email.trim(),
-        token: token.trim(),
-        type: 'recovery',
-      });
-
-      if (verifyError) {
-        throw new Error('Code de confirmation invalide ou expiré.');
-      }
+      await this.verifyRecoveryOtp(email, token);
 
       // 2. Update the user password
       const { error: updateError } = await this.supabase.auth.updateUser({

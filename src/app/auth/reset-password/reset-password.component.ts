@@ -13,9 +13,14 @@ import {
   KeyRound,
   RefreshCw,
   ChevronLeft,
+  ArrowRight,
+  Sparkles,
+  Edit2,
 } from 'lucide-angular';
 import { environment } from '../../../environments/environment';
-import { getEmailPlaceholder } from '../../../utils/email-validator';
+import { getEmailPlaceholder, maskEmail } from '../../../utils/email-validator';
+
+export type ResetStep = 'verify-otp' | 'new-password' | 'success';
 
 @Component({
   selector: 'app-reset-password',
@@ -25,7 +30,9 @@ import { getEmailPlaceholder } from '../../../utils/email-validator';
   styleUrl: './reset-password.component.css',
 })
 export class ResetPasswordComponent implements OnInit {
+  step = signal<ResetStep>('verify-otp');
   email = signal('');
+  isEditingEmail = signal(false);
   otpCode = signal('');
   newPassword = signal('');
   confirmPassword = signal('');
@@ -35,9 +42,9 @@ export class ResetPasswordComponent implements OnInit {
   resendSuccess = signal<string | null>(null);
   loading = signal(false);
   resending = signal(false);
-  success = signal(false);
 
   emailPlaceholder = computed(() => getEmailPlaceholder(environment.allowedEmailDomains));
+  maskedEmail = computed(() => maskEmail(this.email()));
 
   // Expose icons for template
   readonly Eye = Eye;
@@ -48,6 +55,9 @@ export class ResetPasswordComponent implements OnInit {
   readonly KeyRound = KeyRound;
   readonly RefreshCw = RefreshCw;
   readonly ChevronLeft = ChevronLeft;
+  readonly ArrowRight = ArrowRight;
+  readonly Sparkles = Sparkles;
+  readonly Edit2 = Edit2;
 
   protected readonly supabaseService = inject(SupabaseService);
   private readonly router = inject(Router);
@@ -58,6 +68,14 @@ export class ResetPasswordComponent implements OnInit {
     if (navState?.email && typeof navState.email === 'string') {
       this.email.set(navState.email);
     }
+
+    // If a password recovery session is already active, go directly to step 2
+    if (this.supabaseService.isPasswordRecovery() && this.supabaseService.user()) {
+      this.step.set('new-password');
+      if (this.supabaseService.user()?.email) {
+        this.email.set(this.supabaseService.user()!.email!);
+      }
+    }
   }
 
   toggleNewPasswordVisibility() {
@@ -66,6 +84,10 @@ export class ResetPasswordComponent implements OnInit {
 
   toggleConfirmPasswordVisibility() {
     this.showConfirmPassword.update((value) => !value);
+  }
+
+  toggleEditEmail() {
+    this.isEditingEmail.update((v) => !v);
   }
 
   onEmailChange(value: string) {
@@ -106,7 +128,8 @@ export class ResetPasswordComponent implements OnInit {
 
     try {
       await this.supabaseService.resetPasswordForEmail(this.email().trim());
-      this.resendSuccess.set('Un nouveau code à 6 chiffres a été envoyé à votre adresse e-mail.');
+      const destination = this.maskedEmail() || this.email().trim();
+      this.resendSuccess.set(`Un nouveau code à 6 chiffres a été envoyé à ${destination}.`);
     } catch (err: any) {
       this.error.set(err?.message || "Erreur lors de l'envoi du nouveau code.");
     } finally {
@@ -114,7 +137,7 @@ export class ResetPasswordComponent implements OnInit {
     }
   }
 
-  async onSubmit() {
+  async onVerifyOtp() {
     this.clearAlerts();
 
     if (!this.email().trim()) {
@@ -126,6 +149,21 @@ export class ResetPasswordComponent implements OnInit {
       this.error.set('Veuillez saisir le code de confirmation complet à 6 chiffres.');
       return;
     }
+
+    this.loading.set(true);
+
+    try {
+      await this.supabaseService.verifyRecoveryOtp(this.email().trim(), this.otpCode().trim());
+      this.step.set('new-password');
+    } catch (err: any) {
+      this.error.set(this.formatErrorMessage(err));
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async onUpdatePassword() {
+    this.clearAlerts();
 
     if (this.newPassword().length < 6) {
       this.error.set('Le nouveau mot de passe doit contenir au moins 6 caractères.');
@@ -140,12 +178,12 @@ export class ResetPasswordComponent implements OnInit {
     this.loading.set(true);
 
     try {
-      await this.supabaseService.resetPasswordWithOtp(
-        this.email().trim(),
-        this.otpCode().trim(),
-        this.newPassword(),
-      );
-      this.success.set(true);
+      const response = await this.supabaseService.updatePassword(this.newPassword());
+      if (response.error) {
+        this.error.set(this.formatErrorMessage(response.error));
+        return;
+      }
+      this.step.set('success');
     } catch (err: any) {
       this.error.set(this.formatErrorMessage(err));
     } finally {
@@ -155,9 +193,6 @@ export class ResetPasswordComponent implements OnInit {
 
   private formatErrorMessage(err: any): string {
     const msg = err?.message || String(err || '');
-    if (msg.includes('different from the old password')) {
-      return 'Le nouveau mot de passe doit être différent de l’ancien mot de passe.';
-    }
     if (msg.includes('should be at least 6 characters')) {
       return 'Le mot de passe doit contenir au moins 6 caractères.';
     }
@@ -165,6 +200,10 @@ export class ResetPasswordComponent implements OnInit {
       return 'Le code de confirmation est incorrect ou a expiré (validité 10 min). Veuillez utiliser le dernier code reçu ou en demander un nouveau.';
     }
     return 'Erreur : ' + msg;
+  }
+
+  goToApp() {
+    this.router.navigate(['/']);
   }
 
   goToLogin() {
