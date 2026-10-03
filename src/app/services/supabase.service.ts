@@ -345,6 +345,27 @@ export class SupabaseService {
     return response;
   }
 
+  /**
+   * Update current user's display name
+   */
+  async updateDisplayName(displayName: string): Promise<UserResponse> {
+    const trimmed = displayName.trim();
+    if (!trimmed) {
+      throw new Error('Le nom d’affichage ne peut pas être vide.');
+    }
+    const response = await this.supabase.auth.updateUser({
+      data: {
+        displayName: trimmed,
+      },
+    });
+    if (response.error) throw new Error(response.error.message || 'Erreur lors de la mise à jour du nom d’affichage.');
+    if (response.data.user) {
+      this._user.set(response.data.user);
+      sessionStorage.setItem(sessionStorageUserKey, JSON.stringify(response.data.user));
+    }
+    return response;
+  }
+
   async getSession() {
     return this.supabase.auth.getSession();
   }

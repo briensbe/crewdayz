@@ -5,16 +5,70 @@
   </div>
 
   <div class="profile-card">
-    <div class="profile-avatar">
-      <span>{{ supabaseService.user()?.user_metadata?.['displayName']?.charAt(0) || 'U' }}</span>
-    </div>
-
     <div class="profile-info-grid">
-      <div class="info-row">
+      <div class="info-row info-row-name" [class.is-editing]="isEditingName()">
         <lucide-icon [img]="User" class="info-icon" size="20"></lucide-icon>
-        <div class="info-details">
+        <div class="info-details info-details-flex">
           <span class="info-label">Nom d'affichage</span>
-          <span class="info-value">{{ supabaseService.user()?.user_metadata?.['displayName'] || 'Non défini' }}</span>
+          @if (!isEditingName()) {
+            <div class="info-value-with-action">
+              <span class="info-value">{{ currentDisplayName() || 'Non défini' }}</span>
+              <button
+                type="button"
+                class="btn-icon-action"
+                (click)="startEditingName()"
+                title="Modifier le nom d'affichage"
+                aria-label="Modifier le nom d'affichage"
+              >
+                <lucide-icon [img]="Pencil" size="16"></lucide-icon>
+              </button>
+            </div>
+          } @else {
+            <form class="edit-name-form" (ngSubmit)="saveDisplayName()">
+              <div class="edit-input-wrapper">
+                <input
+                  type="text"
+                  class="edit-name-input"
+                  [ngModel]="editDisplayName()"
+                  (ngModelChange)="onNameChange($event)"
+                  name="displayName"
+                  placeholder="Votre nom d'affichage"
+                  maxlength="50"
+                  [disabled]="isSavingName()"
+                  (keydown.escape)="cancelEditingName()"
+                  autofocus
+                />
+                <div class="edit-actions">
+                  <button
+                    type="submit"
+                    class="btn-save-inline"
+                    [disabled]="isSavingName() || !editDisplayName().trim()"
+                    title="Enregistrer"
+                    aria-label="Enregistrer le nom d'affichage"
+                  >
+                    @if (isSavingName()) {
+                      <lucide-icon [img]="Loader2" size="16" class="spin-icon"></lucide-icon>
+                    } @else {
+                      <lucide-icon [img]="Check" size="16"></lucide-icon>
+                    }
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-cancel-inline"
+                    (click)="cancelEditingName()"
+                    [disabled]="isSavingName()"
+                    title="Annuler"
+                    aria-label="Annuler la modification"
+                  >
+                    <lucide-icon [img]="X" size="16"></lucide-icon>
+                  </button>
+                </div>
+              </div>
+              @if (nameError()) {
+                <span class="field-error-message">{{ nameError() }}</span>
+              }
+            </form>
+          }
         </div>
       </div>
 
