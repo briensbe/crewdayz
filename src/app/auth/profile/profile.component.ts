@@ -92,7 +92,7 @@ export class ProfileComponent {
   }
 
   goToUpdatePassword(): void {
-    this.router.navigate(['/update-password'], { queryParams: { mode: 'change' } });
+    this.router.navigate(['/update-password']);
   }
 
   async logout() {

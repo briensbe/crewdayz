@@ -39,7 +39,7 @@ export class App {
         });
       } else {
         const currentUrl = this.router.url;
-        const publicRoutes = ['/login', '/signup', '/forgot-password', '/update-password'];
+        const publicRoutes = ['/login', '/signup', '/forgot-password', '/reset-password'];
         const isPublic = publicRoutes.some((route) => currentUrl.includes(route));
 
         // Redirect to login only if on a protected route

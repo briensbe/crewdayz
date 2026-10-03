@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './auth/login/login.component';
 import { SignupComponent } from './auth/signup/signup.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 import { UpdatePasswordComponent } from './auth/update-password/update-password.component';
 import { ProfileComponent } from './auth/profile/profile.component';
 import { AuthGuard } from './guards/auth.guard';
@@ -11,7 +12,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'update-password', component: UpdatePasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   {
     path: '',
     canActivate: [AuthGuard],
@@ -77,6 +78,7 @@ export const routes: Routes = [
         ],
       },
       { path: 'profile', component: ProfileComponent },
+      { path: 'update-password', component: UpdatePasswordComponent },
     ],
   },
   { path: '**', redirectTo: 'login' },

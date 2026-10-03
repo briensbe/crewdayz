@@ -101,15 +101,18 @@ export class SupabaseService {
         } catch (err) {
           console.error('Unexpected error during PKCE code exchange:', err);
         } finally {
-          const isUpdatePasswordUrl =
-            url.pathname.includes('update-password') || url.hash.includes('update-password');
+          const isRecoveryUrl =
+            url.pathname.includes('reset-password') ||
+            url.hash.includes('reset-password') ||
+            url.pathname.includes('update-password') ||
+            url.hash.includes('update-password');
           // Clean the code parameter from URL
           url.searchParams.delete('code');
           window.history.replaceState({}, document.title, url.toString());
 
-          if (isUpdatePasswordUrl) {
+          if (isRecoveryUrl) {
             this._isPasswordRecovery.set(true);
-            setTimeout(() => this.router.navigate(['/update-password']), 50);
+            setTimeout(() => this.router.navigate(['/reset-password']), 50);
           }
         }
       }
@@ -268,7 +271,7 @@ export class SupabaseService {
     try {
       const authRedirectUrl = environment.authRedirectUrl;
       const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: authRedirectUrl + '/update-password',
+        redirectTo: authRedirectUrl + '/reset-password',
       });
 
       if (error) throw error;
@@ -307,7 +310,7 @@ export class SupabaseService {
     this.supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
         this._isPasswordRecovery.set(true);
-        this.router.navigate(['/update-password']);
+        this.router.navigate(['/reset-password']);
       } else if (event === 'SIGNED_OUT') {
         this._isPasswordRecovery.set(false);
       }
