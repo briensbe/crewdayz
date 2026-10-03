@@ -1,11 +1,16 @@
+import '@angular/compiler';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [App],
-    }).compileComponents();
+      providers: [provideRouter([]), provideHttpClient()],
+    });
   });
 
   it('should create the app', () => {
@@ -14,10 +19,11 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render app layout container', async () => {
+  it('should render router outlet and toast container', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.app-layout')).toBeTruthy();
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
+    expect(compiled.querySelector('app-toast-container')).toBeTruthy();
   });
 });

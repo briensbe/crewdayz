@@ -5,6 +5,7 @@ import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 import { UpdatePasswordComponent } from './auth/update-password/update-password.component';
 import { ProfileComponent } from './auth/profile/profile.component';
+import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard, RootRedirectGuard } from './guards/role.guard';
 
@@ -15,6 +16,7 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
   {
     path: '',
+    component: MainLayoutComponent,
     canActivate: [AuthGuard],
     children: [
       {

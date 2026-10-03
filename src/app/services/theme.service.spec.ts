@@ -1,3 +1,5 @@
+import '@angular/compiler';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { ThemeService, THEME_STORAGE_KEY } from './theme.service';
 

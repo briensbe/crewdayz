@@ -1,34 +1,23 @@
 import { Component, inject, effect } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { SidebarComponent } from './layout/sidebar/sidebar.component';
-import { SidebarService } from './services/sidebar.service';
 import { SupabaseService } from './services/supabase.service';
-import { ReleaseNotesComponent } from './shared/release-notes/release-notes.component';
 import { JiraCollectorService } from './services/jira-collector.service';
 import { ToastContainerComponent } from './shared/toast-container/toast-container.component';
-import { ToastService } from './services/toast.service';
- 
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidebarComponent, ReleaseNotesComponent, ToastContainerComponent],
+  imports: [CommonModule, RouterOutlet, ToastContainerComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
-  protected readonly sidebarService = inject(SidebarService);
   protected readonly supabaseService = inject(SupabaseService);
   private readonly router = inject(Router);
   private readonly jiraCollectorService = inject(JiraCollectorService);
-  // private readonly toastService = inject(ToastService);
 
   constructor() {
-    // Tests de bon fonctionnement du Toaster
-    // this.toastService.success('Système de notifications initialisé avec succès !');
-    // this.toastService.warning('Avertissement : Les tests de toaster sont actifs.');
-    // this.toastService.error('Ceci est un test de message d\'erreur.');
-
     // Watch for authentication changes globally
     effect(() => {
       const user = this.supabaseService.user();

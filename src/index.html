@@ -27,6 +27,21 @@
         }
       }(window.location));
     </script>
+    <!-- Script anti-flicker Dark Mode : application immédiate avant le bootstrap Angular -->
+    <script type="text/javascript">
+      (function() {
+        try {
+          var pref = localStorage.getItem('crewdayz_theme_preference');
+          var isDark = pref === 'dark' || (pref !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark-mode');
+            if (document.body) {
+              document.body.classList.add('dark-mode');
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <app-root></app-root>
