@@ -1,18 +1,20 @@
 <div class="profile-page-container">
-  <div class="page-header">
-    <h1>Mon Profil</h1>
-    <p class="subtitle">Gérez vos informations de compte et votre session</p>
-  </div>
-
   <div class="profile-card">
-    <div class="profile-info-grid">
-      <div class="info-row info-row-name" [class.is-editing]="isEditingName()">
+    <div class="profile-header">
+      <h1>Profil Utilisateur</h1>
+    </div>
+
+    <div class="profile-info-list">
+      <!-- Nom d'affichage -->
+      <div class="info-row" [class.is-editing]="isEditingName()">
         <lucide-icon [img]="User" class="info-icon" size="20"></lucide-icon>
-        <div class="info-details info-details-flex">
+        <div class="info-details">
           <span class="info-label">Nom d'affichage</span>
           @if (!isEditingName()) {
             <div class="info-value-with-action">
-              <span class="info-value">{{ currentDisplayName() || 'Non défini' }}</span>
+              <span class="info-value" [title]="currentDisplayName() || 'Non défini'">
+                {{ currentDisplayName() || 'Non défini' }}
+              </span>
               <button
                 type="button"
                 class="btn-icon-action"
@@ -20,7 +22,7 @@
                 title="Modifier le nom d'affichage"
                 aria-label="Modifier le nom d'affichage"
               >
-                <lucide-icon [img]="Pencil" size="16"></lucide-icon>
+                <lucide-icon [img]="Pencil" size="14"></lucide-icon>
               </button>
             </div>
           } @else {
@@ -47,9 +49,9 @@
                     aria-label="Enregistrer le nom d'affichage"
                   >
                     @if (isSavingName()) {
-                      <lucide-icon [img]="Loader2" size="16" class="spin-icon"></lucide-icon>
+                      <lucide-icon [img]="Loader2" size="14" class="spin-icon"></lucide-icon>
                     } @else {
-                      <lucide-icon [img]="Check" size="16"></lucide-icon>
+                      <lucide-icon [img]="Check" size="14"></lucide-icon>
                     }
                   </button>
                   <button
@@ -60,7 +62,7 @@
                     title="Annuler"
                     aria-label="Annuler la modification"
                   >
-                    <lucide-icon [img]="X" size="16"></lucide-icon>
+                    <lucide-icon [img]="X" size="14"></lucide-icon>
                   </button>
                 </div>
               </div>
@@ -72,14 +74,18 @@
         </div>
       </div>
 
+      <!-- Adresse Email -->
       <div class="info-row">
         <lucide-icon [img]="Mail" class="info-icon" size="20"></lucide-icon>
         <div class="info-details">
           <span class="info-label">Adresse Email</span>
-          <span class="info-value">{{ supabaseService.user()?.email || 'Non défini' }}</span>
+          <span class="info-value" [title]="supabaseService.user()?.email || 'Non défini'">
+            {{ supabaseService.user()?.email || 'Non défini' }}
+          </span>
         </div>
       </div>
 
+      <!-- Méthode d'authentification -->
       <div class="info-row">
         <lucide-icon [img]="isGoogleUser() ? Globe : Lock" class="info-icon" size="20"></lucide-icon>
         <div class="info-details">
@@ -89,14 +95,10 @@
               {{ authProviderLabel() }}
             </span>
           </div>
-          @if (isGoogleUser()) {
-            <span class="auth-hint">
-              Authentifié via Google. Votre mot de passe est géré de manière sécurisée directement depuis votre compte Google.
-            </span>
-          }
         </div>
       </div>
 
+      <!-- Rôle de sécurité -->
       <div class="info-row">
         <lucide-icon [img]="Shield" class="info-icon" size="20"></lucide-icon>
         <div class="info-details">
@@ -106,40 +108,38 @@
               {{ roleLabel() }}
             </span>
           </div>
-          <span class="role-description">{{ roleDescription() }}</span>
         </div>
       </div>
     </div>
 
-    <div class="theme-selector-section">
-      <div class="theme-header">
-        <span class="info-label">Thème de l'interface</span>
-        <span class="theme-subtitle">Personnalisez l'apparence visuelle</span>
-      </div>
-      <div class="theme-buttons">
+    <!-- Préférence de Thème -->
+    <div class="theme-card-section">
+      <span class="theme-card-title">Préférence de Thème :</span>
+      <div class="theme-grid">
         @for (theme of themeOptions; track theme.value) {
           <button
             type="button"
-            class="theme-btn"
+            class="theme-card-btn"
             [class.active]="themeService.preference() === theme.value"
             (click)="setTheme(theme.value)"
             [title]="theme.label"
           >
-            <lucide-icon [img]="theme.icon" [size]="18"></lucide-icon>
+            <lucide-icon [img]="theme.icon" [size]="20"></lucide-icon>
             <span>{{ theme.label }}</span>
           </button>
         }
       </div>
     </div>
 
+    <!-- Actions -->
     <div class="profile-actions">
       @if (!isGoogleUser()) {
-        <button class="btn btn-secondary btn-action" (click)="goToUpdatePassword()">
+        <button class="btn-password-action" (click)="goToUpdatePassword()">
           <lucide-icon [img]="KeyRound" size="18"></lucide-icon>
           Modifier le mot de passe
         </button>
       }
-      <button class="btn btn-outline btn-logout" (click)="logout()">
+      <button class="btn-logout-action" (click)="logout()">
         <lucide-icon [img]="LogOut" size="18"></lucide-icon>
         Se déconnecter
       </button>

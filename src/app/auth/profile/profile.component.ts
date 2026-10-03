@@ -78,7 +78,7 @@ export class ProfileComponent {
   });
 
   readonly authProviderLabel = computed(() => {
-    return this.isGoogleUser() ? 'Compte Google' : 'Email et mot de passe';
+    return this.isGoogleUser() ? 'Compte Google' : 'Email / Mot de passe';
   });
 
   readonly roleLabel = computed(() => {
