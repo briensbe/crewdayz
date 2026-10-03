@@ -265,18 +265,46 @@ export class SupabaseService {
   }
 
   /**
-   * Send a password reset email
+   * Send a password reset email containing an OTP code
    */
   async resetPasswordForEmail(email: string): Promise<void> {
     try {
-      const authRedirectUrl = environment.authRedirectUrl;
-      const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: authRedirectUrl + '/reset-password',
-      });
+      const { error } = await this.supabase.auth.resetPasswordForEmail(email);
 
       if (error) throw error;
     } catch (err: any) {
       throw new Error(err.message || 'Erreur lors de l’envoi du mail de réinitialisation.');
+    }
+  }
+
+  /**
+   * Reset user password using a 6-digit OTP code received by email
+   */
+  async resetPasswordWithOtp(email: string, token: string, newPassword: string): Promise<void> {
+    try {
+      // 1. Verify OTP code and establish recovery session
+      const { error: verifyError } = await this.supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: token.trim(),
+        type: 'recovery',
+      });
+
+      if (verifyError) {
+        throw new Error('Code de confirmation invalide ou expiré.');
+      }
+
+      // 2. Update the user password
+      const { error: updateError } = await this.supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      this._isPasswordRecovery.set(false);
+    } catch (err: any) {
+      throw new Error(err.message || 'Erreur lors de la réinitialisation du mot de passe.');
     }
   }
 

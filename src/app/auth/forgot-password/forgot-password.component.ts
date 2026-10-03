@@ -42,10 +42,12 @@ export class ForgotPasswordComponent {
 
     try {
       await this.supabaseService.resetPasswordForEmail(this.email());
-      this.message.set('Un email de réinitialisation a été envoyé à votre adresse. Veuillez vérifier vos messages.');
-      this.isError.set(false);
+      // Navigate to /reset-password passing email in state
+      await this.router.navigate(['/reset-password'], {
+        state: { email: this.email() },
+      });
     } catch (error: any) {
-      this.message.set(`Erreur : ${error.message || "Impossible d'envoyer le mail."}`);
+      this.message.set(`Erreur : ${error.message || "Impossible d'envoyer le code de réinitialisation."}`);
       this.isError.set(true);
     } finally {
       this.loading.set(false);
