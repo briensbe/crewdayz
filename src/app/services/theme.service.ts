@@ -43,12 +43,47 @@ export class ThemeService {
     effect(() => {
       const isDark = this.effectiveTheme() === 'dark';
       if (typeof document !== 'undefined') {
+        // Temporarily disable CSS transitions to make the theme switch instant across all elements
+        const css = document.createElement('style');
+        css.appendChild(
+          document.createTextNode(
+            `*, *::before, *::after {
+               -webkit-transition: none !important;
+               -moz-transition: none !important;
+               -o-transition: none !important;
+               -ms-transition: none !important;
+               transition: none !important;
+             }`
+          )
+        );
+        document.head.appendChild(css);
+
         if (isDark) {
           document.body.classList.add('dark-mode');
           document.documentElement.classList.add('dark-mode');
         } else {
           document.body.classList.remove('dark-mode');
           document.documentElement.classList.remove('dark-mode');
+        }
+
+        // Force reflow so changes take effect instantly without transition
+        if (typeof window !== 'undefined' && document.body) {
+          void window.getComputedStyle(document.body).opacity;
+        }
+
+        // Re-enable transitions on the next frame
+        if (typeof requestAnimationFrame !== 'undefined') {
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              if (document.head.contains(css)) {
+                document.head.removeChild(css);
+              }
+            }, 20);
+          });
+        } else {
+          if (document.head.contains(css)) {
+            document.head.removeChild(css);
+          }
         }
       }
     });

@@ -120,6 +120,9 @@ export class SupabaseService {
   }
 
   private async safeLock<T>(name: string, acquireFn: () => Promise<T>, retries = 5, delayMs = 50): Promise<T> {
+    if (typeof navigator === 'undefined' || !navigator.locks) {
+      return acquireFn();
+    }
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const result = await navigator.locks.request(name, { ifAvailable: true }, acquireFn);

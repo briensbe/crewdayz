@@ -11,7 +11,11 @@
 
   --background: hsl(210, 40%, 98%);
   --surface: hsl(0, 0%, 100%);
-  --sidebar-bg: hsl(222, 47%, 11%);
+  --sidebar-bg: hsl(0, 0%, 100%);
+  --sidebar-text: hsl(215, 28%, 17%);
+  --sidebar-text-muted: hsl(215, 16%, 47%);
+  --sidebar-hover-bg: hsl(214, 32%, 94%);
+  --sidebar-border: hsl(214, 32%, 91%);
 
   --text-main: hsl(215, 28%, 17%);
   --text-muted: hsl(215, 16%, 47%);
@@ -134,6 +138,10 @@ body.dark-mode,
   --background: hsl(222, 47%, 11%);
   --surface: hsl(217, 33%, 17%);
   --sidebar-bg: hsl(222, 47%, 8%);
+  --sidebar-text: hsl(210, 40%, 98%);
+  --sidebar-text-muted: hsl(215, 20%, 65%);
+  --sidebar-hover-bg: hsla(217, 33%, 25%, 0.6);
+  --sidebar-border: hsl(217, 33%, 20%);
 
   --text-main: hsl(210, 40%, 98%);
   --text-muted: hsl(215, 20%, 65%);
