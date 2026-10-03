@@ -1,5 +1,27 @@
 [
   {
+    "version": "2026.10.03",
+    "date": "2026-10-03",
+    "news": [
+      {
+        "title": "Réinitialisation du mot de passe par code OTP à 6 chiffres",
+        "items": [
+          "Nouveau parcours pas-à-pas de réinitialisation sécurisé par code OTP à 6 chiffres envoyé par e-mail.",
+          "Car certains filtres de sécurité (notamment en entreprise) scannent automatiquement les liens contenus dans les e-mails entrants pour vérifier s'il s'agit de phishing et invalident le lien mail",
+          "Séparation complète des formulaires de réinitialisation (reset) et de mise à jour du mot de passe (update)."
+        ]
+      },
+      {
+        "title": "Refonte UI du Profil & Nouveau Layout Applicatif",
+        "items": [
+          "Refonte UI pour une page Profil légèrement plus compacte.",
+          "Mise en place d'un layout principal dédié isolant la barre latérale hors des parcours d'authentification.",
+          "Nouveau design du menu latéral en thème clair et amélioration de la bascule de thème."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.09.11",
     "date": "2026-09-11",
     "news": [
