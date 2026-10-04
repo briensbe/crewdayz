@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, X, Filter, Pin } from 'lucide-angular';
 import { Employee } from '../../models/types';
+import { matchesEmployeeSearch } from '../utils/string-utils';
 
 export type FilterDropdownType =
   | 'employee'
@@ -218,14 +219,10 @@ export class FiltersComponent implements OnInit {
   }
 
   private filterEmployees(employees: Employee[], searchTerm: string): Employee[] {
-    const search = searchTerm.toLowerCase().trim();
+    const trimmed = searchTerm.trim();
     let result = employees;
-    if (search) {
-      result = employees.filter((emp) => {
-        const fullName = `${emp.last_name} ${emp.first_name}`.toLowerCase();
-        const company = (emp.company_name || '').toLowerCase();
-        return fullName.includes(search) || company.includes(search);
-      });
+    if (trimmed) {
+      result = employees.filter((emp) => matchesEmployeeSearch(emp, trimmed));
     }
     return [...result].sort((a, b) => {
       const nameA = `${a.last_name} ${a.first_name}`.toLowerCase();

@@ -152,17 +152,50 @@ describe('FiltersComponent', () => {
     expect(component.search()).toBe('');
   });
 
-  it('should filter employees correctly in dropdown search', () => {
-    component.employeeSearch.set('alice');
-    const filtered = component.filteredEmployeesForDropdown();
+  it('should filter employees case-insensitively and accent-insensitively in Collaborateurs dropdown', () => {
+    // Upper case search
+    component.employeeSearch.set('ALICE');
+    let filtered = component.filteredEmployeesForDropdown();
     expect(filtered.length).toBe(1);
     expect(filtered[0].first_name).toBe('Alice');
 
-    // Filter by company
-    component.employeeSearch.set('Acme');
-    const filteredCompany = component.filteredEmployeesForDropdown();
-    expect(filteredCompany.length).toBe(1);
-    expect(filteredCompany[0].first_name).toBe('Jean');
+    // Lower case search
+    component.employeeSearch.set('dupont');
+    filtered = component.filteredEmployeesForDropdown();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].first_name).toBe('Jean');
+
+    // Reversed full name search (first_name last_name)
+    component.employeeSearch.set('jean dupont');
+    filtered = component.filteredEmployeesForDropdown();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].first_name).toBe('Jean');
+
+    // Filter by company (case-insensitive)
+    component.employeeSearch.set('GLOBEX');
+    filtered = component.filteredEmployeesForDropdown();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].first_name).toBe('Alice');
+  });
+
+  it('should filter employees case-insensitively and accent-insensitively in Hors filtre dropdown', () => {
+    // Upper case search in pinned dropdown
+    component.pinnedSearch.set('ALICE');
+    let filtered = component.filteredEmployeesForPinnedDropdown();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].first_name).toBe('Alice');
+
+    // Reversed name search
+    component.pinnedSearch.set('Martin Alice');
+    filtered = component.filteredEmployeesForPinnedDropdown();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].first_name).toBe('Alice');
+
+    // Company search
+    component.pinnedSearch.set('acme');
+    filtered = component.filteredEmployeesForPinnedDropdown();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].first_name).toBe('Jean');
   });
 
   it('should toggle selection and emit filterChange', () => {

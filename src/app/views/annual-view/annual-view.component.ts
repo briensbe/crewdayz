@@ -9,7 +9,7 @@ import { FiltersComponent, FilterState } from '../../shared/filters/filters.comp
 import { storageSignal } from '../../../utils/storage-signal';
 import { isFrenchPublicHoliday } from '../../../utils/holidays';
 import { getTeamStyle } from '../../shared/utils/color-utils';
-import { normalizeString } from '../../shared/utils/string-utils';
+import { normalizeString, matchesEmployeeSearch } from '../../shared/utils/string-utils';
 import { ResizableDirective } from '../../shared/directives/resizable.directive';
 import * as XLSX from 'xlsx-js-style';
 
@@ -235,12 +235,8 @@ export class AnnualViewComponent implements OnInit {
           if (currentYear < arrivalYear) return false;
         }
       }
-      if (filters.search) {
-        const query = normalizeString(filters.search);
-        const fullName = normalizeString(`${emp.last_name} ${emp.first_name}`);
-        const matchesName = fullName.includes(query);
-        const matchesCompany = normalizeString(emp.company_name).includes(query);
-        if (!matchesName && !matchesCompany) return false;
+      if (filters.search && !matchesEmployeeSearch(emp, filters.search)) {
+        return false;
       }
       const isPinned = (filters.pinnedEmployees || []).includes(emp.id || '');
       const matchesStandard = this.matchesStandardFilters(emp, filters);

@@ -21,7 +21,7 @@ import { AbsenceService } from '../../services/absence.service';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { storageSignal } from '../../../utils/storage-signal';
 import { Employee } from '../../models/types';
-import { normalizeString } from '../../shared/utils/string-utils';
+import { normalizeString, matchesEmployeeSearch } from '../../shared/utils/string-utils';
 
 interface MonthHeadcount {
   monthIndex: number; // 0-11
@@ -155,12 +155,8 @@ export class DashboardComponent implements OnInit {
   filteredEmployees = computed(() => {
     const filters = this.activeFilters();
     return this.employeeService.employees().filter((emp) => {
-      if (filters.search) {
-        const query = normalizeString(filters.search);
-        const fullName = normalizeString(`${emp.last_name} ${emp.first_name}`);
-        const matchesName = fullName.includes(query);
-        const matchesCompany = normalizeString(emp.company_name).includes(query);
-        if (!matchesName && !matchesCompany) return false;
+      if (filters.search && !matchesEmployeeSearch(emp, filters.search)) {
+        return false;
       }
 
       if (filters.onlyActive) {

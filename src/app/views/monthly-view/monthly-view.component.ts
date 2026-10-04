@@ -31,7 +31,7 @@ import { storageSignal } from '../../../utils/storage-signal';
 import { isFrenchPublicHoliday, getFrenchPublicHolidayName } from '../../../utils/holidays';
 import { SchoolHolidayService } from '../../services/school-holiday.service';
 import { getTeamStyle } from '../../shared/utils/color-utils';
-import { normalizeString } from '../../shared/utils/string-utils';
+import { normalizeString, matchesEmployeeSearch } from '../../shared/utils/string-utils';
 import { ResizableDirective } from '../../shared/directives/resizable.directive';
 
 interface DayColumn {
@@ -434,12 +434,8 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
           if (currentYear > depYear || (currentYear === depYear && this.month() > depMonth)) return false;
         }
       }
-      if (filters.search) {
-        const query = normalizeString(filters.search);
-        const fullName = normalizeString(`${emp.last_name} ${emp.first_name}`);
-        const matchesName = fullName.includes(query);
-        const matchesCompany = normalizeString(emp.company_name).includes(query);
-        if (!matchesName && !matchesCompany) return false;
+      if (filters.search && !matchesEmployeeSearch(emp, filters.search)) {
+        return false;
       }
       const isPinned = (filters.pinnedEmployees || []).includes(emp.id || '');
       const matchesStandard = this.matchesStandardFilters(emp, filters);

@@ -26,7 +26,7 @@ import { Employee, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { storageSignal } from '../../../utils/storage-signal';
 import { getTeamStyle } from '../../shared/utils/color-utils';
-import { normalizeString } from '../../shared/utils/string-utils';
+import { normalizeString, matchesEmployeeSearch } from '../../shared/utils/string-utils';
 import { ResizableDirective } from '../../shared/directives/resizable.directive';
 
 export type EmployeeSortField =
@@ -239,12 +239,8 @@ export class EmployeeListComponent implements OnInit {
       .employees()
       .filter((emp) => {
         // Search filter (first name, last name, or ESN name)
-        if (filters.search) {
-          const query = normalizeString(filters.search);
-          const fullName = normalizeString(`${emp.last_name} ${emp.first_name}`);
-          const matchesName = fullName.includes(query);
-          const matchesCompany = normalizeString(emp.company_name).includes(query);
-          if (!matchesName && !matchesCompany) return false;
+        if (filters.search && !matchesEmployeeSearch(emp, filters.search)) {
+          return false;
         }
         if (filters.onlyActive) {
           if (emp.arrival_date) {
