@@ -1,7 +1,7 @@
 [
   {
     "version": "2026.10.03",
-    "date": "2026-10-03",
+    "date": "2026-10-04",
     "news": [
       {
         "title": "Réinitialisation du mot de passe par code OTP à 6 chiffres",
@@ -17,6 +17,19 @@
           "Refonte UI pour une page Profil légèrement plus compacte.",
           "Mise en place d'un layout principal dédié isolant la barre latérale hors des parcours d'authentification.",
           "Nouveau design du menu latéral en thème clair et amélioration de la bascule de thème."
+        ]
+      },
+      {
+        "title": "Export Annuel Détaillé Multi-onglets (Excel)",
+        "items": [
+          "Génération d'un classeur Excel Annuel complet : 1 onglet de synthèse annuelle consolidé suivi de 12 onglets mensuels détaillés."
+        ]
+      },
+      {
+        "title": "Ergonomie",
+        "items": [
+          "Fermeture des menus déroulant de filtre dès l'appui sur la touche Échap (ESC).",
+          "Recherche de collaborateurs insensible à la casse et aux accents"
         ]
       }
     ]
