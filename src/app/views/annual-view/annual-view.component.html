@@ -16,7 +16,7 @@
         </button>
         @if (showExportDropdown()) {
           <div class="export-dropdown-menu">
-            <div class="dropdown-section-title">Synthèse annuelle (1 onglet)</div>
+            <div class="dropdown-section-title">Synthèse annuelle</div>
             <button type="button" class="dropdown-item" (click)="exportSummary('filtered')">
               Lignes filtrées
             </button>
@@ -26,7 +26,7 @@
 
             <div class="dropdown-divider"></div>
 
-            <div class="dropdown-section-title">Détail annuel (multi-onglets)</div>
+            <div class="dropdown-section-title">Détail annuel</div>
             <button type="button" class="dropdown-item" (click)="exportDetailed('filtered')">
               Lignes filtrées (12 mois)
             </button>
