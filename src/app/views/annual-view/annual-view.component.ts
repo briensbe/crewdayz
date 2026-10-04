@@ -11,7 +11,8 @@ import { isFrenchPublicHoliday } from '../../../utils/holidays';
 import { getTeamStyle } from '../../shared/utils/color-utils';
 import { normalizeString, matchesEmployeeSearch } from '../../shared/utils/string-utils';
 import { ResizableDirective } from '../../shared/directives/resizable.directive';
-import * as XLSX from 'xlsx-js-style';
+
+import { AnnualPresenceExportService } from '../../services/annual-presence-export.service';
 
 interface EmployeeAnnualRow {
   employee: Employee;
@@ -44,6 +45,7 @@ export class AnnualViewComponent implements OnInit {
   // Services and dependencies
   protected readonly employeeService = inject(EmployeeService);
   protected readonly absenceService = inject(AbsenceService);
+  protected readonly exportService = inject(AnnualPresenceExportService);
   protected readonly getTeamStyle = getTeamStyle;
 
   // Expose icons
@@ -428,194 +430,49 @@ export class AnnualViewComponent implements OnInit {
     };
   });
 
-  exportExcel(mode: 'all' | 'filtered') {
-    let rowsToExport: EmployeeAnnualRow[] = [];
-    const absMap = this.absencesMap();
-    const y = this.year();
-
+  getEmployeesForExport(mode: 'all' | 'filtered'): Employee[] {
     if (mode === 'filtered') {
-      rowsToExport = this.employeesAnnualRows();
-    } else {
-      // Calculate rows for ALL active employees in the selected year
-      const allActiveEmps = this.employeeService.employees().filter((emp) => {
-        if (emp.departure_date) {
-          const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
-          if (y > departureYear) return false;
-        }
-        if (emp.arrival_date) {
-          const arrivalYear = parseInt(emp.arrival_date.split('-')[0], 10);
-          if (y < arrivalYear) return false;
-        }
-        return true;
-      });
-
-      // Sort by name
-      const sortedActive = [...allActiveEmps].sort((a, b) => {
-        const nameA = this.nameDisplayFormat() === 'last_first'
-          ? `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase()
-          : `${a.first_name || ''} ${a.last_name || ''}`.toLowerCase();
-        const nameB = this.nameDisplayFormat() === 'last_first'
-          ? `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase()
-          : `${b.first_name || ''} ${b.last_name || ''}`.toLowerCase();
-        return nameA.localeCompare(nameB, 'fr', { sensitivity: 'base' });
-      });
-
-      rowsToExport = sortedActive.map((emp) => this.calculateAnnualRow(emp, absMap, y));
+      return this.filteredEmployees();
     }
 
-    // Map to worksheet format
-    const data = rowsToExport.map((r) => ({
-      'Collaborateur': this.nameDisplayFormat() === 'last_first'
-        ? `${(r.employee.last_name || '').toUpperCase()} ${r.employee.first_name}`
-        : `${r.employee.first_name} ${(r.employee.last_name || '').toUpperCase()}`,
-      'Service': r.employee.service || '',
-      'Équipe': r.employee.team || '',
-      'Site': r.employee.work_site || '',
-      'Type de contrat': (r.employee.contract_type || '') as string,
-      'Janvier': r.monthlyWorked[0],
-      'Février': r.monthlyWorked[1],
-      'Mars': r.monthlyWorked[2],
-      'Avril': r.monthlyWorked[3],
-      'Mai': r.monthlyWorked[4],
-      'Juin': r.monthlyWorked[5],
-      'Juillet': r.monthlyWorked[6],
-      'Août': r.monthlyWorked[7],
-      'Septembre': r.monthlyWorked[8],
-      'Octobre': r.monthlyWorked[9],
-      'Novembre': r.monthlyWorked[10],
-      'Décembre': r.monthlyWorked[11],
-      'Solde Déc.': r.decemberBalance,
-      'Total Annuel': r.annualTotal,
-    }));
-
-    // Add sum totals row at the bottom
-    const totalMonthly = Array(12).fill(0);
-    let totalDecemberBalance = 0;
-    let totalAnnualTotal = 0;
-
-    rowsToExport.forEach((r) => {
-      for (let m = 0; m < 12; m++) {
-        totalMonthly[m] += r.monthlyWorked[m];
+    const y = this.year();
+    const allActiveEmps = this.employeeService.employees().filter((emp) => {
+      if (emp.departure_date) {
+        const departureYear = parseInt(emp.departure_date.split('-')[0], 10);
+        if (y > departureYear) return false;
       }
-      totalDecemberBalance += r.decemberBalance;
-      totalAnnualTotal += r.annualTotal;
+      if (emp.arrival_date) {
+        const arrivalYear = parseInt(emp.arrival_date.split('-')[0], 10);
+        if (y < arrivalYear) return false;
+      }
+      return true;
     });
 
-    data.push({
-      'Collaborateur': 'TOTAL CUMULÉ',
-      'Service': '',
-      'Équipe': '',
-      'Site': '',
-      'Type de contrat': '',
-      'Janvier': totalMonthly[0],
-      'Février': totalMonthly[1],
-      'Mars': totalMonthly[2],
-      'Avril': totalMonthly[3],
-      'Mai': totalMonthly[4],
-      'Juin': totalMonthly[5],
-      'Juillet': totalMonthly[6],
-      'Août': totalMonthly[7],
-      'Septembre': totalMonthly[8],
-      'Octobre': totalMonthly[9],
-      'Novembre': totalMonthly[10],
-      'Décembre': totalMonthly[11],
-      'Solde Déc.': totalDecemberBalance,
-      'Total Annuel': totalAnnualTotal,
+    return [...allActiveEmps].sort((a, b) => {
+      const nameA = this.nameDisplayFormat() === 'last_first'
+        ? `${a.last_name || ''} ${a.first_name || ''}`.toLowerCase()
+        : `${a.first_name || ''} ${a.last_name || ''}`.toLowerCase();
+      const nameB = this.nameDisplayFormat() === 'last_first'
+        ? `${b.last_name || ''} ${b.first_name || ''}`.toLowerCase()
+        : `${b.first_name || ''} ${b.last_name || ''}`.toLowerCase();
+      return nameA.localeCompare(nameB, 'fr', { sensitivity: 'base' });
     });
+  }
 
-    // Generate XLSX workbook & download it
-    const ws = XLSX.utils.json_to_sheet(data);
-
-    // Set column widths to prevent text clipping
-    ws['!cols'] = [
-      { wch: 25 }, // Collaborateur
-      { wch: 25 }, // Collaborateur (Prénom NOM)
-      { wch: 15 }, // Service
-      { wch: 12 }, // Équipe
-      { wch: 12 }, // Site
-      { wch: 15 }, // Type de contrat
-      // Months (Jan to Dec)
-      { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
-      { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
-      { wch: 12 }, // Solde Déc.
-      { wch: 12 }  // Total Annuel
-    ];
-
-    // Professional styles for HR Table
-    const headerStyle = {
-      fill: { fgColor: { rgb: '1E3A8A' } },
-      font: { name: 'Arial', sz: 10, bold: true, color: { rgb: 'FFFFFF' } },
-      alignment: { vertical: 'center', horizontal: 'center', wrapText: true },
-      border: {
-        top: { style: 'thin', color: { rgb: 'CBD5E1' } },
-        bottom: { style: 'medium', color: { rgb: '475569' } },
-        left: { style: 'thin', color: { rgb: 'CBD5E1' } },
-        right: { style: 'thin', color: { rgb: 'CBD5E1' } }
-      }
-    };
-
-    const dataStyle = {
-      font: { name: 'Arial', sz: 10 },
-      border: {
-        top: { style: 'thin', color: { rgb: 'E2E8F0' } },
-        bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
-        left: { style: 'thin', color: { rgb: 'E2E8F0' } },
-        right: { style: 'thin', color: { rgb: 'E2E8F0' } }
-      }
-    };
-
-    const numberStyle = {
-      font: { name: 'Arial', sz: 10 },
-      alignment: { horizontal: 'right' },
-      border: {
-        top: { style: 'thin', color: { rgb: 'E2E8F0' } },
-        bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
-        left: { style: 'thin', color: { rgb: 'E2E8F0' } },
-        right: { style: 'thin', color: { rgb: 'E2E8F0' } }
-      }
-    };
-
-    const totalRowStyle = {
-      fill: { fgColor: { rgb: 'F1F5F9' } },
-      font: { name: 'Arial', sz: 10, bold: true },
-      border: {
-        top: { style: 'medium', color: { rgb: '94A3B8' } },
-        bottom: { style: 'double', color: { rgb: '475569' } },
-        left: { style: 'thin', color: { rgb: 'CBD5E1' } },
-        right: { style: 'thin', color: { rgb: 'CBD5E1' } }
-      }
-    };
-
-    // Apply styles to all cells
-    for (const cellRef in ws) {
-      if (cellRef[0] === '!') continue;
-      const cell = ws[cellRef];
-      if (!cell) continue;
-
-      const match = cellRef.match(/^([A-Z]+)([0-9]+)$/);
-      if (match) {
-        const row = parseInt(match[2], 10);
-        if (row === 1) {
-          cell.s = headerStyle;
-        } else if (row === data.length + 1) {
-          // Total Row
-          cell.s = cell.t === 'n' ? {
-            ...totalRowStyle,
-            alignment: { horizontal: 'right' }
-          } : totalRowStyle;
-        } else {
-          // Data Row
-          cell.s = cell.t === 'n' ? numberStyle : dataStyle;
-        }
-      }
-    }
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, `Synthèse ${y}`);
-
-    const fileName = `Export_Annuel_${y}_${mode === 'filtered' ? 'filtre' : 'tous'}.xlsx`;
-    XLSX.writeFile(wb, fileName);
+  async exportSummary(mode: 'all' | 'filtered') {
     this.showExportDropdown.set(false);
+    const emps = this.getEmployeesForExport(mode);
+    await this.exportService.exportAnnualSummary(emps, this.year(), mode);
+  }
+
+  async exportDetailed(mode: 'all' | 'filtered') {
+    this.showExportDropdown.set(false);
+    const emps = this.getEmployeesForExport(mode);
+    await this.exportService.exportDetailedAnnualPresence(emps, this.year(), mode);
+  }
+
+  exportExcel(mode: 'all' | 'filtered') {
+    this.exportSummary(mode);
   }
 
   ngOnInit() {

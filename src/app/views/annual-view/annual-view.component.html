@@ -16,11 +16,22 @@
         </button>
         @if (showExportDropdown()) {
           <div class="export-dropdown-menu">
-            <button type="button" class="dropdown-item" (click)="exportExcel('filtered')">
+            <div class="dropdown-section-title">Synthèse annuelle (1 onglet)</div>
+            <button type="button" class="dropdown-item" (click)="exportSummary('filtered')">
               Lignes filtrées
             </button>
-            <button type="button" class="dropdown-item" (click)="exportExcel('all')">
+            <button type="button" class="dropdown-item" (click)="exportSummary('all')">
               Toutes les lignes
+            </button>
+
+            <div class="dropdown-divider"></div>
+
+            <div class="dropdown-section-title">Détail annuel (multi-onglets)</div>
+            <button type="button" class="dropdown-item" (click)="exportDetailed('filtered')">
+              Lignes filtrées (12 mois)
+            </button>
+            <button type="button" class="dropdown-item" (click)="exportDetailed('all')">
+              Toutes les lignes (12 mois)
             </button>
           </div>
         }
@@ -51,16 +62,18 @@
   ></app-filters>
 
   <!-- Summary Card with Grand Total -->
-  <div class="summary-stats-card animate-fade-in" *ngIf="employeesAnnualRows().length > 0">
-    <div class="stat-item">
-      <span class="stat-label">Jours travaillés (Total des ressources filtrées)</span>
-      <span class="stat-value">{{ totals().grand }} <span class="stat-unit">jours</span></span>
+  @if (employeesAnnualRows().length > 0) {
+    <div class="summary-stats-card animate-fade-in">
+      <div class="stat-item">
+        <span class="stat-label">Jours travaillés (Total des ressources filtrées)</span>
+        <span class="stat-value">{{ totals().grand }} <span class="stat-unit">jours</span></span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Ressources filtrées</span>
+        <span class="stat-value">{{ employeesAnnualRows().length }} <span class="stat-unit">actifs</span></span>
+      </div>
     </div>
-    <div class="stat-item">
-      <span class="stat-label">Ressources filtrées</span>
-      <span class="stat-value">{{ employeesAnnualRows().length }} <span class="stat-unit">actifs</span></span>
-    </div>
-  </div>
+  }
 
   <!-- Annual Worked Days Table -->
   <div class="table-container annual-table-container animate-fade-in">
