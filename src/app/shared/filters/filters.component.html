@@ -9,6 +9,7 @@
           class="header-search-input"
           [ngModel]="search()"
           (ngModelChange)="search.set($event); onFilterChange()"
+          (keydown.escape)="clearSearch($event)"
           placeholder="Rechercher par nom ou prénom..."
         />
         @if (search()) {

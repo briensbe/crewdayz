@@ -63,6 +63,12 @@ export class AnnualViewComponent implements OnInit {
   showExportDropdown = signal<boolean>(false);
   showNameFormatPopover = signal<boolean>(false);
 
+  @HostListener('document:keydown.escape')
+  onEscapeKeydown() {
+    this.showExportDropdown.set(false);
+    this.showNameFormatPopover.set(false);
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;

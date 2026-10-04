@@ -972,6 +972,11 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
 
   // cell hover is delegated via event delegation in ngAfterViewInit
 
+  @HostListener('document:keydown.escape')
+  onEscapeKeydown() {
+    this.showNameFormatPopover.set(false);
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
