@@ -30,10 +30,10 @@ export interface Employee {
   team: string; // Called "Ilot" in French UI
   work_site: string;
   contract_type: 'Interne' | 'Externe';
-  company_name?: string;
+  company_name?: string | null;
   profile: string;
-  arrival_date?: string;
-  departure_date?: string;
+  arrival_date?: string | null;
+  departure_date?: string | null;
   created_at?: string;
   updated_at?: string;
 
