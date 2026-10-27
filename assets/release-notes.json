@@ -1,5 +1,24 @@
 [
   {
+    "version": "2026.10.27",
+    "date": "2026-10-27",
+    "news": [
+      {
+        "title": "Vue Annuelle",
+        "items": [
+          "Maintien fixe (sticky) de l'en-tête du tableau lors du défilement.",
+          "Simplification des libellés dans le menu d'exportation."
+        ]
+      },
+      {
+        "title": "Gestion des Collaborateurs",
+        "items": [
+          "Correction de la suppression des dates d'arrivée, de départ ou du nom de société."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.10.03",
     "date": "2026-10-04",
     "news": [
