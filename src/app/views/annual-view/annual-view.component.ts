@@ -1,4 +1,15 @@
-import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  OnInit,
+  HostListener,
+  ElementRef,
+  NgZone,
+  viewChild,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, ChevronLeft, ChevronRight, BarChart3, Info, ArrowUp, ArrowDown, ArrowUpDown, Download, ChevronDown, Settings, Pin, X } from 'lucide-angular';
@@ -31,6 +42,10 @@ export type EmployeeSortField = 'name' | 'contract_type' | 'service' | 'team' | 
   styleUrl: './annual-view.component.css',
 })
 export class AnnualViewComponent implements OnInit {
+  private readonly ngZone = inject(NgZone);
+  private readonly headerScrollRef = viewChild<ElementRef<HTMLElement>>('headerScroll');
+  private readonly bodyScrollRef = viewChild<ElementRef<HTMLElement>>('bodyScroll');
+
   nameColWidth = signal<number>(
     (() => {
       try {
@@ -77,7 +92,7 @@ export class AnnualViewComponent implements OnInit {
     if (!target.closest('.export-dropdown-container')) {
       this.showExportDropdown.set(false);
     }
-    if (!target.closest('.name-format-popover-container')) {
+    if (!target.closest('.name-format-popover-container') && !target.closest('.name-format-popover-menu')) {
       this.showNameFormatPopover.set(false);
     }
   }
@@ -473,6 +488,35 @@ export class AnnualViewComponent implements OnInit {
 
   exportExcel(mode: 'all' | 'filtered') {
     this.exportSummary(mode);
+  }
+
+  constructor() {
+    effect((onCleanup) => {
+      const headerEl = this.headerScrollRef()?.nativeElement;
+      const bodyEl = this.bodyScrollRef()?.nativeElement;
+      if (!headerEl || !bodyEl) return;
+
+      this.ngZone.runOutsideAngular(() => {
+        const onBodyScroll = () => {
+          if (headerEl.scrollLeft !== bodyEl.scrollLeft) {
+            headerEl.scrollLeft = bodyEl.scrollLeft;
+          }
+        };
+        const onHeaderScroll = () => {
+          if (bodyEl.scrollLeft !== headerEl.scrollLeft) {
+            bodyEl.scrollLeft = headerEl.scrollLeft;
+          }
+        };
+
+        bodyEl.addEventListener('scroll', onBodyScroll, { passive: true });
+        headerEl.addEventListener('scroll', onHeaderScroll, { passive: true });
+
+        onCleanup(() => {
+          bodyEl.removeEventListener('scroll', onBodyScroll);
+          headerEl.removeEventListener('scroll', onHeaderScroll);
+        });
+      });
+    });
   }
 
   ngOnInit() {

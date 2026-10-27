@@ -213,20 +213,106 @@
 
 /* Table styling additions */
 .annual-table-container {
-  overflow-x: auto;
+  overflow: visible;
   max-width: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.annual-sticky-header-container {
+  position: sticky;
+  top: calc(-2.5rem - 2px);
+  z-index: 30;
+  padding-top: 14px;
+  margin-top: -14px;
+  margin-left: -2px;
+  margin-right: -2px;
+  padding-left: 2px;
+  padding-right: 2px;
+  background-color: var(--background);
+}
+
+.annual-header-viewport {
+  overflow-x: auto;
+  scrollbar-width: none;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.annual-header-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.annual-body-viewport {
+  overflow-x: auto;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .annual-table {
+  table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
+  min-width: calc(
+    var(--name-col-width, 150px) +
+    var(--service-width, 0px) +
+    var(--team-width, 0px) +
+    var(--site-width, 0px) +
+    var(--type-width, 0px) +
+    780px + 95px + 110px
+  );
+}
+
+col.name-col-def {
+  width: var(--name-col-width, 150px);
+}
+
+col.service-col-def {
+  width: 100px;
+}
+
+col.team-col-def {
+  width: 80px;
+}
+
+col.site-col-def {
+  width: 90px;
+}
+
+col.type-col-def {
+  width: 80px;
+}
+
+col.month-col-def {
+  width: 65px;
+}
+
+col.balance-col-def {
+  width: 95px;
+}
+
+col.total-col-def {
+  width: 110px;
 }
 
 .annual-table th,
 .annual-table td {
   padding: 0.875rem 0.75rem;
   border-bottom: 1px solid var(--border-light);
+}
+
+.annual-header-table th {
+  border-bottom: none;
+  background-color: var(--background);
 }
 
 /* Sticky Columns */
@@ -243,32 +329,54 @@ tr:hover .sticky-col {
 
 .name-col {
   left: 0;
-  min-width: 150px;
+  width: var(--name-col-width, 150px) !important;
+  min-width: var(--name-col-width, 150px) !important;
+  max-width: var(--name-col-width, 150px) !important;
   border-right: 1px solid var(--border-light);
 }
 
 .service-col {
-  left: 150px;
+  left: var(--name-col-width, 150px) !important;
+  width: 100px;
   min-width: 100px;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .team-col {
-  left: 250px;
+  left: calc(var(--name-col-width, 150px) + var(--service-width, 100px)) !important;
+  width: 80px;
   min-width: 80px;
+  max-width: 80px;
 }
 
 .site-col {
-  left: 330px;
+  left: calc(var(--name-col-width, 150px) + var(--service-width, 100px) + var(--team-width, 80px)) !important;
+  width: 90px;
   min-width: 90px;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .type-col {
-  left: 420px;
+  left: calc(
+    var(--name-col-width, 150px) +
+    var(--service-width, 100px) +
+    var(--team-width, 80px) +
+    var(--site-width, 90px)
+  ) !important;
+  width: 80px;
   min-width: 80px;
+  max-width: 80px;
 }
 
 /* Header sticky alignment */
 .annual-table thead th.sticky-col {
+  position: sticky;
   background-color: var(--background);
   z-index: 20;
 }
@@ -360,7 +468,7 @@ tr:hover .sticky-col {
 
 .totals-row td.sticky-col {
   background-color: var(--border-light) !important;
-  z-index: 20;
+  z-index: 15;
 }
 
 .footer-sum {
@@ -481,8 +589,8 @@ tr:hover .sticky-col {
 
 .name-format-popover-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 0;
+  top: calc(100% + 0.25rem);
+  left: calc(var(--name-col-width, 150px) - 56px);
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);

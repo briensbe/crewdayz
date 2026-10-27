@@ -91,7 +91,11 @@ export class ResizableDirective implements OnInit, OnDestroy {
         const clampedWidth = Math.max(this.minWidth(), Math.min(this.maxWidth(), targetWidth));
         this.localWidth = clampedWidth;
 
-        // Directly update CSS custom property on closest table for GPU-accelerated 60fps layout shifting
+        // Directly update CSS custom property on closest table and container for GPU-accelerated 60fps layout shifting
+        const container = this.el.nativeElement.closest('.table-container') as HTMLElement | null;
+        if (container) {
+          container.style.setProperty('--name-col-width', clampedWidth + 'px');
+        }
         const table = this.el.nativeElement.closest('table');
         if (table) {
           table.style.setProperty('--name-col-width', clampedWidth + 'px');
