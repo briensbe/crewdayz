@@ -23,3 +23,10 @@
 - [x] 4.1 Exécuter la suite de tests unitaires via `pnpm test`
 - [x] 4.2 Vérifier la compilation et le build complet via `pnpm build`
 - [x] 4.3 Contrôler la conformité aux règles d'architecture (limite de taille des fichiers, composants standalone, typage strict)
+
+## 5. Affichage compact des événements existants (Seuil de 4 & Synthèse)
+
+- [x] 5.1 Ajouter un signal calculé pour le regroupement par catégorie et l'état de dépliage (`showAllExistingAbsences`) dans `src/app/shared/absence-modal/absence-modal.component.ts`
+- [x] 5.2 Mettre à jour `src/app/shared/absence-modal/absence-modal.component.html` avec l'affichage des 4 premiers éléments, le bandeau de répartition et le toggle pour les éléments supplémentaires
+- [x] 5.3 Ajouter les styles CSS dans `src/app/shared/absence-modal/absence-modal.component.css` (`max-height`, scrollbar personnalisée, badges de synthèse)
+- [x] 5.4 Valider le bon comportement visuel et exécuter `pnpm test` et `pnpm build`

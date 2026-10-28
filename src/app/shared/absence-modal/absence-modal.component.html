@@ -83,9 +83,25 @@
     <!-- Existing absences in selected period -->
     @if (existingAbsencesInPeriod().length > 0) {
       <div class="existing-absences-container animate-fade-in">
-        <div class="existing-absence-title">Événement(s) planifié(s) sur la période :</div>
-        <div class="existing-absences-list">
-          @for (item of existingAbsencesInPeriod(); track item.dateText + item.category) {
+        <div class="existing-absence-header">
+          <div class="existing-absence-title">
+            <span>Événement(s) planifié(s) sur la période :</span>
+            <span class="existing-count-badge">{{ existingAbsencesInPeriod().length }}</span>
+          </div>
+
+          @if (existingAbsencesSummary().length > 0) {
+            <div class="existing-summary-badges">
+              @for (cat of existingAbsencesSummary(); track cat.label) {
+                <span class="summary-cat-badge" [ngClass]="cat.class">
+                  {{ cat.count }} {{ cat.label }}
+                </span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="existing-absences-list" [class.scrollable]="showAllExistingAbsences()">
+          @for (item of displayedExistingAbsences(); track item.dateText + item.category) {
             <div class="existing-absence-item">
               <span class="absence-badge" [ngClass]="item.class">{{ item.category }}</span>
               <span class="existing-absence-text">
@@ -97,6 +113,26 @@
             </div>
           }
         </div>
+
+        @if (remainingExistingAbsencesCount() > 0 || showAllExistingAbsences()) {
+          <button
+            type="button"
+            class="btn-toggle-existing-absences"
+            (click)="toggleShowAllExistingAbsences()"
+          >
+            <lucide-icon
+              [img]="showAllExistingAbsences() ? ChevronUpIcon : ChevronDownIcon"
+              size="14"
+            ></lucide-icon>
+            <span>
+              {{
+                showAllExistingAbsences()
+                  ? 'Masquer les autres événements'
+                  : 'Afficher les ' + remainingExistingAbsencesCount() + ' autres événements'
+              }}
+            </span>
+          </button>
+        }
       </div>
     }
 
@@ -385,7 +421,7 @@
         <p>Êtes-vous sûr de vouloir supprimer les événements déjà planifiés sur cette période ?</p>
 
         <div class="existing-absences-container">
-          <div class="existing-absences-list">
+          <div class="existing-absences-list scrollable">
             @for (item of existingAbsencesInPeriod(); track item.dateText + item.category) {
               <div class="existing-absence-item">
                 <span class="absence-badge" [ngClass]="item.class">{{ item.category }}</span>

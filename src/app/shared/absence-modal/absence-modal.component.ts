@@ -1,7 +1,7 @@
 import { Component, input, output, signal, effect, inject, HostListener, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Calendar, X, Trash2, MessageSquare, Info, Plus, Minus, Repeat } from 'lucide-angular';
+import { LucideAngularModule, Calendar, X, Trash2, MessageSquare, Info, Plus, Minus, Repeat, ChevronDown, ChevronUp } from 'lucide-angular';
 import { Employee, Absence, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
@@ -154,6 +154,41 @@ export class AbsenceModalComponent {
         class: this.getCategoryClass(g.category),
       };
     });
+  });
+
+  showAllExistingAbsences = signal<boolean>(false);
+
+  toggleShowAllExistingAbsences() {
+    this.showAllExistingAbsences.update((v) => !v);
+  }
+
+  displayedExistingAbsences = computed(() => {
+    const all = this.existingAbsencesInPeriod();
+    if (all.length <= 4 || this.showAllExistingAbsences()) {
+      return all;
+    }
+    return all.slice(0, 4);
+  });
+
+  remainingExistingAbsencesCount = computed(() => {
+    const total = this.existingAbsencesInPeriod().length;
+    return total > 4 ? total - 4 : 0;
+  });
+
+  existingAbsencesSummary = computed(() => {
+    const all = this.existingAbsencesInPeriod();
+    if (all.length <= 4) return [];
+
+    const counts = new Map<string, { count: number; label: string; class: string }>();
+    for (const item of all) {
+      const existing = counts.get(item.category);
+      if (existing) {
+        existing.count++;
+      } else {
+        counts.set(item.category, { count: 1, label: item.category, class: item.class });
+      }
+    }
+    return Array.from(counts.values());
   });
 
   formatDisplayDate(dateStr: string): string {
@@ -399,6 +434,8 @@ export class AbsenceModalComponent {
   readonly PlusIcon = Plus;
   readonly MinusIcon = Minus;
   readonly RepeatIcon = Repeat;
+  readonly ChevronDownIcon = ChevronDown;
+  readonly ChevronUpIcon = ChevronUp;
 
   // Recurrence configuration
   readonly weekDays = [
@@ -482,6 +519,7 @@ export class AbsenceModalComponent {
         this.comment.set(exist.comment || '');
         this.showCommentInput.set(!!exist.comment);
         this.isRecurring.set(false);
+        this.showAllExistingAbsences.set(false);
         if (exist.period === 'morning') {
           this.startPeriod.set('morning');
           this.endPeriod.set('morning');
@@ -502,6 +540,7 @@ export class AbsenceModalComponent {
         this.startPeriod.set('morning');
         this.endPeriod.set('afternoon');
         this.isRecurring.set(false);
+        this.showAllExistingAbsences.set(false);
         this.recurrenceInterval.set(1);
         this.recurrenceDays.set([3]);
         this.recurrencePeriod.set('full');

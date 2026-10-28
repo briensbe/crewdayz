@@ -46,6 +46,13 @@ La solution retenue consiste à introduire une option de récurrence hebdomadair
   1. Si `isFrenchPublicHoliday(date)` est vrai $\rightarrow$ exclu.
   2. Si une absence existe déjà pour cet employé à cette date (et sur cette période) $\rightarrow$ exclu.
 
+### 5. Affichage progressif et synthèse des événements existants (Seuil à 4)
+- **Choix** :
+  - Seuil fixé à 4 événements affichés immédiatement.
+  - Au-delà de 4 : affichage des 4 premiers + bandeau récapitulatif par badges (`summaryCategories`: calcul du nombre d'événements par catégorie) + bouton accordéon `Afficher les X autres événements`.
+  - Liste étendue des éléments restants plafonnée avec `max-height: 160px; overflow-y: auto`.
+- **Raison** : Évite d'allonger démesurément la modale lors des saisies annuelles tout en conservant une lisibilité immédiate pour les périodes courtes.
+
 ## Risks / Trade-offs
 
 - **[Performance d'insertion en masse sur une année entière]** : Poser 52 semaines peut représenter jusqu'à ~100 ou 150 enregistrements d'un coup.

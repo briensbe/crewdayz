@@ -51,3 +51,18 @@ Le système DOIT enregistrer les absences récurrentes sous forme de lignes indi
 - **THEN** toutes les dates calculées sont enregistrées via un appel d'upsert dans Supabase avec la catégorie sélectionnée (ex. "Temps partiel")
 - **THEN** la vue calendrier mensuelle et annuelle se met à jour instantanément avec les nouveaux événements
 - **THEN** chaque jour généré peut ensuite être modifié ou supprimé individuellement par l'utilisateur
+
+### Requirement: Affichage compact et synthétique des événements existants
+Le système DOIT adapter l'affichage de la liste des événements déjà planifiés sur la période sélectionnée pour éviter l'encombrement vertical de la modale lors de sélections étendues (ex. année complète).
+
+#### Scenario: Moins ou égal à 4 événements existants
+- **GIVEN** une période sélectionnée comportant 4 événements ou moins
+- **WHEN** la modale affiche les événements planifiés
+- **THEN** la totalité des événements (jusqu'à 4) est affichée directement sans repli
+
+#### Scenario: Plus de 4 événements existants (Mode synthétique & déroulant)
+- **GIVEN** une période sélectionnée comportant plus de 4 événements
+- **WHEN** la modale affiche les événements planifiés
+- **THEN** les 4 premiers événements sont affichés directement
+- **THEN** un bandeau de synthèse affiche le nombre total et la répartition par badge de catégorie (ex. 16 Temps partiel, 2 CP)
+- **THEN** un bouton d'action permet de déplier/replier les événements restants dans une zone à défilement vertical limité
