@@ -10,7 +10,8 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1.5rem;
+  padding: 1rem;
+  overscroll-behavior: contain;
 }
 
 .modal-card {
@@ -18,12 +19,13 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
-  padding: 1.25rem;
+  padding: 0;
   width: 100%;
   max-width: 580px;
+  max-height: min(92vh, 850px);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  overflow: hidden;
   animation: modalEntry 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -43,7 +45,39 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border-light);
-  padding-bottom: 0.6rem;
+  padding: 0.9rem 1.25rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.modal-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.modal-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scroll-area::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.modal-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 .modal-header h2 {
@@ -225,9 +259,12 @@
 .modal-actions {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   border-top: 1px solid var(--border-light);
-  padding-top: 1rem;
+  background-color: var(--surface);
+  padding: 0.75rem 1.25rem;
+  flex-shrink: 0;
+  margin-top: 0;
 }
 
 .modal-actions .btn {
@@ -507,10 +544,12 @@
   border: 1px solid var(--danger-light);
 }
 
-.confirm-body {
+.confirm-card .confirm-body {
+  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  overflow-y: auto;
 }
 
 .confirm-body p {

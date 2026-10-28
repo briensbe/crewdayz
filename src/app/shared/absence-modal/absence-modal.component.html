@@ -7,8 +7,10 @@
       </button>
     </div>
 
-    <!-- Subtitle with employee name -->
-    <div class="employee-badge-container">
+    <form (ngSubmit)="onSubmit()" class="modal-form">
+      <div class="modal-scroll-area">
+        <!-- Subtitle with employee name -->
+        <div class="employee-badge-container">
       <div class="employee-header-row">
         <div class="employee-info">
           <span class="employee-label">Collaborateur :</span>
@@ -144,8 +146,7 @@
       </div>
     }
 
-    <form (ngSubmit)="onSubmit()" class="modal-form">
-      <div class="dates-grid">
+    <div class="dates-grid">
         <!-- Start Date & Period -->
         <div class="form-group">
           <label for="startDate">Date de début</label>
@@ -384,8 +385,9 @@
           </div>
         }
       </div>
+    </div>
 
-      <div class="modal-actions">
+    <div class="modal-actions">
         <!-- Delete Button for existing absences or multiple selection with existing events -->
         @if (existingAbsence() || existingAbsencesInPeriod().length > 0) {
           <button type="button" class="btn btn-outline btn-delete" (click)="onDelete()">

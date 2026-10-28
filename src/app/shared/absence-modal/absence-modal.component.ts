@@ -1,4 +1,4 @@
-import { Component, input, output, signal, effect, inject, HostListener, computed } from '@angular/core';
+import { Component, input, output, signal, effect, inject, HostListener, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Calendar, X, Trash2, MessageSquare, Info, Plus, Minus, Repeat, ChevronDown, ChevronUp } from 'lucide-angular';
@@ -36,7 +36,19 @@ export interface AbsenceSavePayload {
   templateUrl: './absence-modal.component.html',
   styleUrl: './absence-modal.component.css',
 })
-export class AbsenceModalComponent {
+export class AbsenceModalComponent implements OnInit, OnDestroy {
+  ngOnInit() {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  ngOnDestroy() {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = '';
+    }
+  }
+
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
