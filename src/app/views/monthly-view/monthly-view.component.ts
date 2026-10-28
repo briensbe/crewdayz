@@ -24,6 +24,7 @@ import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
 import { SupabaseService } from '../../services/supabase.service';
 import { CollaboratorPresenceExportService } from '../../services/collaborator-presence-export.service';
+import { ToastService } from '../../services/toast.service';
 import { Employee, Absence, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { FiltersComponent, FilterState } from '../../shared/filters/filters.component';
 import { AbsenceModalComponent, AbsenceSavePayload } from '../../shared/absence-modal/absence-modal.component';
@@ -108,6 +109,7 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   protected readonly supabaseService = inject(SupabaseService);
   protected readonly holidayService = inject(SchoolHolidayService);
   protected readonly exportService = inject(CollaboratorPresenceExportService);
+  protected readonly toastService = inject(ToastService);
 
   // Expose icons
   readonly ChevronLeft = ChevronLeft;
@@ -1088,7 +1090,28 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   async onModalSave(payload: AbsenceSavePayload) {
     this.showModal.set(false);
 
-    // Generate dates between startDate and endDate
+    // Case 1: Recurring absences generation
+    if (payload.isRecurring && payload.recurringDates && payload.recurringDates.length > 0) {
+      const absencesToUpsert: Absence[] = payload.recurringDates.map((item) => ({
+        employee_id: payload.employee_id,
+        date: item.date,
+        period: item.period,
+        category: payload.category,
+        comment: payload.comment || undefined,
+      }));
+
+      try {
+        await this.absenceService.upsertAbsences(absencesToUpsert, this.year());
+        this.toastService.success(
+          `${absencesToUpsert.length} absence(s) récurrente(s) enregistrée(s) avec succès.`,
+        );
+      } catch (err: any) {
+        this.toastService.error(`Erreur lors de la sauvegarde récurrente : ${err.message || err}`);
+      }
+      return;
+    }
+
+    // Case 2: Standard single date or range save
     const start = new Date(payload.startDate);
     const end = new Date(payload.endDate);
 
@@ -1115,11 +1138,6 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
       datesToDelete.push(dateStr);
 
       // Determine period for this date
-      // If single day: use startPeriod and endPeriod
-      // If multiple days:
-      // - First day: startPeriod to afternoon (e.g. if startPeriod is afternoon, it's 'afternoon', if morning it's 'full')
-      // - Last day: morning to endPeriod (e.g. if endPeriod is morning, it's 'morning', if afternoon it's 'full')
-      // - Middle days: 'full'
       let period: 'full' | 'morning' | 'afternoon' = 'full';
 
       if (payload.startDate === payload.endDate) {
@@ -1155,7 +1173,7 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
         this.year(),
       );
     } catch (err: any) {
-      alert("Erreur lors de la sauvegarde de l'absence : " + err.message);
+      this.toastService.error(`Erreur lors de la sauvegarde de l'absence : ${err.message || err}`);
     }
   }
 

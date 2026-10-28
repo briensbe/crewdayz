@@ -123,28 +123,30 @@
               required
             />
           </div>
-          <div class="period-toggle-group">
-            <label class="radio-label">
-              <input
-                type="radio"
-                name="startPeriod"
-                value="morning"
-                [ngModel]="startPeriod()"
-                (ngModelChange)="startPeriod.set($event)"
-              />
-              Matin
-            </label>
-            <label class="radio-label">
-              <input
-                type="radio"
-                name="startPeriod"
-                value="afternoon"
-                [ngModel]="startPeriod()"
-                (ngModelChange)="startPeriod.set($event)"
-              />
-              Après-midi
-            </label>
-          </div>
+          @if (!isRecurring()) {
+            <div class="period-toggle-group">
+              <label class="radio-label">
+                <input
+                  type="radio"
+                  name="startPeriod"
+                  value="morning"
+                  [ngModel]="startPeriod()"
+                  (ngModelChange)="startPeriod.set($event)"
+                />
+                Matin
+              </label>
+              <label class="radio-label">
+                <input
+                  type="radio"
+                  name="startPeriod"
+                  value="afternoon"
+                  [ngModel]="startPeriod()"
+                  (ngModelChange)="startPeriod.set($event)"
+                />
+                Après-midi
+              </label>
+            </div>
+          }
         </div>
 
         <!-- End Date & Period -->
@@ -160,28 +162,30 @@
               required
             />
           </div>
-          <div class="period-toggle-group">
-            <label class="radio-label">
-              <input
-                type="radio"
-                name="endPeriod"
-                value="morning"
-                [ngModel]="endPeriod()"
-                (ngModelChange)="endPeriod.set($event)"
-              />
-              Matin
-            </label>
-            <label class="radio-label">
-              <input
-                type="radio"
-                name="endPeriod"
-                value="afternoon"
-                [ngModel]="endPeriod()"
-                (ngModelChange)="endPeriod.set($event)"
-              />
-              Après-midi
-            </label>
-          </div>
+          @if (!isRecurring()) {
+            <div class="period-toggle-group">
+              <label class="radio-label">
+                <input
+                  type="radio"
+                  name="endPeriod"
+                  value="morning"
+                  [ngModel]="endPeriod()"
+                  (ngModelChange)="endPeriod.set($event)"
+                />
+                Matin
+              </label>
+              <label class="radio-label">
+                <input
+                  type="radio"
+                  name="endPeriod"
+                  value="afternoon"
+                  [ngModel]="endPeriod()"
+                  (ngModelChange)="endPeriod.set($event)"
+                />
+                Après-midi
+              </label>
+            </div>
+          }
         </div>
       </div>
 
@@ -200,6 +204,123 @@
           <option value="Prévisionnel">Prévisionnel (Simulation)</option>
         </select>
       </div>
+
+      <!-- Recurrence Section -->
+      @if (!existingAbsence()) {
+        <div class="form-group recurrence-container">
+          <div class="recurrence-header" (click)="toggleRecurrence()">
+            <label class="recurrence-toggle-label" (click)="$event.stopPropagation()">
+              <input
+                type="checkbox"
+                [checked]="isRecurring()"
+                (change)="toggleRecurrence()"
+                class="recurrence-checkbox"
+              />
+              <span class="recurrence-title">
+                <lucide-icon [img]="RepeatIcon" size="16"></lucide-icon>
+                Répéter cette absence (temps partiel, 80%, etc.)
+              </span>
+            </label>
+          </div>
+
+          @if (isRecurring()) {
+            <div class="recurrence-panel animate-fade-in">
+              <!-- Interval -->
+              <div class="recurrence-row">
+                <span class="recurrence-label">Répéter toutes les :</span>
+                <div class="interval-input-group">
+                  <input
+                    type="number"
+                    min="1"
+                    max="52"
+                    [ngModel]="recurrenceInterval()"
+                    (ngModelChange)="recurrenceInterval.set($event || 1)"
+                    name="recurrenceInterval"
+                    class="interval-input"
+                  />
+                  <span class="interval-unit">semaine(s)</span>
+                </div>
+              </div>
+
+              <!-- Days of week -->
+              <div class="recurrence-row">
+                <span class="recurrence-label">Les jours :</span>
+                <div class="days-button-group">
+                  @for (day of weekDays; track day.id) {
+                    <button
+                      type="button"
+                      class="day-btn"
+                      [class.active]="recurrenceDays().includes(day.id)"
+                      (click)="toggleRecurrenceDay(day.id)"
+                      [title]="day.name"
+                    >
+                      {{ day.label }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Period for selected days -->
+              <div class="recurrence-row">
+                <span class="recurrence-label">Période :</span>
+                <div class="period-toggle-group">
+                  <label class="radio-label">
+                    <input
+                      type="radio"
+                      name="recurrencePeriod"
+                      value="full"
+                      [ngModel]="recurrencePeriod()"
+                      (ngModelChange)="recurrencePeriod.set($event)"
+                    />
+                    Journée
+                  </label>
+                  <label class="radio-label">
+                    <input
+                      type="radio"
+                      name="recurrencePeriod"
+                      value="morning"
+                      [ngModel]="recurrencePeriod()"
+                      (ngModelChange)="recurrencePeriod.set($event)"
+                    />
+                    Matin
+                  </label>
+                  <label class="radio-label">
+                    <input
+                      type="radio"
+                      name="recurrencePeriod"
+                      value="afternoon"
+                      [ngModel]="recurrencePeriod()"
+                      (ngModelChange)="recurrencePeriod.set($event)"
+                    />
+                    Après-midi
+                  </label>
+                </div>
+              </div>
+
+              <!-- Live Simulation Feedback -->
+              <div class="recurrence-summary">
+                <div class="summary-line">
+                  <span class="summary-badge count-to-create">{{ recurrenceResult().totalGenerated }}</span>
+                  <span class="summary-text">
+                    {{ recurrenceResult().totalGenerated > 1 ? 'dates seront planifiées' : 'date sera planifiée' }}
+                  </span>
+                </div>
+                @if (recurrenceResult().skippedHolidays.length > 0 || recurrenceResult().skippedConflicts.length > 0) {
+                  <div class="summary-skipped">
+                    <span class="skipped-label">Préservés : </span>
+                    @if (recurrenceResult().skippedHolidays.length > 0) {
+                      <span class="skipped-tag holiday-tag">{{ recurrenceResult().skippedHolidays.length }} férié(s)</span>
+                    }
+                    @if (recurrenceResult().skippedConflicts.length > 0) {
+                      <span class="skipped-tag conflict-tag">{{ recurrenceResult().skippedConflicts.length }} déjà posé(s)</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
 
       <!-- Comment Section -->
       <div class="form-group">

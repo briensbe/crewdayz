@@ -464,3 +464,182 @@
   background-color: hsl(350, 89%, 52%) !important;
   border-color: hsl(350, 89%, 52%) !important;
 }
+
+/* Recurrence Section Styles */
+.recurrence-container {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  margin-top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  transition: var(--transition);
+}
+
+.recurrence-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.recurrence-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  margin-bottom: 0 !important;
+}
+
+.recurrence-checkbox {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.recurrence-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.recurrence-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border);
+}
+
+.recurrence-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.recurrence-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  min-width: 110px;
+}
+
+.interval-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.interval-input {
+  width: 4.5rem !important;
+  padding: 0.3rem 0.5rem !important;
+  font-size: 0.85rem !important;
+  text-align: center;
+}
+
+.interval-unit {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.days-button-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.day-btn {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.day-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.day-btn.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.recurrence-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+}
+
+.summary-line {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.summary-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.summary-text {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.summary-skipped {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.skipped-tag {
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.holiday-tag {
+  background-color: var(--abs-autre-bg);
+  color: var(--abs-autre);
+  border: 1px solid var(--abs-autre-border);
+}
+
+.conflict-tag {
+  background-color: var(--abs-cp-bg);
+  color: var(--abs-cp);
+  border: 1px solid var(--abs-cp-border);
+}

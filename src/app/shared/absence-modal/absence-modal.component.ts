@@ -1,11 +1,12 @@
 import { Component, input, output, signal, effect, inject, HostListener, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Calendar, X, Trash2, MessageSquare, Info, Plus, Minus } from 'lucide-angular';
+import { LucideAngularModule, Calendar, X, Trash2, MessageSquare, Info, Plus, Minus, Repeat } from 'lucide-angular';
 import { Employee, Absence, CONTRACT_DEFAULT_BALANCES } from '../../models/types';
 import { EmployeeService } from '../../services/employee.service';
 import { AbsenceService } from '../../services/absence.service';
 import { isFrenchPublicHoliday } from '../../../utils/holidays';
+import { generateRecurringDates, RecurrenceResult } from '../utils/recurrence-generator';
 
 export interface AbsenceSavePayload {
   employee_id: string;
@@ -24,6 +25,8 @@ export interface AbsenceSavePayload {
     | 'Temps partiel'
     | 'Prévisionnel';
   comment: string;
+  isRecurring?: boolean;
+  recurringDates?: Array<{ date: string; period: 'full' | 'morning' | 'afternoon' }>;
 }
 
 @Component({
@@ -395,6 +398,60 @@ export class AbsenceModalComponent {
   readonly InfoIcon = Info;
   readonly PlusIcon = Plus;
   readonly MinusIcon = Minus;
+  readonly RepeatIcon = Repeat;
+
+  // Recurrence configuration
+  readonly weekDays = [
+    { id: 1, label: 'Lun', name: 'Lundi' },
+    { id: 2, label: 'Mar', name: 'Mardi' },
+    { id: 3, label: 'Mer', name: 'Mercredi' },
+    { id: 4, label: 'Jeu', name: 'Jeudi' },
+    { id: 5, label: 'Ven', name: 'Vendredi' },
+  ];
+
+  isRecurring = signal<boolean>(false);
+  recurrenceInterval = signal<number>(1);
+  recurrenceDays = signal<number[]>([3]); // Mercredi par défaut
+  recurrencePeriod = signal<'full' | 'morning' | 'afternoon'>('full');
+
+  toggleRecurrenceDay(dayId: number) {
+    this.recurrenceDays.update((days) =>
+      days.includes(dayId) ? days.filter((d) => d !== dayId) : [...days, dayId].sort(),
+    );
+  }
+
+  toggleRecurrence() {
+    const nextVal = !this.isRecurring();
+    this.isRecurring.set(nextVal);
+    if (nextVal && this.category() === 'Autre') {
+      this.category.set('Temps partiel');
+    }
+  }
+
+  recurrenceResult = computed<RecurrenceResult>(() => {
+    if (!this.isRecurring()) {
+      return {
+        datesToCreate: [],
+        skippedHolidays: [],
+        skippedConflicts: [],
+        totalGenerated: 0,
+      };
+    }
+
+    const empId = this.employeeId();
+    const existing = empId
+      ? this.absenceService.absences().filter((a) => a.employee_id === empId)
+      : [];
+
+    return generateRecurringDates({
+      startDate: this.startDate(),
+      endDate: this.endDate(),
+      weekInterval: this.recurrenceInterval(),
+      selectedDays: this.recurrenceDays(),
+      period: this.recurrencePeriod(),
+      existingAbsences: existing,
+    });
+  });
 
   toggleCommentInput() {
     this.showCommentInput.set(!this.showCommentInput());
@@ -424,6 +481,7 @@ export class AbsenceModalComponent {
         this.category.set(exist.category);
         this.comment.set(exist.comment || '');
         this.showCommentInput.set(!!exist.comment);
+        this.isRecurring.set(false);
         if (exist.period === 'morning') {
           this.startPeriod.set('morning');
           this.endPeriod.set('morning');
@@ -443,6 +501,10 @@ export class AbsenceModalComponent {
         this.showCommentInput.set(false);
         this.startPeriod.set('morning');
         this.endPeriod.set('afternoon');
+        this.isRecurring.set(false);
+        this.recurrenceInterval.set(1);
+        this.recurrenceDays.set([3]);
+        this.recurrencePeriod.set('full');
       }
     });
   }
@@ -461,6 +523,34 @@ export class AbsenceModalComponent {
 
     if (end < start) {
       this.errorMessage.set('La date de fin doit être égale ou postérieure à la date de début.');
+      return;
+    }
+
+    if (this.isRecurring()) {
+      if (this.recurrenceDays().length === 0) {
+        this.errorMessage.set('Veuillez sélectionner au moins un jour de la semaine pour la récurrence.');
+        return;
+      }
+
+      const recResult = this.recurrenceResult();
+      if (recResult.datesToCreate.length === 0) {
+        this.errorMessage.set(
+          'Aucune date valide à créer sur la période avec ces critères (tous les jours sont fériés ou déjà posés).',
+        );
+        return;
+      }
+
+      this.save.emit({
+        employee_id: this.employeeId(),
+        startDate: this.startDate(),
+        endDate: this.endDate(),
+        startPeriod: this.recurrencePeriod() === 'afternoon' ? 'afternoon' : 'morning',
+        endPeriod: this.recurrencePeriod() === 'morning' ? 'morning' : 'afternoon',
+        category: this.category(),
+        comment: this.comment(),
+        isRecurring: true,
+        recurringDates: recResult.datesToCreate,
+      });
       return;
     }
 
