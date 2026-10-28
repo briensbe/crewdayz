@@ -1,5 +1,30 @@
 [
   {
+    "version": "2026.10.28",
+    "date": "2026-10-28",
+    "news": [
+      {
+        "title": "Absences récurrentes",
+        "imageUrl": "assets/2026-10-28-absence-recurrente-2.png",
+        "items": [
+          "Remplissage périodique en masse direct pour temps partiels et demi-journées, préservation des fériés/conflits et simulation en direct."
+        ]
+      },
+      {
+        "title": "Affichage compact",
+        "items": [
+          "Seuil d'affichage à 4 événements avec badges de décompte par catégorie et zone scrollable déroulante."
+        ]
+      },
+      {
+        "title": "Ergonomie & Écrans portables",
+        "items": [
+          "Modale adaptative avec actions toujours ancrées en bas et blocage du défilement du fond."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.10.27",
     "date": "2026-10-27",
     "news": [
