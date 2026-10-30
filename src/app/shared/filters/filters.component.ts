@@ -131,7 +131,20 @@ export class FiltersComponent implements OnInit {
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent) {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
+    if (!this.hasOpenDropdown()) {
+      return;
+    }
+
+    const target = event.target as Element | null;
+    if (!target) {
+      this.closeAllDropdowns();
+      return;
+    }
+
+    const clickedInsideDropdown = target.closest?.('.filters-dropdown');
+    const clickedTrigger = target.closest?.('.custom-select-trigger');
+
+    if (!clickedInsideDropdown && !clickedTrigger) {
       this.closeAllDropdowns();
     }
   }

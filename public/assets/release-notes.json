@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026.10.30",
+    "date": "2026-10-30",
+    "news": [
+      {
+        "title": "Barre de filtres",
+        "items": [
+          "Fermeture automatique des filtres déroulants lors d'un clic à côté (sur la barre de recherche, les espacements de la barre ou dans la page)."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.10.28",
     "date": "2026-10-28",
     "news": [

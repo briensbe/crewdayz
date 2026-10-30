@@ -134,6 +134,33 @@ describe('FiltersComponent', () => {
     expect(component.activeDropdown()).toBeNull();
   });
 
+  it('should close open dropdown when clicking beside it inside the filter card', () => {
+    component.toggleDropdown('service', new MouseEvent('click'));
+    fixture.detectChanges();
+    expect(component.activeDropdown()).toBe('service');
+
+    // Click on the search input inside the filters card
+    const searchInput = fixture.debugElement.query(By.css('.header-search-input'));
+    expect(searchInput).toBeTruthy();
+    searchInput.nativeElement.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(component.activeDropdown()).toBeNull();
+  });
+
+  it('should keep dropdown open when clicking inside the dropdown menu', () => {
+    component.toggleDropdown('service', new MouseEvent('click'));
+    fixture.detectChanges();
+    expect(component.activeDropdown()).toBe('service');
+
+    const dropdownMenu = fixture.debugElement.query(By.css('.filters-dropdown'));
+    expect(dropdownMenu).toBeTruthy();
+    dropdownMenu.nativeElement.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(component.activeDropdown()).toBe('service');
+  });
+
   it('should clear search input when ESC is pressed in the header search input', () => {
     component.search.set('Jean');
     fixture.detectChanges();
