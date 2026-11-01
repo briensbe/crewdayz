@@ -5,7 +5,11 @@
         <span class="brand-logo">📅</span>
         <h1>CrewDayz</h1>
       </div>
-      <p class="subtitle">Créer un compte de gestionnaire RH</p>
+      @if (step() === 'form') {
+        <p class="subtitle">Créer un compte de gestionnaire RH</p>
+      } @else {
+        <p class="subtitle">Étape 2/2 : Confirmation de votre adresse e-mail</p>
+      }
     </div>
 
     <!-- Alert for general errors -->
@@ -19,90 +23,169 @@
     <!-- Alert for success -->
     @if (successMessage()) {
       <div class="alert alert-success animate-fade-in">
-        <lucide-icon [img]="User" size="18"></lucide-icon>
+        <lucide-icon [img]="CheckCircle" size="18"></lucide-icon>
         <span>{{ successMessage() }}</span>
       </div>
     }
 
-    <form (ngSubmit)="signUp()" class="auth-form">
-      <div class="form-group">
-        <label for="name">Nom complet</label>
-        <input
-          id="name"
-          type="text"
-          [ngModel]="name()"
-          (ngModelChange)="name.set($event)"
-          name="name"
-          placeholder="Jean Dupont"
-          required
-          autocomplete="name"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="email">Adresse Email</label>
-        <input
-          id="email"
-          type="email"
-          [ngModel]="email()"
-          (ngModelChange)="email.set($event)"
-          name="email"
-          [placeholder]="emailPlaceholder()"
-          required
-          autocomplete="email"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="password">Mot de passe</label>
-        <div class="password-wrapper">
+    <!-- STEP 1: REGISTRATION FORM -->
+    @if (step() === 'form') {
+      <form (ngSubmit)="signUp()" class="auth-form">
+        <div class="form-group">
+          <label for="name">Nom complet</label>
           <input
-            id="password"
-            [type]="showPassword() ? 'text' : 'password'"
-            [ngModel]="password()"
-            (ngModelChange)="password.set($event)"
-            name="password"
-            placeholder="•••••••• (6 caractères min.)"
+            id="name"
+            type="text"
+            [ngModel]="name()"
+            (ngModelChange)="name.set($event)"
+            name="name"
+            placeholder="Jean Dupont"
             required
-            autocomplete="new-password"
+            autocomplete="name"
           />
-          <button type="button" class="toggle-password" (click)="togglePasswordVisibility()" tabindex="-1">
-            <lucide-icon [img]="showPassword() ? EyeOff : Eye" size="18"></lucide-icon>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Adresse Email</label>
+          <input
+            id="email"
+            type="email"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+            name="email"
+            [placeholder]="emailPlaceholder()"
+            required
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <div class="password-wrapper">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              [ngModel]="password()"
+              (ngModelChange)="password.set($event)"
+              name="password"
+              placeholder="•••••••• (6 caractères min.)"
+              required
+              autocomplete="new-password"
+            />
+            <button type="button" class="toggle-password" (click)="togglePasswordVisibility()" tabindex="-1">
+              <lucide-icon [img]="showPassword() ? EyeOff : Eye" size="18"></lucide-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirmer le mot de passe</label>
+          <div class="password-wrapper">
+            <input
+              id="confirmPassword"
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              [ngModel]="confirmPassword()"
+              (ngModelChange)="confirmPassword.set($event)"
+              name="confirmPassword"
+              placeholder="••••••••"
+              required
+              autocomplete="new-password"
+            />
+            <button type="button" class="toggle-password" (click)="toggleConfirmPasswordVisibility()" tabindex="-1">
+              <lucide-icon [img]="showConfirmPassword() ? EyeOff : Eye" size="18"></lucide-icon>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="loading()">
+          @if (loading()) {
+            <span class="spinner"></span> Création du compte...
+          } @else {
+            S'inscrire
+          }
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <span>Vous avez déjà un compte ?</span>
+        <a (click)="navigateToLogin()">Se connecter</a>
+      </div>
+    }
+
+    <!-- STEP 2: VERIFY OTP -->
+    @if (step() === 'verify-otp') {
+      <form (ngSubmit)="verifyOtp()" class="auth-form animate-fade-in">
+        <div class="masked-email-card">
+          <div class="masked-email-info">
+            <lucide-icon [img]="Mail" size="20" class="email-icon"></lucide-icon>
+            <div class="masked-email-text">
+              <span class="masked-email-label">Code envoyé à</span>
+              <span class="masked-email-value">{{ maskedEmail() }}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="btn-text-link edit-email-btn"
+            (click)="backToForm()"
+            [disabled]="loading() || resending()"
+          >
+            <lucide-icon [img]="Edit2" size="13"></lucide-icon>
+            <span>Modifier</span>
           </button>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="confirmPassword">Confirmer le mot de passe</label>
-        <div class="password-wrapper">
+        <div class="form-group">
+          <label for="otpCode">Code de confirmation</label>
+          <p class="input-description">Saisissez le code à 6 chiffres reçu dans votre boîte de réception.</p>
           <input
-            id="confirmPassword"
-            [type]="showConfirmPassword() ? 'text' : 'password'"
-            [ngModel]="confirmPassword()"
-            (ngModelChange)="confirmPassword.set($event)"
-            name="confirmPassword"
-            placeholder="••••••••"
+            id="otpCode"
+            type="text"
+            [ngModel]="otpCode()"
+            (ngModelChange)="otpCode.set($event)"
+            name="otpCode"
+            class="otp-input"
+            placeholder="000000"
+            maxlength="6"
             required
-            autocomplete="new-password"
+            autocomplete="one-time-code"
+            inputmode="numeric"
           />
-          <button type="button" class="toggle-password" (click)="toggleConfirmPasswordVisibility()" tabindex="-1">
-            <lucide-icon [img]="showConfirmPassword() ? EyeOff : Eye" size="18"></lucide-icon>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-block"
+          [disabled]="loading() || otpCode().trim().length < 6"
+        >
+          @if (loading()) {
+            <span class="spinner"></span> Validation...
+          } @else {
+            Confirmer mon compte
+          }
+        </button>
+
+        <div class="resend-row">
+          <span>Vous n'avez pas reçu le code ?</span>
+          <button
+            type="button"
+            class="btn-text-link"
+            (click)="resendOtp()"
+            [disabled]="resending() || loading()"
+          >
+            @if (resending()) {
+              <lucide-icon [img]="RefreshCw" size="14" class="spinning"></lucide-icon>
+              <span>Envoi...</span>
+            } @else {
+              <lucide-icon [img]="RefreshCw" size="14"></lucide-icon>
+              <span>Renvoyer le code</span>
+            }
           </button>
         </div>
+      </form>
+
+      <div class="auth-footer">
+        <a (click)="backToForm()">← Retour au formulaire</a>
       </div>
-
-      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading() || successMessage()">
-        @if (loading()) {
-          <span class="spinner"></span> Création du compte...
-        } @else {
-          S'inscrire
-        }
-      </button>
-    </form>
-
-    <div class="auth-footer">
-      <span>Vous avez déjà un compte ?</span>
-      <a (click)="navigateToLogin()">Se connecter</a>
-    </div>
+    }
   </div>
 </div>

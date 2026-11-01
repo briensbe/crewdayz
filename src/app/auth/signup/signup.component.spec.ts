@@ -10,6 +10,8 @@ describe('SignupComponent', () => {
   let mockSupabaseService: {
     signUpWithEmail: any;
     signOut: any;
+    verifySignupOtp: any;
+    resendConfirmationEmail: any;
   };
   let mockRouter: {
     navigate: any;
@@ -23,6 +25,8 @@ describe('SignupComponent', () => {
     mockSupabaseService = {
       signUpWithEmail: () => Promise.resolve({ error: null }),
       signOut: () => Promise.resolve(),
+      verifySignupOtp: () => Promise.resolve({ data: { session: {} }, error: null }),
+      resendConfirmationEmail: () => Promise.resolve({ error: null }),
     };
 
     mockRouter = {
@@ -120,7 +124,8 @@ describe('SignupComponent', () => {
     expect(payloadSent).toBeTruthy();
     expect(payloadSent.email).toBe('JEAN.DUPONT@SOPRASTERIA.COM');
     expect(component.errorMessage()).toBeNull();
-    expect(component.successMessage()).toContain('Inscription réussie');
+    expect(component.step()).toBe('verify-otp');
+    expect(component.successMessage()).toContain('Compte créé');
   });
 
   it('should handle error returned from supabaseService.signUpWithEmail', async () => {
@@ -137,5 +142,49 @@ describe('SignupComponent', () => {
     await component.signUp();
 
     expect(component.errorMessage()).toBe('Cet utilisateur existe déjà.');
+    expect(component.step()).toBe('form');
+  });
+
+  it('should verify OTP and navigate on success', async () => {
+    let verifyCalledWith: { email: string; token: string } | null = null;
+    mockSupabaseService.verifySignupOtp = (email: string, token: string) => {
+      verifyCalledWith = { email, token };
+      return Promise.resolve({ data: { session: {} }, error: null });
+    };
+
+    component.email.set('test@soprasteria.com');
+    component.otpCode.set('123456');
+
+    await component.verifyOtp();
+
+    expect(verifyCalledWith).toEqual({ email: 'test@soprasteria.com', token: '123456' });
+    expect(component.successMessage()).toContain('confirmé avec succès');
+  });
+
+  it('should handle invalid OTP error', async () => {
+    mockSupabaseService.verifySignupOtp = () => {
+      return Promise.reject(new Error('Code de confirmation invalide ou expiré.'));
+    };
+
+    component.email.set('test@soprasteria.com');
+    component.otpCode.set('000000');
+
+    await component.verifyOtp();
+
+    expect(component.errorMessage()).toBe('Code de confirmation invalide ou expiré.');
+  });
+
+  it('should resend OTP code', async () => {
+    let resendCalledWith = '';
+    mockSupabaseService.resendConfirmationEmail = (email: string) => {
+      resendCalledWith = email;
+      return Promise.resolve({ error: null });
+    };
+
+    component.email.set('test@soprasteria.com');
+    await component.resendOtp();
+
+    expect(resendCalledWith).toBe('test@soprasteria.com');
+    expect(component.successMessage()).toContain('Un nouveau code');
   });
 });

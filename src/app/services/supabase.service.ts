@@ -181,6 +181,29 @@ export class SupabaseService {
   }
 
   /**
+   * Verify 6-digit OTP code received by email for signup confirmation and establish session
+   */
+  async verifySignupOtp(email: string, token: string): Promise<AuthResponse> {
+    const response = await this.supabase.auth.verifyOtp({
+      email: email.trim(),
+      token: token.trim(),
+      type: 'signup',
+    });
+
+    if (response.error) {
+      throw new Error(response.error.message || 'Code de confirmation invalide ou expiré.');
+    }
+
+    if (response.data?.session?.user) {
+      this._user.set(response.data.session.user);
+      sessionStorage.setItem(sessionStorageUserKey, JSON.stringify(response.data.session.user));
+      await this.fetchUserProfile(response.data.session.user.id);
+    }
+
+    return response;
+  }
+
+  /**
    * Sign up a new user
    */
   async signUpWithEmail(payload: SignupPayload) {
