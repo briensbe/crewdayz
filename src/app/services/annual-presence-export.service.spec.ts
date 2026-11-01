@@ -5,7 +5,7 @@ import { AnnualPresenceExportService, FRENCH_MONTHS_NAMES } from './annual-prese
 import { AbsenceService } from './absence.service';
 import { ToastService } from './toast.service';
 import { Employee, Absence } from '../models/types';
-import * as XLSX from 'xlsx-js-style';
+import { worksheetTo2DArray } from '../shared/utils/excel.utils';
 
 describe('AnnualPresenceExportService', () => {
   const mockEmployee1: Employee = {
@@ -84,7 +84,7 @@ describe('AnnualPresenceExportService', () => {
     const absMap = service.buildAbsencesMap(mockAbsences);
     const ws = service.buildAnnualSummarySheet([mockEmployee1, mockEmployee2], absMap, 2026);
 
-    const sheetJson: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    const sheetJson = worksheetTo2DArray(ws);
     expect(sheetJson.length).toBe(4); // Header + 2 employees + Total row
 
     // Check header
@@ -104,7 +104,7 @@ describe('AnnualPresenceExportService', () => {
     // January 2026 (month 0)
     const ws = service.buildDetailedMonthSheet([mockEmployee1], absMap, 2026, 0);
 
-    const sheetJson: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    const sheetJson = worksheetTo2DArray(ws);
 
     // Row 0 is header: Collaborateur, Service, Équipe, Site, Type, [1..31], Jours ouvrés, Travaillés, Absences
     expect(sheetJson[0][0]).toBe('Collaborateur');
@@ -146,22 +146,22 @@ describe('AnnualPresenceExportService', () => {
     const absMap = service.buildAbsencesMap(mockAbsences);
     const ws = service.buildDetailedMonthSheet([mockEmployee1], absMap, 2026, 0);
 
-    // Jan 3 2026 is Saturday -> column index 5 + 2 = 7 -> col letter 'H', row 2 -> H2
-    const weekendCell = ws['H2'];
+    // Jan 3 2026 is Saturday -> column index 5 + 3 = 8 -> col letter 'H', row 2 -> H2
+    const weekendCell = ws.getCell('H2');
     expect(weekendCell).toBeDefined();
-    expect(weekendCell.s).toBeDefined();
-    expect(weekendCell.s.fill?.fgColor?.rgb).toBe('F1F5F9');
+    expect(weekendCell.fill).toBeDefined();
+    expect((weekendCell.fill as any)?.fgColor?.argb).toBe('FFF1F5F9');
 
-    // Jan 5 2026 is CP -> col index 5 + 4 = 9 -> col letter 'J', row 2 -> J2
-    const cpCell = ws['J2'];
+    // Jan 5 2026 is CP -> col letter 'J', row 2 -> J2
+    const cpCell = ws.getCell('J2');
     expect(cpCell).toBeDefined();
-    expect(cpCell.s).toBeDefined();
-    expect(cpCell.s.fill?.fgColor?.rgb).toBe('F3E8FF'); // Soft purple
+    expect(cpCell.fill).toBeDefined();
+    expect((cpCell.fill as any)?.fgColor?.argb).toBe('FFF3E8FF'); // Soft purple
 
-    // Jan 6 2026 is RTT -> col index 5 + 5 = 10 -> col letter 'K', row 2 -> K2
-    const rttCell = ws['K2'];
+    // Jan 6 2026 is RTT -> col letter 'K', row 2 -> K2
+    const rttCell = ws.getCell('K2');
     expect(rttCell).toBeDefined();
-    expect(rttCell.s).toBeDefined();
-    expect(rttCell.s.fill?.fgColor?.rgb).toBe('FEF3C7'); // Soft amber
+    expect(rttCell.fill).toBeDefined();
+    expect((rttCell.fill as any)?.fgColor?.argb).toBe('FFFEF3C7'); // Soft amber
   });
 });

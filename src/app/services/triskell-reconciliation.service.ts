@@ -1,11 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
-import * as XLSX from 'xlsx-js-style';
+import ExcelJS from 'exceljs';
 import { Employee, Absence } from '../models/types';
 import { EmployeeService } from './employee.service';
 import { AbsenceService } from './absence.service';
 import { isFrenchPublicHoliday } from '../../utils/holidays';
 import { normalizeString } from '../shared/utils/string-utils';
 import { ToastService } from './toast.service';
+import { worksheetTo2DArray, saveWorkbook } from '../shared/utils/excel.utils';
 
 export interface TriskellMonthData {
   monthIndex: number; // 0 to 11 (0 = Janvier)
@@ -152,8 +153,9 @@ export class TriskellReconciliationService {
   /**
    * Parse Triskell Excel file (.xlsx or .xlsm) into structured raw entries
    */
-  public parseTriskellWorkbook(data: ArrayBuffer): TriskellParseResult {
-    const workbook = XLSX.read(data, { type: 'array' });
+  public async parseTriskellWorkbook(data: ArrayBuffer): Promise<TriskellParseResult> {
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(data);
 
     // Step 1: Find best candidate sheet
     const targetSheet = this.findBestSheet(workbook);
@@ -177,13 +179,12 @@ export class TriskellReconciliationService {
   /**
    * Find the most relevant sheet in the workbook
    */
-  private findBestSheet(workbook: XLSX.WorkBook): { sheet: XLSX.WorkSheet; type: 'tcd_conso' | 'matrix' | 'tabular' } | null {
+  private findBestSheet(workbook: ExcelJS.Workbook): { sheet: ExcelJS.Worksheet; type: 'tcd_conso' | 'matrix' | 'tabular' } | null {
     // 1. Priority 1: Check for 'tcd_conso' (Pivot table of consumed timesheet data)
-    for (const name of workbook.SheetNames) {
-      const normName = normalizeString(name);
+    for (const sheet of workbook.worksheets) {
+      const normName = normalizeString(sheet.name);
       if (normName === 'tcd_conso' || (normName.includes('tcd') && normName.includes('conso'))) {
-        const sheet = workbook.Sheets[name];
-        if (sheet) return { sheet, type: 'tcd_conso' };
+        return { sheet, type: 'tcd_conso' };
       }
     }
 
@@ -196,11 +197,10 @@ export class TriskellReconciliationService {
       'atter',
     ];
 
-    for (const name of workbook.SheetNames) {
-      const normName = normalizeString(name);
+    for (const sheet of workbook.worksheets) {
+      const normName = normalizeString(sheet.name);
       if (priorityMatrixNames.some((p) => normName.includes(p))) {
-        const sheet = workbook.Sheets[name];
-        if (sheet) return { sheet, type: 'matrix' };
+        return { sheet, type: 'matrix' };
       }
     }
 
@@ -211,19 +211,16 @@ export class TriskellReconciliationService {
       'plan de charge brut',
     ];
 
-    for (const name of workbook.SheetNames) {
-      const normName = normalizeString(name);
+    for (const sheet of workbook.worksheets) {
+      const normName = normalizeString(sheet.name);
       if (priorityTabularNames.some((p) => normName.includes(p))) {
-        const sheet = workbook.Sheets[name];
-        if (sheet) return { sheet, type: 'tabular' };
+        return { sheet, type: 'tabular' };
       }
     }
 
     // 4. Scan all sheets for matrix format
-    for (const name of workbook.SheetNames) {
-      const sheet = workbook.Sheets[name];
-      if (!sheet) continue;
-      const rows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+    for (const sheet of workbook.worksheets) {
+      const rows: any[][] = worksheetTo2DArray(sheet);
       if (rows.length >= 5) {
         const monthCols = this.detectMonthColumns(rows);
         if (monthCols.size > 0) {
@@ -233,10 +230,8 @@ export class TriskellReconciliationService {
     }
 
     // 5. Scan all sheets for tabular columns
-    for (const name of workbook.SheetNames) {
-      const sheet = workbook.Sheets[name];
-      if (!sheet) continue;
-      const rows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+    for (const sheet of workbook.worksheets) {
+      const rows: any[][] = worksheetTo2DArray(sheet);
       if (rows.length >= 2 && rows[0]) {
         const headerNorm = rows[0].map((h) => normalizeString(String(h)));
         if (
@@ -255,8 +250,8 @@ export class TriskellReconciliationService {
   /**
    * Parse TCD Conso sheet (Tableau Croisé Dynamique de consommation Triskell)
    */
-  private parseTcdConsoSheet(sheet: XLSX.WorkSheet): TriskellParseResult {
-    const rows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+  private parseTcdConsoSheet(sheet: ExcelJS.Worksheet): TriskellParseResult {
+    const rows: any[][] = worksheetTo2DArray(sheet);
     if (rows.length < 5) {
       throw new Error('La feuille tcd_conso ne contient pas assez de données.');
     }
@@ -393,8 +388,8 @@ export class TriskellReconciliationService {
   /**
    * Parse tabular sheet (e.g. $$trk_TSF - PC_Plan de charge)
    */
-  private parseTabularSheet(sheet: XLSX.WorkSheet): TriskellParseResult {
-    const rows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+  private parseTabularSheet(sheet: ExcelJS.Worksheet): TriskellParseResult {
+    const rows: any[][] = worksheetTo2DArray(sheet);
     if (rows.length < 2) {
       throw new Error('La feuille brute ne contient pas assez de données.');
     }
@@ -484,13 +479,9 @@ export class TriskellReconciliationService {
   /**
    * Parse visual matrix sheet (e.g. Atter. ETP internes et ESN)
    */
-  private parseMatrixSheet(sheet: XLSX.WorkSheet): TriskellParseResult {
+  private parseMatrixSheet(sheet: ExcelJS.Worksheet): TriskellParseResult {
     // Convert to 2D array (dense matrix)
-    const rows: any[][] = XLSX.utils.sheet_to_json(sheet, {
-      header: 1,
-      raw: false,
-      defval: '',
-    });
+    const rows: any[][] = worksheetTo2DArray(sheet);
 
     if (rows.length < 5) {
       throw new Error('Le fichier ne contient pas assez de lignes pour être un export Triskell valide.');
@@ -950,9 +941,10 @@ export class TriskellReconciliationService {
   /**
    * Export reconciliation summary to formatted Excel file
    */
-  public exportReconciliationToExcel(summary: MonthReconciliationSummary): void {
+  public async exportReconciliationToExcel(summary: MonthReconciliationSummary): Promise<void> {
     try {
-      const wb = XLSX.utils.book_new();
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet(`${summary.monthName} ${summary.year}`);
       const wsData: any[][] = [];
 
       // Header
@@ -1008,27 +1000,17 @@ export class TriskellReconciliationService {
         ]);
       }
 
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      ws.addRows(wsData);
 
       // Set column widths
-      ws['!cols'] = [
-        { wch: 30 }, // Ressource
-        { wch: 12 }, // Section
-        { wch: 16 }, // Unité
-        { wch: 20 }, // Fournisseur
-        { wch: 16 }, // Statut Matching
-        { wch: 26 }, // Collaborateur Crewdayz
-        { wch: 22 }, // Consommé Triskell
-        { wch: 22 }, // Travaillé Crewdayz
-        { wch: 12 }, // Écart
-        { wch: 26 }, // Diagnostic
-      ];
-
-      XLSX.utils.book_append_sheet(wb, ws, `${summary.monthName} ${summary.year}`);
+      const colWidths = [30, 12, 16, 20, 16, 26, 22, 22, 12, 26];
+      colWidths.forEach((w, idx) => {
+        ws.getColumn(idx + 1).width = w;
+      });
 
       const cleanMonth = summary.monthName.toLowerCase();
       const fileName = `Rapprochement_Triskell_Crewdayz_${summary.year}_${cleanMonth}.xlsx`;
-      XLSX.writeFile(wb, fileName);
+      await saveWorkbook(wb, fileName);
 
       this.toastService.success(`Export Excel généré : ${fileName}`);
     } catch (err: any) {

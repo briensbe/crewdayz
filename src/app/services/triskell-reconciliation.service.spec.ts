@@ -5,7 +5,7 @@ import { EmployeeService } from './employee.service';
 import { AbsenceService } from './absence.service';
 import { ToastService } from './toast.service';
 import { Employee, Absence } from '../models/types';
-import * as XLSX from 'xlsx-js-style';
+import ExcelJS from 'exceljs';
 import { describe, it, expect } from 'vitest';
 
 describe('TriskellReconciliationService', () => {
@@ -137,8 +137,8 @@ describe('TriskellReconciliationService', () => {
   });
 
   describe('parseTriskellWorkbook', () => {
-    it('should parse a synthetic Excel workbook resembling Triskell export', () => {
-      const wb = XLSX.utils.book_new();
+    it('should parse a synthetic Excel workbook resembling Triskell export', async () => {
+      const wb = new ExcelJS.Workbook();
       const wsData = [
         ['Statut macro = Exécutée'],
         ['03/09/2026 17:14'],
@@ -154,11 +154,11 @@ describe('TriskellReconciliationService', () => {
         ['SIDI', '211', 'Alexandre FREITAS', '(vide)', '(vide)', '4.000', '4.000', '', '7.500', '7.500', '', '', '', '8.500', '8.500'],
       ];
 
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-      XLSX.utils.book_append_sheet(wb, ws, 'Feuille 1');
+      const ws = wb.addWorksheet('Feuille 1');
+      ws.addRows(wsData);
 
-      const buffer = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
-      const result = service.parseTriskellWorkbook(buffer);
+      const buffer = await wb.xlsx.writeBuffer();
+      const result = await service.parseTriskellWorkbook(buffer as ArrayBuffer);
 
       expect(result.year).toBe(2026);
       expect(result.rawEntries.length).toBe(3);
@@ -173,8 +173,8 @@ describe('TriskellReconciliationService', () => {
       expect(result.rawEntries[2].months[2]).toBe(8.5); // Mars
     });
 
-    it('should parse a tcd_conso sheet format with numeric months', () => {
-      const wb = XLSX.utils.book_new();
+    it('should parse a tcd_conso sheet format with numeric months', async () => {
+      const wb = new ExcelJS.Workbook();
       const wsData = [
         ['Année', '2026'],
         ['Statut feuille de temps', '(Plusieurs éléments)'],
@@ -187,11 +187,11 @@ describe('TriskellReconciliationService', () => {
         ['Total général', '', '', '', '43,000', '47,000', '51,500', '141,500'],
       ];
 
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-      XLSX.utils.book_append_sheet(wb, ws, 'tcd_conso');
+      const ws = wb.addWorksheet('tcd_conso');
+      ws.addRows(wsData);
 
-      const buffer = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
-      const result = service.parseTriskellWorkbook(buffer);
+      const buffer = await wb.xlsx.writeBuffer();
+      const result = await service.parseTriskellWorkbook(buffer as ArrayBuffer);
 
       expect(result.year).toBe(2026);
       expect(result.rawEntries.length).toBe(3);

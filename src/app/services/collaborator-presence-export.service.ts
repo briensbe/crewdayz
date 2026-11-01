@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import * as XLSX from 'xlsx-js-style';
+import ExcelJS from 'exceljs';
 import { Employee, Absence } from '../models/types';
 import { AbsenceService } from './absence.service';
 import { isFrenchPublicHoliday, getFrenchPublicHolidayName } from '../../utils/holidays';
 import { ToastService } from './toast.service';
+import { saveWorkbook } from '../shared/utils/excel.utils';
 
 export interface DayExportRow {
   date: Date;
@@ -212,7 +213,9 @@ export class CollaboratorPresenceExportService {
 
       const summary = this.computeMonthlySummary(employee, year, month, absences);
 
-      const wb = XLSX.utils.book_new();
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet(`${FRENCH_MONTHS[month]} ${year}`);
+
       const wsData: any[][] = [];
 
       // Title & Employee metadata block
@@ -248,7 +251,7 @@ export class CollaboratorPresenceExportService {
         'Jours Travaillés',
         'Jours Absence',
         'Type d\'absence',
-        'Commentaire / Précision'
+        'Commentaire / Précision',
       ]);
 
       // Add each day
@@ -262,12 +265,12 @@ export class CollaboratorPresenceExportService {
           row.workedDays,
           row.absenceDays,
           row.category || '',
-          row.comment || ''
+          row.comment || '',
         ]);
       }
 
       // Total row at bottom
-      const totalRowIndex = wsData.length;
+      const totalRowIndex = wsData.length + 1; // 1-indexed in Excel
       wsData.push([
         'TOTAL DU MOIS',
         '',
@@ -276,191 +279,195 @@ export class CollaboratorPresenceExportService {
         summary.totalWorkedDays,
         summary.totalAbsenceDays,
         '',
-        ''
+        '',
       ]);
 
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      ws.addRows(wsData);
 
       // Column widths
-      ws['!cols'] = [
-        { wch: 14 }, // Date
-        { wch: 14 }, // Jour
-        { wch: 28 }, // Statut
-        { wch: 20 }, // Période
-        { wch: 16 }, // Jours Travaillés
-        { wch: 16 }, // Jours Absence
-        { wch: 22 }, // Type d'absence
-        { wch: 35 }, // Commentaire
-      ];
+      const colWidths = [14, 14, 28, 20, 16, 16, 22, 35];
+      colWidths.forEach((width, index) => {
+        ws.getColumn(index + 1).width = width;
+      });
 
-      // Merges
-      ws['!merges'] = [
-        // Title merge
-        { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
-        // Bottom total merge
-        { s: { r: totalRowIndex, c: 0 }, e: { r: totalRowIndex, c: 3 } }
-      ];
+      // Merges (ExcelJS 1-indexed)
+      // Title merge: row 1, col 1 to 8
+      ws.mergeCells(1, 1, 1, 8);
+      // Bottom total merge: row totalRowIndex, col 1 to 4
+      ws.mergeCells(totalRowIndex, 1, totalRowIndex, 4);
 
-      // Styling
-      const titleStyle = {
-        font: { name: 'Arial', sz: 14, bold: true, color: { rgb: 'FFFFFF' } },
-        fill: { fgColor: { rgb: '1E3A8A' } }, // Dark navy blue
-        alignment: { horizontal: 'center', vertical: 'center' }
+      // Styles
+      const titleStyle: Partial<ExcelJS.Style> = {
+        font: { name: 'Arial', size: 14, bold: true, color: { argb: 'FFFFFFFF' } },
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } },
+        alignment: { horizontal: 'center', vertical: 'middle' },
       };
 
-      const metaLabelStyle = {
-        font: { name: 'Arial', sz: 10, bold: true, color: { rgb: '334155' } },
-        fill: { fgColor: { rgb: 'F8FAFC' } },
+      const metaLabelStyle: Partial<ExcelJS.Style> = {
+        font: { name: 'Arial', size: 10, bold: true, color: { argb: 'FF334155' } },
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } },
         border: {
-          top: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          left: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          right: { style: 'thin', color: { rgb: 'E2E8F0' } }
-        }
+          top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          right: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+        },
+        alignment: { vertical: 'middle' },
       };
 
-      const metaValueStyle = {
-        font: { name: 'Arial', sz: 10 },
+      const metaValueStyle: Partial<ExcelJS.Style> = {
+        font: { name: 'Arial', size: 10 },
         border: {
-          top: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          left: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          right: { style: 'thin', color: { rgb: 'E2E8F0' } }
-        }
+          top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          right: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+        },
+        alignment: { vertical: 'middle' },
       };
 
-      const kpiHeaderStyle = {
-        font: { name: 'Arial', sz: 10, bold: true, color: { rgb: 'FFFFFF' } },
-        fill: { fgColor: { rgb: '3B82F6' } }, // Blue
-        alignment: { horizontal: 'center' }
+      const kpiHeaderStyle: Partial<ExcelJS.Style> = {
+        font: { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } },
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3B82F6' } },
+        alignment: { horizontal: 'center', vertical: 'middle' },
       };
 
-      const kpiRowStyle = {
-        font: { name: 'Arial', sz: 10, bold: true },
-        fill: { fgColor: { rgb: 'F1F5F9' } },
+      const kpiRowStyle: Partial<ExcelJS.Style> = {
+        font: { name: 'Arial', size: 10, bold: true },
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } },
         border: {
-          top: { style: 'thin', color: { rgb: 'CBD5E1' } },
-          bottom: { style: 'thin', color: { rgb: 'CBD5E1' } },
-          left: { style: 'thin', color: { rgb: 'CBD5E1' } },
-          right: { style: 'thin', color: { rgb: 'CBD5E1' } }
-        }
+          top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        },
+        alignment: { vertical: 'middle' },
       };
 
-      const detailHeaderStyle = {
-        font: { name: 'Arial', sz: 10, bold: true, color: { rgb: 'FFFFFF' } },
-        fill: { fgColor: { rgb: '1E293B' } }, // Slate 800
-        alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+      const detailHeaderStyle: Partial<ExcelJS.Style> = {
+        font: { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } },
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } },
+        alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },
         border: {
-          top: { style: 'medium', color: { rgb: '0F172A' } },
-          bottom: { style: 'medium', color: { rgb: '0F172A' } }
-        }
+          top: { style: 'medium', color: { argb: 'FF0F172A' } },
+          bottom: { style: 'medium', color: { argb: 'FF0F172A' } },
+          left: { style: 'thin', color: { argb: 'FF334155' } },
+          right: { style: 'thin', color: { argb: 'FF334155' } },
+        },
       };
 
-      const regularRowStyle = {
-        font: { name: 'Arial', sz: 10 },
+      const regularRowStyle: Partial<ExcelJS.Style> = {
+        font: { name: 'Arial', size: 10 },
         border: {
-          top: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          left: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          right: { style: 'thin', color: { rgb: 'E2E8F0' } }
-        }
+          top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          right: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+        },
+        alignment: { vertical: 'middle' },
       };
 
-      const weekendRowStyle = {
-        font: { name: 'Arial', sz: 10, color: { rgb: '64748B' } },
-        fill: { fgColor: { rgb: 'F8FAFC' } }, // Subtle gray
+      const weekendRowStyle: Partial<ExcelJS.Style> = {
+        font: { name: 'Arial', size: 10, color: { argb: 'FF64748B' } },
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } },
         border: {
-          top: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          left: { style: 'thin', color: { rgb: 'E2E8F0' } },
-          right: { style: 'thin', color: { rgb: 'E2E8F0' } }
-        }
+          top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          right: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+        },
+        alignment: { vertical: 'middle' },
       };
 
-      const holidayRowStyle = {
-        font: { name: 'Arial', sz: 10, bold: true, color: { rgb: '0369A1' } },
-        fill: { fgColor: { rgb: 'E0F2FE' } }, // Light blue
+      const holidayRowStyle: Partial<ExcelJS.Style> = {
+        font: { name: 'Arial', size: 10, bold: true, color: { argb: 'FF0369A1' } },
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0F2FE' } },
         border: {
-          top: { style: 'thin', color: { rgb: 'BAE6FD' } },
-          bottom: { style: 'thin', color: { rgb: 'BAE6FD' } },
-          left: { style: 'thin', color: { rgb: 'BAE6FD' } },
-          right: { style: 'thin', color: { rgb: 'BAE6FD' } }
-        }
+          top: { style: 'thin', color: { argb: 'FFBAE6FD' } },
+          bottom: { style: 'thin', color: { argb: 'FFBAE6FD' } },
+          left: { style: 'thin', color: { argb: 'FFBAE6FD' } },
+          right: { style: 'thin', color: { argb: 'FFBAE6FD' } },
+        },
+        alignment: { vertical: 'middle' },
       };
 
-      const absenceRowStyle = {
-        font: { name: 'Arial', sz: 10, color: { rgb: '9A3412' } },
-        fill: { fgColor: { rgb: 'FFEDD5' } }, // Light orange
+      const absenceRowStyle: Partial<ExcelJS.Style> = {
+        font: { name: 'Arial', size: 10, color: { argb: 'FF9A3412' } },
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFEDD5' } },
         border: {
-          top: { style: 'thin', color: { rgb: 'FED7AA' } },
-          bottom: { style: 'thin', color: { rgb: 'FED7AA' } },
-          left: { style: 'thin', color: { rgb: 'FED7AA' } },
-          right: { style: 'thin', color: { rgb: 'FED7AA' } }
-        }
+          top: { style: 'thin', color: { argb: 'FFFED7AA' } },
+          bottom: { style: 'thin', color: { argb: 'FFFED7AA' } },
+          left: { style: 'thin', color: { argb: 'FFFED7AA' } },
+          right: { style: 'thin', color: { argb: 'FFFED7AA' } },
+        },
+        alignment: { vertical: 'middle' },
       };
 
-      const totalTableFooterStyle = {
-        font: { name: 'Arial', sz: 11, bold: true, color: { rgb: '0F172A' } },
-        fill: { fgColor: { rgb: 'E2E8F0' } },
-        alignment: { horizontal: 'right' },
+      const totalTableFooterStyle: Partial<ExcelJS.Style> = {
+        font: { name: 'Arial', size: 11, bold: true, color: { argb: 'FF0F172A' } },
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } },
+        alignment: { horizontal: 'right', vertical: 'middle' },
         border: {
-          top: { style: 'medium', color: { rgb: '475569' } },
-          bottom: { style: 'double', color: { rgb: '1E293B' } }
-        }
+          top: { style: 'medium', color: { argb: 'FF475569' } },
+          bottom: { style: 'double', color: { argb: 'FF1E293B' } },
+          left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        },
+      };
+
+      const applyStyle = (cell: ExcelJS.Cell, style: Partial<ExcelJS.Style>) => {
+        if (style.font) cell.font = style.font;
+        if (style.fill) cell.fill = style.fill;
+        if (style.border) cell.border = style.border;
+        if (style.alignment) cell.alignment = style.alignment;
       };
 
       // Apply cell styles across worksheet
-      for (const cellRef in ws) {
-        if (cellRef.startsWith('!')) continue;
-        const cell = ws[cellRef];
-        if (!cell) continue;
+      for (let r = 1; r <= ws.rowCount; r++) {
+        const row = ws.getRow(r);
+        const rowIndex0 = r - 1; // 0-indexed corresponding to wsData
 
-        const match = cellRef.match(/^([A-Z]+)([0-9]+)$/);
-        if (!match) continue;
-        const col = match[1];
-        const row = parseInt(match[2], 10) - 1; // 0-indexed
-
-        if (row === 0) {
-          cell.s = titleStyle;
-        } else if (row >= 2 && row <= 5) {
-          if (col === 'A' || col === 'D') {
-            cell.s = metaLabelStyle;
-          } else {
-            cell.s = metaValueStyle;
+        if (rowIndex0 === 0) {
+          for (let c = 1; c <= 8; c++) applyStyle(row.getCell(c), titleStyle);
+        } else if (rowIndex0 >= 2 && rowIndex0 <= 5) {
+          for (let c = 1; c <= 5; c++) {
+            if (c === 1 || c === 4) {
+              applyStyle(row.getCell(c), metaLabelStyle);
+            } else {
+              applyStyle(row.getCell(c), metaValueStyle);
+            }
           }
-        } else if (row === 7) {
-          cell.s = kpiHeaderStyle;
-        } else if (row >= 8 && row < detailHeaderIndex - 1) {
-          cell.s = kpiRowStyle;
-        } else if (row === detailHeaderIndex) {
-          cell.s = detailHeaderStyle;
-        } else if (row === totalRowIndex) {
-          cell.s = totalTableFooterStyle;
-        } else if (row > detailHeaderIndex && row < totalRowIndex) {
-          const dayIndex = row - detailHeaderIndex - 1;
+        } else if (rowIndex0 === 7) {
+          for (let c = 1; c <= 3; c++) applyStyle(row.getCell(c), kpiHeaderStyle);
+        } else if (rowIndex0 >= 8 && rowIndex0 < detailHeaderIndex - 1) {
+          for (let c = 1; c <= 3; c++) applyStyle(row.getCell(c), kpiRowStyle);
+        } else if (rowIndex0 === detailHeaderIndex) {
+          for (let c = 1; c <= 8; c++) applyStyle(row.getCell(c), detailHeaderStyle);
+        } else if (r === totalRowIndex) {
+          for (let c = 1; c <= 8; c++) applyStyle(row.getCell(c), totalTableFooterStyle);
+        } else if (rowIndex0 > detailHeaderIndex && r < totalRowIndex) {
+          const dayIndex = rowIndex0 - detailHeaderIndex - 1;
           const dayRow = summary.dailyRows[dayIndex];
           if (dayRow) {
+            let rowStyle = regularRowStyle;
             if (dayRow.isWeekend) {
-              cell.s = weekendRowStyle;
+              rowStyle = weekendRowStyle;
             } else if (dayRow.isHoliday) {
-              cell.s = holidayRowStyle;
+              rowStyle = holidayRowStyle;
             } else if (dayRow.absenceDays > 0) {
-              cell.s = absenceRowStyle;
-            } else {
-              cell.s = regularRowStyle;
+              rowStyle = absenceRowStyle;
             }
+            for (let c = 1; c <= 8; c++) applyStyle(row.getCell(c), rowStyle);
           }
         }
       }
-
-      XLSX.utils.book_append_sheet(wb, ws, `${FRENCH_MONTHS[month]} ${year}`);
 
       const cleanLastName = (employee.last_name || 'COLLABORATEUR').replace(/[^a-zA-Z0-9_-]/g, '_');
       const cleanFirstName = (employee.first_name || '').replace(/[^a-zA-Z0-9_-]/g, '_');
       const monthNumStr = String(month + 1).padStart(2, '0');
       const fileName = `Presence_${cleanLastName}_${cleanFirstName}_${year}-${monthNumStr}.xlsx`;
 
-      XLSX.writeFile(wb, fileName);
+      await saveWorkbook(wb, fileName);
       this.toastService.success(`Export Excel généré pour ${employee.first_name} ${employee.last_name}`);
     } catch (err: any) {
       console.error('Failed to export collaborator presence:', err);

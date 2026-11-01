@@ -150,7 +150,7 @@ export class TriskellReconciliationComponent implements OnInit {
       }
 
       const buffer = await file.arrayBuffer();
-      const result = this.reconciliationService.parseTriskellWorkbook(buffer);
+      const result = await this.reconciliationService.parseTriskellWorkbook(buffer);
 
       // Ensure absences for detected year are loaded
       await this.absenceService.fetchAbsencesForYear(result.year);
@@ -309,10 +309,10 @@ export class TriskellReconciliationComponent implements OnInit {
     this.selectedDetailRow.set(null);
   }
 
-  exportCurrentMonth(): void {
+  async exportCurrentMonth(): Promise<void> {
     const summary = this.currentMonthSummary();
     if (!summary) return;
-    this.reconciliationService.exportReconciliationToExcel(summary);
+    await this.reconciliationService.exportReconciliationToExcel(summary);
   }
 
   promptResetUpload(): void {
