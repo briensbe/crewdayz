@@ -16,11 +16,31 @@
       </div>
     }
 
+    <!-- Alert for resend confirmation success -->
+    @if (resendSuccessMessage()) {
+      <div class="alert alert-success animate-fade-in">
+        <lucide-icon [img]="Info" size="18"></lucide-icon>
+        <span>{{ resendSuccessMessage() }}</span>
+      </div>
+    }
+
     <!-- Alert for general errors -->
     @if (errorMessage()) {
       <div class="alert alert-danger animate-fade-in">
         <lucide-icon [img]="Info" size="18"></lucide-icon>
-        <span>{{ errorMessage() }}</span>
+        <div class="error-content">
+          <span>{{ errorMessage() }}</span>
+          @if (unconfirmedEmail()) {
+            <button
+              type="button"
+              class="resend-btn"
+              (click)="resendConfirmation()"
+              [disabled]="resendLoading()"
+            >
+              {{ resendLoading() ? 'Envoi en cours...' : 'Renvoyer le lien de confirmation' }}
+            </button>
+          }
+        </div>
       </div>
     }
 

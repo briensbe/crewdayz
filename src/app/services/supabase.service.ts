@@ -147,9 +147,36 @@ export class SupabaseService {
    * Log in an existing user
    */
   async signInWithEmail(payload: LoginPayload) {
-    return await this.supabase.auth.signInWithPassword({
+    const response = await this.supabase.auth.signInWithPassword({
       email: payload.email,
       password: payload.password,
+    });
+
+    if (response.data?.user && !response.data.user.email_confirmed_at) {
+      await this.signOut();
+      return {
+        data: { user: null, session: null },
+        error: {
+          name: 'AuthApiError',
+          message: 'Email not confirmed',
+          status: 400,
+        } as any,
+      };
+    }
+
+    return response;
+  }
+
+  /**
+   * Resend signup confirmation email
+   */
+  async resendConfirmationEmail(email: string) {
+    return await this.supabase.auth.resend({
+      type: 'signup',
+      email: email.trim(),
+      options: {
+        emailRedirectTo: environment.authRedirectUrl,
+      },
     });
   }
 

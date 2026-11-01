@@ -9,6 +9,7 @@ describe('SignupComponent', () => {
   let component: SignupComponent;
   let mockSupabaseService: {
     signUpWithEmail: any;
+    signOut: any;
   };
   let mockRouter: {
     navigate: any;
@@ -21,6 +22,7 @@ describe('SignupComponent', () => {
 
     mockSupabaseService = {
       signUpWithEmail: () => Promise.resolve({ error: null }),
+      signOut: () => Promise.resolve(),
     };
 
     mockRouter = {
