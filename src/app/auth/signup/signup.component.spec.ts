@@ -1,7 +1,8 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { SignupComponent } from './signup.component';
 import { SupabaseService } from '../../services/supabase.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 describe('SignupComponent', () => {
@@ -20,6 +21,7 @@ describe('SignupComponent', () => {
   const initialAllowedDomains = environment.allowedEmailDomains;
 
   beforeEach(async () => {
+    sessionStorage.clear();
     environment.allowedEmailDomains = [];
 
     mockSupabaseService = {
@@ -38,6 +40,12 @@ describe('SignupComponent', () => {
       providers: [
         { provide: SupabaseService, useValue: mockSupabaseService },
         { provide: Router, useValue: mockRouter },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            queryParams: of({}),
+          },
+        },
       ],
     }).compileComponents();
 

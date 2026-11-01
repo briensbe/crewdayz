@@ -249,6 +249,15 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  goToOtpVerification() {
+    this.router.navigate(['/signup'], {
+      queryParams: {
+        step: 'verify-otp',
+        email: this.email().trim(),
+      },
+    });
+  }
+
   navigateToSignup() {
     this.router.navigate(['/signup']);
   }

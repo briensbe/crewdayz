@@ -31,14 +31,23 @@
         <div class="error-content">
           <span>{{ errorMessage() }}</span>
           @if (unconfirmedEmail()) {
-            <button
-              type="button"
-              class="resend-btn"
-              (click)="resendConfirmation()"
-              [disabled]="resendLoading()"
-            >
-              {{ resendLoading() ? 'Envoi en cours...' : 'Renvoyer le lien de confirmation' }}
-            </button>
+            <div class="unconfirmed-actions">
+              <button
+                type="button"
+                class="btn-primary-action"
+                (click)="goToOtpVerification()"
+              >
+                Saisir mon code de confirmation
+              </button>
+              <button
+                type="button"
+                class="resend-btn"
+                (click)="resendConfirmation()"
+                [disabled]="resendLoading()"
+              >
+                {{ resendLoading() ? 'Envoi en cours...' : 'Renvoyer le code' }}
+              </button>
+            </div>
           }
         </div>
       </div>

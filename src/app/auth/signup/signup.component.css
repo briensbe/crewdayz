@@ -88,7 +88,6 @@
 }
 
 .auth-footer {
-  margin-top: 2rem;
   text-align: center;
   font-size: 0.9rem;
   color: var(--text-muted);
@@ -97,9 +96,31 @@
   gap: 0.35rem;
 }
 
+.auth-footer-stack {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.auth-footer-stack .auth-footer {
+  margin-top: 0;
+}
+
 .auth-footer a {
   font-weight: 600;
   cursor: pointer;
+}
+
+.label-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.label-with-action label {
+  margin-bottom: 0;
 }
 
 /* Masked email card styling */
