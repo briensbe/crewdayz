@@ -1,5 +1,27 @@
 [
   {
+    "version": "2026.11.01",
+    "date": "2026-11-01",
+    "news": [
+      {
+        "title": "Confirmation d'inscription par code OTP (6 chiffres)",
+        "items": [
+          "Validation de l'inscription par la saisie directe d'un code OTP à 6 chiffres envoyé par e-mail, évitant l'invalidation des liens de confirmation par les filtres de sécurité d'entreprise.",
+          "Parcours simplifié en cas de tentative de connexion avec un compte non confirmé : bouton d'accès direct à la saisie du code OTP et possibilité de renvoyer le code.",
+          "Reprise automatique de l'e-mail en attente de confirmation et possibilité de corriger l'adresse saisie sans devoir recommencer tout le formulaire."
+        ]
+      },
+      {
+        "title": "Moteur d'export et réconciliation Excel (ExcelJS)",
+        "items": ["Migration complète de SheetJS vers ExcelJS"]
+      },
+      {
+        "title": "Maintenance & Dépendances",
+        "items": ["Mise à niveau du framework Angular et mise à jour de sécurité des dépendances tierces."]
+      }
+    ]
+  },
+  {
     "version": "2026.10.30",
     "date": "2026-10-30",
     "news": [
@@ -30,9 +52,7 @@
       },
       {
         "title": "Ergonomie & Écrans portables",
-        "items": [
-          "Modale adaptative avec actions toujours ancrées en bas et blocage du défilement du fond."
-        ]
+        "items": ["Modale adaptative avec actions toujours ancrées en bas et blocage du défilement du fond."]
       }
     ]
   },
@@ -49,9 +69,7 @@
       },
       {
         "title": "Gestion des Collaborateurs",
-        "items": [
-          "Correction de la suppression des dates d'arrivée, de départ ou du nom de société."
-        ]
+        "items": ["Correction de la suppression des dates d'arrivée, de départ ou du nom de société."]
       }
     ]
   },
