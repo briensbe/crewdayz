@@ -139,6 +139,35 @@ describe('PreferencesService', () => {
     expect(service.isDirty()).toBe(true);
   });
 
+  it('should update and retrieve screen preferences independently', () => {
+    service.setScreenPreference('monthly', 'nameDisplayFormat', 'first_last');
+    service.setScreenPreference('annual', 'nameDisplayFormat', 'last_first');
+    service.setScreenPreference('monthly', 'showExtraColumns', false);
+    service.setScreenPreference('annual', 'showExtraColumns', true);
+    service.setScreenPreference('monthly', 'sortField', 'service');
+    service.setScreenPreference('monthly', 'sortDirection', 'desc');
+
+    expect(service.getScreenPreference('monthly', 'nameDisplayFormat')).toBe('first_last');
+    expect(service.getScreenPreference('annual', 'nameDisplayFormat')).toBe('last_first');
+    expect(service.getScreenPreference('monthly', 'showExtraColumns')).toBe(false);
+    expect(service.getScreenPreference('annual', 'showExtraColumns')).toBe(true);
+    expect(service.getScreenPreference('monthly', 'sortField')).toBe('service');
+    expect(service.getScreenPreference('monthly', 'sortDirection')).toBe('desc');
+    expect(service.getScreenPreference('employeeList', 'nameDisplayFormat', 'last_first')).toBe('last_first');
+    expect(service.isDirty()).toBe(true);
+  });
+
+  it('should not mark dirty if screen preference is set to the same value', () => {
+    service.setScreenPreference('monthly', 'showExtraColumns', false);
+    expect(service.isDirty()).toBe(true);
+
+    service['_persistedPreferences'].set(structuredClone(service.preferences()));
+    expect(service.isDirty()).toBe(false);
+
+    service.setScreenPreference('monthly', 'showExtraColumns', false);
+    expect(service.isDirty()).toBe(false);
+  });
+
   it('should not call Supabase flush if isDirty is false', async () => {
     userSignal.set(mockUser);
     await service.flush();

@@ -4,6 +4,8 @@ import { environment } from '../../environments/environment';
 import {
   UserPreferences,
   DEFAULT_USER_PREFERENCES,
+  ScreenId,
+  ScreenPreferences,
 } from '../models/preferences.model';
 import { THEME_STORAGE_KEY, ThemePreference } from './theme.service';
 
@@ -172,6 +174,10 @@ export class PreferencesService {
             ...DEFAULT_USER_PREFERENCES.releaseNotes,
             ...(remotePrefs.releaseNotes || {}),
           },
+          screens: {
+            ...DEFAULT_USER_PREFERENCES.screens,
+            ...(remotePrefs.screens || {}),
+          },
         };
 
         this._preferences.set(merged);
@@ -238,6 +244,42 @@ export class PreferencesService {
    */
   getColumnWidth(key: string, defaultWidth: number): number {
     return this._preferences().columnWidths?.[key] ?? defaultWidth;
+  }
+
+  /**
+   * Get a specific screen preference with fallback
+   */
+  getScreenPreference<K extends keyof ScreenPreferences>(
+    screenId: ScreenId,
+    key: K,
+    defaultValue?: ScreenPreferences[K]
+  ): ScreenPreferences[K] | undefined {
+    return this._preferences().screens?.[screenId]?.[key] ?? defaultValue;
+  }
+
+  /**
+   * Set a specific preference for a screen (name display, extra columns, sort, etc.)
+   */
+  setScreenPreference<K extends keyof ScreenPreferences>(
+    screenId: ScreenId,
+    key: K,
+    value: ScreenPreferences[K]
+  ) {
+    const currentScreen = this._preferences().screens?.[screenId] || {};
+    if (currentScreen[key] === value) {
+      return;
+    }
+    this._preferences.update((current) => ({
+      ...current,
+      screens: {
+        ...(current.screens || {}),
+        [screenId]: {
+          ...(current.screens?.[screenId] || {}),
+          [key]: value,
+        },
+      },
+    }));
+    this.scheduleDebouncedFlush();
   }
 
   /**
