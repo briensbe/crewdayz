@@ -1,5 +1,19 @@
 [
   {
+    "version": "2026.11.06",
+    "date": "2026-11-06",
+    "news": [
+      {
+        "title": "Sauvegarde des préférences utilisateur (Cloud)",
+        "items": [
+          "Conservation durable de vos préférences d'interface (thème Clair/Sombre/Système et largeurs personnalisées des colonnes de tableaux) directement enregistrées sur votre compte Supabase.",
+          "Vos réglages visuels sont désormais préservés entre vos sessions et appareils, même en cas de nettoyage automatique des données locales ou de politique de sécurité d'entreprise (GPO).",
+          "Mémorisation de la consultation des notes de version pour ne plus réafficher les nouveautés déjà consultées lors de vos prochaines connexions."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.11.01",
     "date": "2026-11-01",
     "news": [
