@@ -46,16 +46,7 @@ export class AnnualViewComponent implements OnInit {
   private readonly headerScrollRef = viewChild<ElementRef<HTMLElement>>('headerScroll');
   private readonly bodyScrollRef = viewChild<ElementRef<HTMLElement>>('bodyScroll');
 
-  nameColWidth = signal<number>(
-    (() => {
-      try {
-        const stored = localStorage.getItem('crewdayz_annual_name_col_width');
-        return stored ? JSON.parse(stored) : 150;
-      } catch (e) {
-        return 150;
-      }
-    })()
-  );
+  nameColWidth = storageSignal<number>('crewdayz_annual_name_col_width', 150);
 
   // Services and dependencies
   protected readonly employeeService = inject(EmployeeService);

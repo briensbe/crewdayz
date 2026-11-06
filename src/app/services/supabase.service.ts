@@ -19,6 +19,22 @@ export class SupabaseService {
   private _userProfile = signal<UserProfile | null>(null);
   private _isPasswordRecovery = signal(false);
   private _isLocalLogout = false;
+  private _accessToken: string | null = null;
+  private readonly beforeSignOutCallbacks: Array<() => Promise<void>> = [];
+
+  /**
+   * Synchronous getter for active session access token
+   */
+  get accessToken(): string | null {
+    return this._accessToken;
+  }
+
+  /**
+   * Register a hook to be executed before user session is cleared on sign out
+   */
+  registerBeforeSignOut(cb: () => Promise<void>) {
+    this.beforeSignOutCallbacks.push(cb);
+  }
 
   /**
    * Observable to track auth state changes (for backward compatibility / navigation guards)
@@ -76,6 +92,7 @@ export class SupabaseService {
       // Initial session load to populate user signal immediately
       this.supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user) {
+          this._accessToken = session.access_token ?? null;
           this._user.set(session.user);
           this.fetchUserProfile(session.user.id);
         }
@@ -258,13 +275,19 @@ export class SupabaseService {
   }
 
   /**
-   * Fetch current user's profile and role from Supabase database
+   * Fetch current user's profile and role from Supabase database (cached in memory)
    */
-  async fetchUserProfile(userId?: string): Promise<UserProfile | null> {
+  async fetchUserProfile(userId?: string, force = false): Promise<UserProfile | null> {
     const uid = userId || this._user()?.id;
     if (!uid) {
       this._userProfile.set(null);
       return null;
+    }
+
+    // Return cached profile if already loaded for this user and not forced
+    const current = this._userProfile();
+    if (!force && current && current.id === uid) {
+      return current;
     }
 
     try {
@@ -303,6 +326,15 @@ export class SupabaseService {
    */
   async signOut() {
     this._isLocalLogout = true;
+
+    for (const callback of this.beforeSignOutCallbacks) {
+      try {
+        await callback();
+      } catch (err) {
+        console.error('Error running beforeSignOut callback:', err);
+      }
+    }
+
     this._user.set(null);
     this._userProfile.set(null);
     this._isPasswordRecovery.set(false);
@@ -425,6 +457,7 @@ export class SupabaseService {
 
   private initializeAuthListener() {
     this.supabase.auth.onAuthStateChange((event, session) => {
+      this._accessToken = session?.access_token ?? null;
       if (event === 'PASSWORD_RECOVERY') {
         this._isPasswordRecovery.set(true);
         this.router.navigate(['/reset-password']);
@@ -437,7 +470,10 @@ export class SupabaseService {
 
       if (session?.user) {
         sessionStorage.setItem(sessionStorageUserKey, JSON.stringify(session.user));
-        this.fetchUserProfile(session.user.id);
+        // Only re-fetch profile if not already loaded in memory for this user, or on explicit user updates
+        if (!this._userProfile() || this._userProfile()?.id !== session.user.id || event === 'USER_UPDATED') {
+          this.fetchUserProfile(session.user.id, event === 'USER_UPDATED');
+        }
       } else {
         sessionStorage.removeItem(sessionStorageUserKey);
         sessionStorage.removeItem(sessionStorageProfileKey);

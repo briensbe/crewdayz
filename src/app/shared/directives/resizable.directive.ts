@@ -1,4 +1,5 @@
 import { Directive, ElementRef, inject, input, model, OnInit, OnDestroy, Renderer2, NgZone } from '@angular/core';
+import { PreferencesService } from '../../services/preferences.service';
 
 @Directive({
   selector: '[appResizable]',
@@ -8,6 +9,7 @@ export class ResizableDirective implements OnInit, OnDestroy {
   private el = inject(ElementRef);
   private renderer = inject(Renderer2);
   private zone = inject(NgZone);
+  private preferencesService = inject(PreferencesService, { optional: true });
 
   // Model signal input to bind and update the width
   width = model.required<number>({ alias: 'appResizable' });
@@ -134,9 +136,12 @@ export class ResizableDirective implements OnInit, OnDestroy {
         }, 50);
       }
 
-      // Persist to localStorage only when resizing is completed
+      // Persist to PreferencesService and fallback to localStorage
       const key = this.storageKey();
       if (key) {
+        if (this.preferencesService) {
+          this.preferencesService.setColumnWidth(key, this.localWidth);
+        }
         try {
           localStorage.setItem(key, JSON.stringify(this.localWidth));
         } catch (e) {

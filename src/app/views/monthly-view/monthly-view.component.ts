@@ -89,16 +89,7 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  nameColWidth = signal<number>(
-    (() => {
-      try {
-        const stored = localStorage.getItem('crewdayz_monthly_name_col_width');
-        return stored ? JSON.parse(stored) : 150;
-      } catch (e) {
-        return 150;
-      }
-    })()
-  );
+  nameColWidth = storageSignal<number>('crewdayz_monthly_name_col_width', 150);
   protected readonly getTeamStyle = getTeamStyle;
   protected readonly isFrenchPublicHoliday = isFrenchPublicHoliday;
   protected readonly getFrenchPublicHolidayName = getFrenchPublicHolidayName;

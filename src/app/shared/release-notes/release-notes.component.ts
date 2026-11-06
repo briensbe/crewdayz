@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ReleaseNotesService } from '../../services/release-notes.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { PreferencesService } from '../../services/preferences.service';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -56,6 +57,7 @@ export class ReleaseNotesComponent implements OnInit, OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly releaseNotesService = inject(ReleaseNotesService);
   private readonly supabaseService = inject(SupabaseService);
+  private readonly preferencesService = inject(PreferencesService, { optional: true });
 
   async ngOnInit() {
     this.http.get<ReleaseNote[]>('assets/release-notes.json').subscribe({
@@ -122,7 +124,8 @@ export class ReleaseNotesComponent implements OnInit, OnDestroy {
   private checkVisibility() {
     if (this.notes.length === 0 || this.hasBeenClosedInSession) return;
     const latestVersion = this.notes[0].version;
-    const lastSeenVersion = localStorage.getItem(this.STORAGE_KEY);
+    const remoteVersion = this.preferencesService?.preferences().releaseNotes?.lastSeenVersion;
+    const lastSeenVersion = remoteVersion || (typeof localStorage !== 'undefined' ? localStorage.getItem(this.STORAGE_KEY) : null);
 
     if (lastSeenVersion !== latestVersion) {
       this.showHistory = false;
@@ -152,7 +155,13 @@ export class ReleaseNotesComponent implements OnInit, OnDestroy {
 
   dontShowAgain() {
     if (this.notes.length > 0) {
-      localStorage.setItem(this.STORAGE_KEY, this.notes[0].version);
+      const version = this.notes[0].version;
+      this.preferencesService?.setLastSeenReleaseNotesVersion(version);
+      try {
+        localStorage.setItem(this.STORAGE_KEY, version);
+      } catch (e) {
+        console.warn('Could not save release version to localStorage', e);
+      }
     }
     this.close();
   }

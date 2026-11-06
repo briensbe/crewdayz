@@ -46,16 +46,7 @@ export type EmployeeSortField =
   styleUrl: './employee-list.component.css',
 })
 export class EmployeeListComponent implements OnInit {
-  nameColWidth = signal<number>(
-    (() => {
-      try {
-        const stored = localStorage.getItem('crewdayz_employee_name_col_width');
-        return stored ? JSON.parse(stored) : 200;
-      } catch (e) {
-        return 200;
-      }
-    })()
-  );
+  nameColWidth = storageSignal<number>('crewdayz_employee_name_col_width', 200);
   protected readonly getTeamStyle = getTeamStyle;
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
