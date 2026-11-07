@@ -15,12 +15,13 @@ import {
   Database,
   ArrowRight,
   Eye,
+  X,
 } from 'lucide-angular';
 import { AuditService } from '../../services/audit.service';
 import { SupabaseService } from '../../services/supabase.service';
 import { EmployeeService } from '../../services/employee.service';
 import { AuditLog } from '../../models/types';
-import { format } from 'date-fns';
+import { format, isSameDay, subDays, startOfDay, endOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { normalizeString } from '../../shared/utils/string-utils';
 import { DB_TABLES } from '../../../constants/db-tables';
@@ -58,6 +59,7 @@ export class AuditViewComponent implements OnInit {
   readonly Database = Database;
   readonly ArrowRight = ArrowRight;
   readonly Eye = Eye;
+  readonly X = X;
 
   // State
   expandedLogs = signal<Set<string>>(new Set());
@@ -67,6 +69,11 @@ export class AuditViewComponent implements OnInit {
   searchQuery = signal('');
   selectedTable = signal('');
   selectedAction = signal('');
+  selectedAuthor = signal('');
+  selectedEmployeeId = signal('');
+  datePreset = signal<'all' | 'today' | '7d' | '30d' | 'custom'>('all');
+  customStartDate = signal('');
+  customEndDate = signal('');
 
   // Translations maps
   readonly tableTranslations: Record<string, string> = {
@@ -109,11 +116,87 @@ export class AuditViewComponent implements OnInit {
     return Array.from(new Set(list)).sort();
   });
 
+  authors = computed(() => {
+    const currentUserId = this.supabaseService.user()?.id;
+    const authorMap = new Map<string, string>();
+    let hasSystem = false;
+
+    for (const log of this.auditService.logs()) {
+      if (!log.changed_by) {
+        hasSystem = true;
+        continue;
+      }
+      if (!authorMap.has(log.changed_by)) {
+        if (log.changed_by === currentUserId) {
+          const email = this.supabaseService.user()?.email || 'Vous';
+          authorMap.set(log.changed_by, `Vous (${email})`);
+        } else if (log.profiles?.email) {
+          authorMap.set(log.changed_by, log.profiles.email);
+        } else {
+          authorMap.set(log.changed_by, `Utilisateur (${log.changed_by.substring(0, 8)}...)`);
+        }
+      }
+    }
+
+    const list = Array.from(authorMap.entries()).map(([id, label]) => ({
+      id,
+      label,
+    }));
+
+    list.sort((a, b) => {
+      if (a.id === currentUserId) return -1;
+      if (b.id === currentUserId) return 1;
+      return a.label.localeCompare(b.label);
+    });
+
+    if (hasSystem) {
+      list.push({ id: '__system__', label: 'Système / Inconnu' });
+    }
+
+    return list;
+  });
+
+  targetEmployees = computed(() => {
+    const empMap = new Map<string, string>();
+    for (const log of this.auditService.logs()) {
+      const empId = this.getRelatedEmployeeId(log);
+      if (empId && !empMap.has(empId)) {
+        const empName = this.getEmployeeName(empId);
+        if (empName) {
+          empMap.set(empId, empName);
+        }
+      }
+    }
+
+    return Array.from(empMap.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
+
+  hasActiveFilters = computed(() => {
+    return (
+      !!this.searchQuery().trim() ||
+      !!this.selectedTable() ||
+      !!this.selectedAction() ||
+      !!this.selectedAuthor() ||
+      !!this.selectedEmployeeId() ||
+      this.datePreset() !== 'all' ||
+      !!this.customStartDate() ||
+      !!this.customEndDate()
+    );
+  });
+
   // Filtered Logs
   filteredLogs = computed(() => {
     const query = normalizeString(this.searchQuery()).trim();
     const table = this.selectedTable();
     const action = this.selectedAction();
+    const author = this.selectedAuthor();
+    const empId = this.selectedEmployeeId();
+    const preset = this.datePreset();
+    const customStart = this.customStartDate();
+    const customEnd = this.customEndDate();
+    const now = new Date();
 
     return this.auditService.logs().filter((log) => {
       // Table Filter
@@ -121,6 +204,46 @@ export class AuditViewComponent implements OnInit {
 
       // Action Filter
       if (action && log.action !== action) return false;
+
+      // Author Filter
+      if (author) {
+        if (author === '__system__') {
+          if (log.changed_by) return false;
+        } else if (log.changed_by !== author) {
+          return false;
+        }
+      }
+
+      // Target Employee Filter ("Pour :")
+      if (empId) {
+        const relatedId = this.getRelatedEmployeeId(log);
+        if (relatedId !== empId) return false;
+      }
+
+      // Date Filter
+      if (preset !== 'all' && log.changed_at) {
+        const logDate = new Date(log.changed_at);
+        if (!isNaN(logDate.getTime())) {
+          if (preset === 'today') {
+            if (!isSameDay(logDate, now)) return false;
+          } else if (preset === '7d') {
+            const minDate = subDays(startOfDay(now), 6);
+            if (logDate < minDate) return false;
+          } else if (preset === '30d') {
+            const minDate = subDays(startOfDay(now), 29);
+            if (logDate < minDate) return false;
+          } else if (preset === 'custom') {
+            if (customStart) {
+              const minDate = new Date(customStart + 'T00:00:00');
+              if (logDate < minDate) return false;
+            }
+            if (customEnd) {
+              const maxDate = new Date(customEnd + 'T23:59:59.999');
+              if (logDate > maxDate) return false;
+            }
+          }
+        }
+      }
 
       // Text Search
       if (query) {
@@ -192,15 +315,35 @@ export class AuditViewComponent implements OnInit {
     return emp ? `${(emp.last_name || '').toUpperCase()} ${emp.first_name}` : null;
   }
 
-  getRelatedEmployee(log: AuditLog): string | null {
+  getRelatedEmployeeId(log: AuditLog): string | null {
     if (log.table_name === DB_TABLES.EMPLOYEES) {
-      return this.getEmployeeName(log.row_id);
+      return log.row_id;
     }
-    const empId = log.new_data?.employee_id || log.old_data?.employee_id;
-    if (empId) {
-      return this.getEmployeeName(empId);
-    }
-    return null;
+    return log.new_data?.employee_id || log.old_data?.employee_id || null;
+  }
+
+  getRelatedEmployee(log: AuditLog): string | null {
+    const empId = this.getRelatedEmployeeId(log);
+    return empId ? this.getEmployeeName(empId) : null;
+  }
+
+  filterByAuthor(authorId: string | null) {
+    this.selectedAuthor.set(authorId || '__system__');
+  }
+
+  filterByEmployee(empId: string) {
+    this.selectedEmployeeId.set(empId);
+  }
+
+  resetFilters() {
+    this.searchQuery.set('');
+    this.selectedTable.set('');
+    this.selectedAction.set('');
+    this.selectedAuthor.set('');
+    this.selectedEmployeeId.set('');
+    this.datePreset.set('all');
+    this.customStartDate.set('');
+    this.customEndDate.set('');
   }
 
   translateTable(table: string): string {

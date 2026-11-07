@@ -1,6 +1,6 @@
 [
   {
-    "version": "2026.11.07",
+    "version": "2026.11.06",
     "date": "2026-11-06",
     "news": [
       {
@@ -12,10 +12,19 @@
         ]
       },
       {
-        "title": "Centralisation des noms des tables",
+        "title": "Historique d'audit : recherche et filtres ciblés",
         "items": [
-          "Centralisation des noms des tables dans db-tables.js"
-        ]
+          "Ajouts de nouveaux filtres pour l'historique d'audit",
+          "Auteur : sélection dédiée (votre compte, collègues, système).",
+          "Collaborateur cible (« Pour : ») : isolation des logs concernant une personne en particulier.",
+          "Période : presets rapides (24h, 7j, 30j) et intervalle de dates personnalisé.",
+          "Quick filter : clic direct sur un auteur ou un collaborateur dans le tableau pour activer le filtre."
+        ],
+        "imageUrl": "assets/2026-11-07-audit-view-filters.png"
+      },
+      {
+        "title": "Centralisation des noms des tables",
+        "items": ["Centralisation des noms des tables dans db-tables.js"]
       }
     ]
   },

@@ -31,9 +31,70 @@
         placeholder="Rechercher par utilisateur, table, valeur..."
         id="audit-search-input"
       />
+      @if (searchQuery()) {
+        <button class="clear-search-btn" (click)="searchQuery.set('')" aria-label="Effacer la recherche">
+          <lucide-icon [img]="X" size="14"></lucide-icon>
+        </button>
+      }
     </div>
 
     <div class="filters-group">
+      <!-- Author Filter -->
+      <div class="filter-item">
+        <label for="author-filter"><lucide-icon [img]="User" size="14"></lucide-icon> Auteur</label>
+        <select id="author-filter" [ngModel]="selectedAuthor()" (ngModelChange)="selectedAuthor.set($event)">
+          <option value="">Tous les auteurs</option>
+          @for (auth of authors(); track auth.id) {
+            <option [value]="auth.id">{{ auth.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Target Employee ("Pour :") Filter -->
+      <div class="filter-item">
+        <label for="target-filter"><lucide-icon [img]="User" size="14"></lucide-icon> Pour</label>
+        <select id="target-filter" [ngModel]="selectedEmployeeId()" (ngModelChange)="selectedEmployeeId.set($event)">
+          <option value="">Tous les collaborateurs</option>
+          @for (emp of targetEmployees(); track emp.id) {
+            <option [value]="emp.id">{{ emp.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Date Filter -->
+      <div class="filter-item">
+        <label for="date-preset"><lucide-icon [img]="Calendar" size="14"></lucide-icon> Période</label>
+        <select id="date-preset" [ngModel]="datePreset()" (ngModelChange)="datePreset.set($event)">
+          <option value="all">Toutes les dates</option>
+          <option value="today">Aujourd'hui</option>
+          <option value="7d">7 derniers jours</option>
+          <option value="30d">30 derniers jours</option>
+          <option value="custom">Personnalisée...</option>
+        </select>
+      </div>
+
+      <!-- Custom Date Inputs -->
+      @if (datePreset() === 'custom') {
+        <div class="filter-item custom-date-item">
+          <label>Plage de dates</label>
+          <div class="date-range-inputs">
+            <input
+              type="date"
+              [ngModel]="customStartDate()"
+              (ngModelChange)="customStartDate.set($event)"
+              title="Date de début"
+            />
+            <span class="date-range-separator">au</span>
+            <input
+              type="date"
+              [ngModel]="customEndDate()"
+              (ngModelChange)="customEndDate.set($event)"
+              title="Date de fin"
+            />
+          </div>
+        </div>
+      }
+
       <!-- Table Filter -->
       <div class="filter-item">
         <label for="table-filter"><lucide-icon [img]="Database" size="14"></lucide-icon> Table</label>
@@ -54,6 +115,19 @@
             <option [value]="act">{{ act }}</option>
           }
         </select>
+      </div>
+
+      <!-- Reset & Count Group -->
+      <div class="filter-actions">
+        @if (hasActiveFilters()) {
+          <button class="btn-reset-filters" (click)="resetFilters()" title="Réinitialiser tous les filtres">
+            <lucide-icon [img]="X" size="14"></lucide-icon>
+            Réinitialiser
+          </button>
+        }
+        <span class="filter-count">
+          {{ filteredLogs().length }} / {{ auditService.logs().length }} log(s)
+        </span>
       </div>
     </div>
   </div>
@@ -101,7 +175,11 @@
                     {{ translateTable(log.table_name) }}
                   </span>
                   @if (getRelatedEmployee(log); as empName) {
-                    <div class="employee-context" [title]="empName">
+                    <div
+                      class="employee-context clickable-filter"
+                      [title]="'Cliquer pour filtrer pour ' + empName"
+                      (click)="filterByEmployee(getRelatedEmployeeId(log)!); $event.stopPropagation()"
+                    >
                       Pour : <strong>{{ empName }}</strong>
                     </div>
                   }
@@ -112,7 +190,11 @@
                   </span>
                 </td>
                 <td>
-                  <div class="user-cell">
+                  <div
+                    class="user-cell clickable-filter"
+                    [title]="'Cliquer pour filtrer par cet auteur'"
+                    (click)="filterByAuthor(log.changed_by); $event.stopPropagation()"
+                  >
                     <lucide-icon [img]="User" size="14" class="user-icon"></lucide-icon>
                     @if (log.profiles?.email) {
                       <span class="user-name">{{ log.profiles?.email }}</span>
