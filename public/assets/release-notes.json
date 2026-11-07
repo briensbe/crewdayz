@@ -14,7 +14,7 @@
       {
         "title": "Centralisation des noms des tables",
         "items": [
-          "Centralisation des noms des tables"
+          "Centralisation des noms des tables dans db-tables.js"
         ]
       }
     ]

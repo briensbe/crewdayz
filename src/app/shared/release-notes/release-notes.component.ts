@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ReleaseNotesService } from '../../services/release-notes.service';
@@ -32,24 +32,13 @@ interface ReleaseNote {
   styleUrl: './release-notes.component.css',
 })
 export class ReleaseNotesComponent implements OnInit, OnDestroy {
-  notes: ReleaseNote[] = [];
-  private _show = false;
+  readonly notes = signal<ReleaseNote[]>([]);
+  readonly show = signal<boolean>(false);
+  readonly showHistory = signal<boolean>(false);
+  readonly activeImageUrl = signal<string | null>(null);
 
-  get show() {
-    return this._show;
-  }
-  set show(value: boolean) {
-    this._show = value;
-    if (value) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-      this.activeImageUrl = null;
-    }
-  }
+  readonly latestNote = computed<ReleaseNote | null>(() => this.notes()[0] ?? null);
 
-  showHistory = false;
-  activeImageUrl: string | null = null;
   private readonly STORAGE_KEY = 'crewdayz_last_seen_release_version';
   private subscription: Subscription | null = null;
   private hasBeenClosedInSession = false;
@@ -59,11 +48,19 @@ export class ReleaseNotesComponent implements OnInit, OnDestroy {
   private readonly supabaseService = inject(SupabaseService);
   private readonly preferencesService = inject(PreferencesService, { optional: true });
 
+  constructor() {
+    effect(() => {
+      if (typeof document !== 'undefined') {
+        document.body.style.overflow = this.show() ? 'hidden' : '';
+      }
+    });
+  }
+
   async ngOnInit() {
     this.http.get<ReleaseNote[]>('assets/release-notes.json').subscribe({
       next: async (data) => {
         if (data && data.length > 0) {
-          this.notes = data;
+          this.notes.set(data);
           if (await this.isAuthenticated()) {
             this.checkVisibility();
           }
@@ -73,21 +70,22 @@ export class ReleaseNotesComponent implements OnInit, OnDestroy {
     });
 
     // Listen to authentication changes
-    const authSub = this.supabaseService.authState$.subscribe(async (state) => {
-      if (this.notes.length > 0) {
+    const authSub = this.supabaseService.authState$.subscribe(async () => {
+      if (this.notes().length > 0) {
         if (await this.isAuthenticated()) {
           this.checkVisibility();
         } else {
-          this.show = false;
+          this.show.set(false);
+          this.activeImageUrl.set(null);
         }
       }
     });
 
     this.subscription = this.releaseNotesService.showNotes$.subscribe(async (show) => {
-      if (show && this.notes.length > 0) {
+      if (show && this.notes().length > 0) {
         if (await this.isAuthenticated()) {
-          this.showHistory = true;
-          this.show = true;
+          this.showHistory.set(true);
+          this.show.set(true);
         }
       }
     });
@@ -99,9 +97,9 @@ export class ReleaseNotesComponent implements OnInit, OnDestroy {
 
   @HostListener('document:keydown.escape')
   onEscapeKeydown() {
-    if (this.activeImageUrl) {
+    if (this.activeImageUrl()) {
       this.closeImage();
-    } else if (this.show) {
+    } else if (this.show()) {
       this.close();
     }
   }
@@ -118,44 +116,49 @@ export class ReleaseNotesComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
-    document.body.style.overflow = '';
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = '';
+    }
   }
 
   private checkVisibility() {
-    if (this.notes.length === 0 || this.hasBeenClosedInSession) return;
-    const latestVersion = this.notes[0].version;
+    const notes = this.notes();
+    if (notes.length === 0 || this.hasBeenClosedInSession) return;
+    const latestVersion = notes[0].version;
     const remoteVersion = this.preferencesService?.preferences().releaseNotes?.lastSeenVersion;
     const lastSeenVersion = remoteVersion || (typeof localStorage !== 'undefined' ? localStorage.getItem(this.STORAGE_KEY) : null);
 
     if (lastSeenVersion !== latestVersion) {
-      this.showHistory = false;
-      this.show = true;
+      this.showHistory.set(false);
+      this.show.set(true);
     }
   }
 
   toggleHistory() {
-    this.showHistory = !this.showHistory;
+    this.showHistory.update((show) => !show);
   }
 
   openImage(url: string | undefined) {
     if (url) {
-      this.activeImageUrl = url;
+      this.activeImageUrl.set(url);
     }
   }
 
   closeImage() {
-    this.activeImageUrl = null;
+    this.activeImageUrl.set(null);
   }
 
   close() {
-    this.show = false;
+    this.show.set(false);
+    this.activeImageUrl.set(null);
     this.hasBeenClosedInSession = true;
-    setTimeout(() => (this.showHistory = false), 300);
+    setTimeout(() => this.showHistory.set(false), 300);
   }
 
   dontShowAgain() {
-    if (this.notes.length > 0) {
-      const version = this.notes[0].version;
+    const notes = this.notes();
+    if (notes.length > 0) {
+      const version = notes[0].version;
       this.preferencesService?.setLastSeenReleaseNotesVersion(version);
       try {
         localStorage.setItem(this.STORAGE_KEY, version);
