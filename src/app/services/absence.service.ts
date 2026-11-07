@@ -4,6 +4,7 @@ import { Absence } from '../models/types';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { paginateQuery } from '../../utils/supabase-pagination';
 import { ToastService } from './toast.service';
+import { DB_TABLES } from '../../constants/db-tables';
 
 @Injectable({
   providedIn: 'root',
@@ -37,7 +38,7 @@ export class AbsenceService implements OnDestroy {
         {
           event: '*',
           schema: 'crewdayz',
-          table: 'cd_absences',
+          table: DB_TABLES.ABSENCES,
         },
         (payload) => {
           const { eventType, new: newRecord, old: oldRecord } = payload;
@@ -119,7 +120,7 @@ export class AbsenceService implements OnDestroy {
       const allAbsences = await paginateQuery<Absence>(
         () =>
           this.supabase.client
-            .from('cd_absences')
+            .from(DB_TABLES.ABSENCES)
             .select('*')
             .gte('date', startOfYear)
             .lte('date', endOfYear)
@@ -150,7 +151,7 @@ export class AbsenceService implements OnDestroy {
   async upsertAbsences(absences: Absence[], yearToRefresh: number): Promise<Absence[]> {
     try {
       const { data, error } = await this.supabase.client
-        .from('cd_absences')
+        .from(DB_TABLES.ABSENCES)
         .upsert(absences, { onConflict: 'employee_id,date,period' })
         .select();
 
@@ -200,7 +201,7 @@ export class AbsenceService implements OnDestroy {
         const idsToDelete = toDelete.map((d) => d.id).filter(Boolean) as string[];
         if (idsToDelete.length > 0) {
           const { error: deleteError } = await this.supabase.client
-            .from('cd_absences')
+            .from(DB_TABLES.ABSENCES)
             .delete()
             .in('id', idsToDelete);
 
@@ -211,7 +212,7 @@ export class AbsenceService implements OnDestroy {
       let data: Absence[] = [];
       if (toUpsert.length > 0) {
         const { data: upsertData, error: upsertError } = await this.supabase.client
-          .from('cd_absences')
+          .from(DB_TABLES.ABSENCES)
           .upsert(toUpsert, { onConflict: 'employee_id,date,period' })
           .select();
 
@@ -233,7 +234,7 @@ export class AbsenceService implements OnDestroy {
   async deleteAbsences(ids: string[], yearToRefresh: number): Promise<void> {
     if (ids.length === 0) return;
     try {
-      const { error } = await this.supabase.client.from('cd_absences').delete().in('id', ids);
+      const { error } = await this.supabase.client.from(DB_TABLES.ABSENCES).delete().in('id', ids);
 
       if (error) throw error;
       await this.fetchAbsencesForYear(yearToRefresh);
@@ -260,7 +261,7 @@ export class AbsenceService implements OnDestroy {
       const orConditions = datePeriods.map((dp) => `and(date.eq.${dp.date},period.eq.${dp.period})`).join(',');
 
       const { data, error: selectError } = await this.supabase.client
-        .from('cd_absences')
+        .from(DB_TABLES.ABSENCES)
         .select('id')
         .eq('employee_id', employeeId)
         .or(orConditions);

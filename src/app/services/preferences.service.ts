@@ -8,6 +8,7 @@ import {
   ScreenPreferences,
 } from '../models/preferences.model';
 import { THEME_STORAGE_KEY, ThemePreference } from './theme.service';
+import { DB_TABLES } from '../../constants/db-tables';
 
 /**
  * Utility function to perform deep equality comparison between two values.
@@ -151,7 +152,7 @@ export class PreferencesService {
         return;
       }
       const { data, error } = await this.supabaseService.client
-        .from('cd_user_preferences')
+        .from(DB_TABLES.USER_PREFERENCES)
         .select('preferences')
         .eq('user_id', userId)
         .maybeSingle();
@@ -328,7 +329,7 @@ export class PreferencesService {
 
     try {
       const { error } = await this.supabaseService.client
-        .from('cd_user_preferences')
+        .from(DB_TABLES.USER_PREFERENCES)
         .upsert(
           {
             user_id: user.id,
@@ -351,7 +352,7 @@ export class PreferencesService {
   private flushWithKeepalive(userId: string, payload: UserPreferences) {
     try {
       const token = this.supabaseService.accessToken || environment.supabaseKey;
-      const url = `${environment.supabaseUrl}/rest/v1/cd_user_preferences?on_conflict=user_id`;
+      const url = `${environment.supabaseUrl}/rest/v1/${DB_TABLES.USER_PREFERENCES}?on_conflict=user_id`;
       fetch(url, {
         method: 'POST',
         headers: {

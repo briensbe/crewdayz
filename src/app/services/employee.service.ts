@@ -4,6 +4,7 @@ import { Employee, EmployeeBalance } from '../models/types';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { paginateQuery } from '../../utils/supabase-pagination';
 import { ToastService } from './toast.service';
+import { DB_TABLES } from '../../constants/db-tables';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +36,7 @@ export class EmployeeService implements OnDestroy {
         {
           event: '*',
           schema: 'crewdayz',
-          table: 'cd_employees',
+          table: DB_TABLES.EMPLOYEES,
         },
         (payload) => {
           const { eventType, new: newRecord, old: oldRecord } = payload;
@@ -78,7 +79,7 @@ export class EmployeeService implements OnDestroy {
         {
           event: '*',
           schema: 'crewdayz',
-          table: 'cd_employee_balances',
+          table: DB_TABLES.EMPLOYEE_BALANCES,
         },
         (payload) => {
           const { eventType, new: newRecord, old: oldRecord } = payload;
@@ -151,7 +152,7 @@ export class EmployeeService implements OnDestroy {
       const list = await paginateQuery<Employee>(
         () =>
           this.supabase.client
-            .from('cd_employees')
+            .from(DB_TABLES.EMPLOYEES)
             .select(
               `
               *,
@@ -184,7 +185,7 @@ export class EmployeeService implements OnDestroy {
       const { initial_cp, initial_rtt, initial_exceptional, cd_employee_balances, ...empFields } = employee;
 
       const { data: empData, error: empError } = await this.supabase.client
-        .from('cd_employees')
+        .from(DB_TABLES.EMPLOYEES)
         .insert([empFields])
         .select()
         .single();
@@ -200,7 +201,7 @@ export class EmployeeService implements OnDestroy {
         initial_exceptional: initial_exceptional ?? 0,
       };
 
-      const { error: balError } = await this.supabase.client.from('cd_employee_balances').insert([balancePayload]);
+      const { error: balError } = await this.supabase.client.from(DB_TABLES.EMPLOYEE_BALANCES).insert([balancePayload]);
 
       if (balError) throw balError;
 
@@ -230,7 +231,7 @@ export class EmployeeService implements OnDestroy {
       const { initial_cp, initial_rtt, initial_exceptional, cd_employee_balances, ...empFields } = employee;
 
       const { data: empData, error: empError } = await this.supabase.client
-        .from('cd_employees')
+        .from(DB_TABLES.EMPLOYEES)
         .update(empFields)
         .eq('id', id)
         .select()
@@ -263,7 +264,7 @@ export class EmployeeService implements OnDestroy {
         };
 
         const { error: balError } = await this.supabase.client
-          .from('cd_employee_balances')
+          .from(DB_TABLES.EMPLOYEE_BALANCES)
           .upsert(balancePayload, { onConflict: 'employee_id,year' });
 
         if (balError) throw balError;
@@ -317,7 +318,7 @@ export class EmployeeService implements OnDestroy {
    */
   async deleteEmployee(id: string): Promise<void> {
     try {
-      const { error } = await this.supabase.client.from('cd_employees').delete().eq('id', id);
+      const { error } = await this.supabase.client.from(DB_TABLES.EMPLOYEES).delete().eq('id', id);
 
       if (error) throw error;
 

@@ -6,6 +6,7 @@ import { PreferencesService, deepEqual } from './preferences.service';
 import { SupabaseService } from './supabase.service';
 import { DEFAULT_USER_PREFERENCES } from '../models/preferences.model';
 import { User } from '@supabase/supabase-js';
+import { DB_TABLES } from '../../constants/db-tables';
 
 describe('deepEqual', () => {
   it('should compare primitives correctly', () => {
@@ -66,7 +67,7 @@ describe('PreferencesService', () => {
     mockSelect = vi.fn().mockReturnValue({ eq: mockEq });
 
     mockFrom = vi.fn((table: string) => {
-      if (table === 'cd_user_preferences') {
+      if (table === DB_TABLES.USER_PREFERENCES) {
         return {
           select: mockSelect,
           upsert: mockUpsert,

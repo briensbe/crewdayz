@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { LoginPayload, SignupPayload, UserProfile, UserRole } from '../models/types';
 import { environment } from '../../environments/environment';
 import { validateSignupEmail } from '../../utils/email-validator';
+import { DB_TABLES } from '../../constants/db-tables';
 
 const sessionStorageUserKey = 'crewdayzUser';
 const sessionStorageProfileKey = 'crewdayzUserProfile';
@@ -292,7 +293,7 @@ export class SupabaseService {
 
     try {
       const { data, error } = await this.supabase
-        .from('cd_user_profiles')
+        .from(DB_TABLES.USER_PROFILES)
         .select('*')
         .eq('id', uid)
         .maybeSingle();

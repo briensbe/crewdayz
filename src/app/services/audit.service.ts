@@ -3,6 +3,7 @@ import { SupabaseService } from './supabase.service';
 import { AuditLog } from '../models/types';
 import { paginateQuery } from '../../utils/supabase-pagination';
 import { ToastService } from './toast.service';
+import { DB_TABLES } from '../../constants/db-tables';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +29,7 @@ export class AuditService {
       const list = await paginateQuery<AuditLog>(
         () =>
           this.supabase.client
-            .from('audit_logs')
+            .from(DB_TABLES.AUDIT_LOGS)
             .select(
               `
               *,

@@ -23,6 +23,7 @@ import { AuditLog } from '../../models/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { normalizeString } from '../../shared/utils/string-utils';
+import { DB_TABLES } from '../../../constants/db-tables';
 
 interface ChangedField {
   key: string;
@@ -69,10 +70,10 @@ export class AuditViewComponent implements OnInit {
 
   // Translations maps
   readonly tableTranslations: Record<string, string> = {
-    cd_employees: 'Collaborateurs',
-    cd_absences: 'Absences',
-    cd_employee_balances: 'Soldes des Collaborateurs',
-    audit_logs: "Logs d'Audit",
+    [DB_TABLES.EMPLOYEES]: 'Collaborateurs',
+    [DB_TABLES.ABSENCES]: 'Absences',
+    [DB_TABLES.EMPLOYEE_BALANCES]: 'Soldes des Collaborateurs',
+    [DB_TABLES.AUDIT_LOGS]: "Logs d'Audit",
   };
 
   readonly fieldTranslations: Record<string, string> = {
@@ -192,7 +193,7 @@ export class AuditViewComponent implements OnInit {
   }
 
   getRelatedEmployee(log: AuditLog): string | null {
-    if (log.table_name === 'cd_employees') {
+    if (log.table_name === DB_TABLES.EMPLOYEES) {
       return this.getEmployeeName(log.row_id);
     }
     const empId = log.new_data?.employee_id || log.old_data?.employee_id;

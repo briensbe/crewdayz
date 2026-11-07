@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase.service';
+import { DB_RPC } from '../../constants/db-tables';
 
 export interface CrewdayzTeamDiscovery {
   nom: string;
@@ -47,7 +48,7 @@ export class CrewdayzApiService {
    * API Discovery : Expose les couples Équipe + Profils sous forme hiérarchique JSON.
    */
   async getDiscovery(): Promise<CrewdayzDiscoveryResponse> {
-    const { data, error } = await this.supabase.client.rpc('cd_get_teams_discovery');
+    const { data, error } = await this.supabase.client.rpc(DB_RPC.GET_TEAMS_DISCOVERY);
     if (error) {
       console.error('[CrewdayzApiService] Error in cd_get_teams_discovery:', error);
       return { equipes: [] };
@@ -63,7 +64,7 @@ export class CrewdayzApiService {
     endDate: string,
     teamName?: string
   ): Promise<CrewdayzTeamAvailability[]> {
-    const { data, error } = await this.supabase.client.rpc('cd_get_availabilities', {
+    const { data, error } = await this.supabase.client.rpc(DB_RPC.GET_AVAILABILITIES, {
       p_start_date: startDate,
       p_end_date: endDate,
       p_team_name: teamName || null,
