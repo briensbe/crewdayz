@@ -4,7 +4,7 @@
     "date": "2026-11-06",
     "news": [
       {
-        "title": "Sauvegarde des préférences utilisateur (Cloud)",
+        "title": "Sauvegarde des préférences utilisateur en base",
         "items": [
           "Conservation durable de vos préférences d'interface (thème Clair/Sombre, largeurs des colonnes, choix d'affichage du nom des collaborateurs et du tri, des colonnes secondaites ).",
           "Vos réglages visuels sont désormais préservés entre vos sessions et appareils, même en cas de nettoyage automatique des données locales ou de politique de sécurité d'entreprise (GPO).",
