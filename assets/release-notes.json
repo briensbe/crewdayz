@@ -1,7 +1,7 @@
 [
   {
-    "version": "2026.11.06",
-    "date": "2026-11-06",
+    "version": "2026.11.08",
+    "date": "2026-11-08",
     "news": [
       {
         "title": "Sauvegarde des préférences utilisateur en base",
@@ -21,6 +21,12 @@
           "Quick filter : clic direct sur un auteur ou un collaborateur dans le tableau pour activer le filtre."
         ],
         "imageUrl": "assets/2026-11-07-audit-view-filters.png"
+      },
+      {
+        "title": "Vue Mensuelle : Avertissement du mode lecture seule (profil Viewer)",
+        "items": [
+          "Affichage d'un message informatif (toast) lors d'une tentative de clic ou de saisie sur le calendrier pour rappeler que la modification des plannings est réservée aux éditeurs."
+        ]
       },
       {
         "title": "Centralisation des noms des tables",
