@@ -44,6 +44,7 @@
     } @else {
       <table
         class="calendar-table"
+        [class.readonly-calendar]="supabaseService.isReadOnly()"
         [style.--name-col-width.px]="nameColWidth()"
         [style.--service-width.px]="showServiceCol() ? 100 : 0"
         [style.--team-width.px]="showTeamCol() ? 80 : 0"

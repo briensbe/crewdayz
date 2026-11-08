@@ -525,6 +525,15 @@ tr:hover .sticky-right-1.worked-value {
   background-color: var(--primary-light);
 }
 
+/* Readonly mode affordance */
+.readonly-calendar .day-cell {
+  cursor: default;
+}
+
+.readonly-calendar .day-cell:hover:not(.cell-weekend) {
+  background-color: transparent;
+}
+
 .cell-weekend {
   background-color: var(--weekend-cell-bg);
   cursor: not-allowed;

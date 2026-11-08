@@ -948,8 +948,21 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   // Drag Selection Handlers
   // ----------------------------------------------------
 
+  private readOnlyToastShown = false;
+
+  private notifyReadOnlyOnce(): void {
+    if (this.readOnlyToastShown) {
+      return;
+    }
+    this.readOnlyToastShown = true;
+    this.toastService.info('Mode lecture seule : la saisie d’absences est réservée aux profils éditeurs.');
+  }
+
   onCellMouseDown(employeeId: string, dateStr: string, event: MouseEvent) {
-    if (this.supabaseService.isReadOnly()) return;
+    if (this.supabaseService.isReadOnly()) {
+      this.notifyReadOnlyOnce();
+      return;
+    }
     if (event.button !== 0) return; // Only left click
 
     this.isSelecting.set(true);
@@ -1061,7 +1074,10 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   // ----------------------------------------------------
 
   openAddAbsenceModal(employeeId: string, startDateStr: string, endDateStr?: string) {
-    if (this.supabaseService.isReadOnly()) return;
+    if (this.supabaseService.isReadOnly()) {
+      this.notifyReadOnlyOnce();
+      return;
+    }
     this.modalEmployeeId.set(employeeId);
     this.modalInitialDate.set(startDateStr);
     this.modalInitialEndDate.set(endDateStr || '');
@@ -1070,7 +1086,10 @@ export class MonthlyViewComponent implements OnInit, OnDestroy {
   }
 
   openEditAbsenceModal(employeeId: string, absence: Absence) {
-    if (this.supabaseService.isReadOnly()) return;
+    if (this.supabaseService.isReadOnly()) {
+      this.notifyReadOnlyOnce();
+      return;
+    }
     this.modalEmployeeId.set(employeeId);
     this.modalInitialDate.set(absence.date);
     this.modalInitialEndDate.set('');
