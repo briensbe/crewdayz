@@ -1,5 +1,15 @@
 [
   {
+    "version": "2026.11.09",
+    "date": "2026-11-09",
+    "news": [
+      {
+        "title": "Authentification : Contrôle serveur des règles d'inscription (SEC-03)",
+        "items": ["Verrouillage côté serveur empêchant toute création de compte hors domaines autorisés"]
+      }
+    ]
+  },
+  {
     "version": "2026.11.08",
     "date": "2026-11-08",
     "news": [
