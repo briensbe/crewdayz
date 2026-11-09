@@ -1,4 +1,4 @@
-# ADR 0011: Sécurisation des Inscriptions par Auth Hook Supabase et Règles d'Accès Partagées
+# ADR 0011: Sécurisation des Inscriptions par Trigger PostgreSQL Natif et Règles d'Accès Partagées
 
 ## Status
 accepted, supersedes ADR-0004
@@ -20,17 +20,21 @@ Par ailleurs, les applications **CrewDayz** et **Roadmap** partagent en producti
 
 ## Options Étudiées
 
-### Option A (Retenue) : Source de Vérité en BDD + Hook Supabase Auth + Découplage "Passeport vs Visa"
+### Option A (Retenue) : Source de Vérité en BDD + Trigger Natif PostgreSQL + Découplage "Passeport vs Visa"
 - **Principe :** 
   - Une table partagée `app_auth.allowed_rules` stocke les domaines d'entreprise autorisés (`rule_type = 'domain'`) ainsi que les adresses e-mails individuelles d'exception (`rule_type = 'email'`).
-  - Un Hook PostgreSQL Supabase (`before-user-created`) intercepte chaque tentative de création de compte (mot de passe ET premier login Google OAuth) avant toute insertion dans `auth.users`.
+  - Une vue `public.allowed_rules` (`WITH (security_invoker = true)`) filtre strictement sur les domaines actifs, protégeant la confidentialité des e-mails VIP contre toute énumération via l'API publique.
+  - Un Trigger natif PostgreSQL (`BEFORE INSERT ON auth.users`) exécutant la fonction `public.trigger_validate_signup()` (`SECURITY DEFINER`) intercepte chaque tentative de création de compte (mot de passe ET premier login Google OAuth) avant toute écriture en base.
   - Mode permissif auto-adaptatif : si aucune règle active n'est enregistrée en base (ex: dev local, CI), toutes les inscriptions sont acceptées par défaut.
   - Séparation conceptuelle stricte :
-    - *Le Passeport (Niveau Identité globale) :* Le Hook vérifie si la personne a le droit d'appartenir à l'annuaire d'entreprise.
+    - *Le Passeport (Niveau Identité globale) :* Le Trigger vérifie si la personne a le droit d'appartenir à l'annuaire d'entreprise.
     - *Le Visa (Niveau Applicatif) :* Chaque application gère indépendamment ses permissions, ses rôles et ses données via ses schémas PostgreSQL dédiés (`crewdayz.*` vs `roadmap.*`) protégés par Row Level Security (RLS).
+- **Pourquoi le Trigger natif plutôt que le GoTrue Auth Hook HTTP / Beta ?**
+  - L'Auth Hook GoTrue est actuellement en Beta, absent du Studio Supabase local (Docker) et non déclarable via de simples migrations SQL portables.
+  - Le Trigger natif PostgreSQL est 100% portable, transactionnellement atomique (ACID, aucun risque de timeout réseau ou d'incohérence), appliqué automatiquement par `supabase migration up` et fonctionne identiquement en local, CI et production.
 - **Avantages :** 
   - Sécurité absolue et inviolable au niveau de la base de données.
-  - Prise en charge native et immédiate de Google OAuth avec comptes VIP/développeurs autorisés.
+  - Prise en charge native et immédiate de Google OAuth avec comptes VIP autorisés.
   - Administration à chaud sans redéploiement via Supabase Studio.
   - Maintien du Single Sign-On (SSO) naturel entre Crewdayz et Roadmap avec une seule configuration Google Cloud Console.
   - Zéro coût financier supplémentaire.
@@ -50,17 +54,17 @@ Par ailleurs, les applications **CrewDayz** et **Roadmap** partagent en producti
 - **Inconvénients / Raison du rejet :**
   - **Rupture avec Supabase RLS :** Nécessite une architecture de délégation de jetons JWT complexes (Third-Party Auth) pour signer les requêtes vers la base de données.
   - **Coût élevé et récurrent :** Facturation au nombre d'utilisateurs actifs mensuels (MAU) et surcoûts sur les fonctionnalités multi-applications.
-  - **Complexité disproportionnée :** Le Hook PostgreSQL Supabase réalise le même travail de sécurisation en moins de 50 lignes de code SQL nativement intégrées.
+  - **Complexité disproportionnée :** Le Trigger PostgreSQL natif réalise le même travail de sécurisation en moins de 60 lignes de code SQL nativement intégrées.
 
-### Option Rejetée Spécifique : Filtrage par application (`app_scope`) au niveau du Hook de Signup
-- **Principe :** Tenter de filtrer dans le Hook `before-user-created` si un utilisateur s'inscrit pour Crewdayz ou pour Roadmap via un paramètre de métadonnées.
-- **Raison du rejet :** Le Hook ne s'exécute qu'une seule fois, lors de la création initiale du compte dans `auth.users`. Si un utilisateur est créé via Roadmap, son compte existerait déjà ; lors de sa connexion ultérieure sur Crewdayz, le hook ne se déclencherait plus. Le contrôle par application doit obligatoirement relever des profils/rôles applicatifs et de la RLS de chaque schéma ("Le Visa"), et non de l'inscription globale ("Le Passeport").
+### Option Rejetée Spécifique : Filtrage par application (`app_scope`) au niveau de l'inscription
+- **Principe :** Tenter de filtrer lors de la création du compte si un utilisateur s'inscrit pour Crewdayz ou pour Roadmap via un paramètre de métadonnées.
+- **Raison du rejet :** La création du compte ne s'exécute qu'une seule fois, lors de la création initiale dans `auth.users`. Si un utilisateur est créé via Roadmap, son compte existerait déjà ; lors de sa connexion ultérieure sur Crewdayz, le trigger de création ne se déclencherait plus. Le contrôle par application doit obligatoirement relever des profils/rôles applicatifs et de la RLS de chaque schéma ("Le Visa"), et non de l'inscription globale ("Le Passeport").
 
 ## Decision
 
 Nous adoptons **l'Option A** :
-1. **Table de règles unifiée :** Création du schéma `app_auth` et de la table `allowed_rules` (gérant domaines et exceptions e-mails).
-2. **Hook de sécurité PostgreSQL :** Fonction `public.hook_validate_signup` interceptant les événements `before-user-created` de Supabase Auth, bloquant les inscriptions illicites et les comptes Google OAuth non autorisés.
+1. **Table de règles unifiée & Vue sécurisée :** Création du schéma `app_auth`, de la table `allowed_rules` et de la vue publique `public.allowed_rules` (`rule_type = 'domain'`).
+2. **Trigger de sécurité PostgreSQL :** Fonction `public.trigger_validate_signup()` déclenchée en `BEFORE INSERT ON auth.users`, bloquant les inscriptions illicites et les comptes Google OAuth non autorisés avec le message : *"Veuillez utiliser votre adresse professionnelle autorisee."*.
 3. **Mode permissif par défaut :** Autorisation automatique sans configuration si la table est vide.
 4. **Service Angular dynamique :** `AuthConfigService` chargeant les règles actives avec repli sur `environment.allowedEmailDomains` pour la pré-validation UX.
 
@@ -68,10 +72,11 @@ Nous adoptons **l'Option A** :
 
 - **Positives :**
   - Correction définitive de la vulnérabilité SEC-03 : impossible de contourner la restriction d'accès via `curl` ou Google OAuth.
+  - Confidentialité garantie des exceptions e-mails individuelles (invisibles sur l'API publique).
   - Possibilité d'autoriser des comptes Google individuels d'exception (ex: compte administrateur perso `@gmail.com`) sans ouvrir la porte à l'intégralité du domaine `@gmail.com`.
   - Administration instantanée via Supabase Studio sans recompilation ni redéploiement d'application.
   - Préservation du SSO naturel et de l'indépendance des schémas de données de Crewdayz et de Roadmap.
   - Les environnements locaux et CI restent 100% fonctionnels sans aucune étape manuelle.
 - **Négatives / Précautions :**
-  - Nécessite l'exécution d'une migration SQL et l'activation du Hook dans les paramètres Supabase Auth de production.
-  - Les utilisateurs non autorisés tentant de se connecter avec Google sont redirigés avec un code d'erreur `access_denied` qui doit être géré proprement par l'UI pour afficher un message clair.
+  - En production, la table doit contenir au moins une règle active dès le déploiement pour basculer du mode permissif vers le mode verrouillé strict.
+  - Les utilisateurs non autorisés tentant de se connecter avec Google sont redirigés avec un code d'erreur `access_denied` qui est géré proprement par l'UI pour afficher un message clair.
