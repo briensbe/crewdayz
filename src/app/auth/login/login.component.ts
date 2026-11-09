@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Eye, EyeOff, Info, Lock, Mail } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../environments/environment';
-import { getEmailPlaceholder } from '../../../utils/email-validator';
+import { AuthConfigService } from '../../services/auth-config.service';
 
 @Component({
   selector: 'app-login',
@@ -15,6 +15,8 @@ import { getEmailPlaceholder } from '../../../utils/email-validator';
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
+  private readonly authConfigService = inject(AuthConfigService);
+
   showGoogleAuth = signal(environment.enableGoogleAuth);
 
   email = signal('');
@@ -27,7 +29,7 @@ export class LoginComponent implements OnInit {
   loading = signal(false);
   errorMessage = signal<string | null>(null);
 
-  emailPlaceholder = computed(() => getEmailPlaceholder(environment.allowedEmailDomains));
+  emailPlaceholder = computed(() => this.authConfigService.emailPlaceholder());
 
   private keyBuffer: string[] = [];
   private readonly SECRET_HASH = '105e3bbbe4a711daa0f47fca6e83588f6be3f3937f4a2b2a780305ccce5530b0';

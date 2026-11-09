@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthResponse, AuthTokenResponse, createClient, SupabaseClient, UserResponse, User } from '@supabase/supabase-js';
 import { BehaviorSubject } from 'rxjs';
@@ -6,6 +6,8 @@ import { LoginPayload, SignupPayload, UserProfile, UserRole } from '../models/ty
 import { environment } from '../../environments/environment';
 import { validateSignupEmail } from '../../utils/email-validator';
 import { DB_TABLES } from '../../constants/db-tables';
+import { ToastService } from './toast.service';
+import { AuthConfigService } from './auth-config.service';
 
 const sessionStorageUserKey = 'crewdayzUser';
 const sessionStorageProfileKey = 'crewdayzUserProfile';
@@ -15,6 +17,8 @@ const sessionStorageProfileKey = 'crewdayzUserProfile';
 })
 export class SupabaseService {
   private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
+  private readonly toastService = inject(ToastService);
   private supabase: SupabaseClient<any, any>;
   private _user = signal<User | null>(null);
   private _userProfile = signal<UserProfile | null>(null);
@@ -107,6 +111,28 @@ export class SupabaseService {
   private async handlePkceCallback() {
     if (typeof window !== 'undefined' && window.location) {
       const url = new URL(window.location.href);
+
+      // Vérification des erreurs de redirection OAuth (ex: rejet par l'Auth Hook Supabase)
+      const hashParams = url.hash && url.hash.includes('=')
+        ? new URLSearchParams(url.hash.replace(/^#/, ''))
+        : null;
+      const errorParam = url.searchParams.get('error') || hashParams?.get('error');
+      const errorCode = url.searchParams.get('error_code') || hashParams?.get('error_code');
+
+      if (errorParam === 'access_denied' || errorCode === 'access_denied' || errorCode === 'P0001') {
+        url.searchParams.delete('error');
+        url.searchParams.delete('error_code');
+        url.searchParams.delete('error_description');
+        url.hash = '';
+        window.history.replaceState({}, document.title, url.toString());
+
+        this.toastService.error(
+          'Connexion refusée : veuillez utiliser votre adresse professionnelle autorisée.',
+          8000
+        );
+        return;
+      }
+
       const code = url.searchParams.get('code');
       if (code) {
         try {
@@ -224,21 +250,44 @@ export class SupabaseService {
   /**
    * Sign up a new user
    */
-  async signUpWithEmail(payload: SignupPayload) {
-    const validation = validateSignupEmail(payload.email, environment.allowedEmailDomains);
+  async signUpWithEmail(
+    payload: SignupPayload,
+    customAllowedDomains?: string[],
+    customAllowedEmails?: string[]
+  ) {
+    let domains = customAllowedDomains;
+    let emails = customAllowedEmails;
+
+    if (!domains && !emails) {
+      try {
+        const authConfig = this.injector.get(AuthConfigService, null);
+        if (authConfig) {
+          domains = authConfig.allowedDomains();
+          emails = authConfig.allowedEmails();
+        }
+      } catch {
+        // En cas d'indisponibilité, repli direct sur l'environnement
+      }
+    }
+
+    const validation = validateSignupEmail(
+      payload.email,
+      domains ?? environment.allowedEmailDomains,
+      emails
+    );
     if (!validation.isValid) {
       return {
         data: { user: null, session: null },
         error: {
           name: 'AuthApiError',
-          message: validation.errorMessage || 'Domaine email non autorisé.',
+          message: validation.errorMessage || 'Veuillez utiliser votre adresse professionnelle autorisée.',
           status: 400,
         } as any,
       };
     }
 
     const authRedirectUrl = environment.authRedirectUrl;
-    return await this.supabase.auth.signUp({
+    const response = await this.supabase.auth.signUp({
       email: payload.email,
       password: payload.password,
       options: {
@@ -248,6 +297,24 @@ export class SupabaseService {
         },
       },
     });
+
+    // Interception des erreurs de contrainte BDD (Trigger PostgreSQL levant P0001)
+    // GoTrue masque l'exception sous le libellé "Database error saving new user"
+    if (
+      response.error &&
+      (response.error.message?.includes('Database error saving new user') ||
+        response.error.message?.includes('saving new user'))
+    ) {
+      return {
+        data: { user: null, session: null },
+        error: {
+          ...response.error,
+          message: 'Veuillez utiliser votre adresse professionnelle autorisée.',
+        },
+      };
+    }
+
+    return response;
   }
 
   /**

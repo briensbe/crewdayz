@@ -1,14 +1,19 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { LoginComponent } from './login.component';
 import { SupabaseService } from '../../services/supabase.service';
+import { AuthConfigService } from '../../services/auth-config.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { getEmailPlaceholder } from '../../../utils/email-validator';
 
 describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let component: LoginComponent;
+  let mockAuthConfigService: {
+    allowedDomains: any;
+    emailPlaceholder: any;
+  };
   let mockSupabaseService: {
     signInWithEmail: any;
     signInWithGoogle: any;
@@ -21,6 +26,11 @@ describe('LoginComponent', () => {
   };
 
   beforeEach(async () => {
+    mockAuthConfigService = {
+      allowedDomains: signal<string[]>(['ca-titres.fr']),
+      emailPlaceholder: signal<string>('jean.dupont@ca-titres.fr'),
+    };
+
     mockSupabaseService = {
       signInWithEmail: () => Promise.resolve({ error: null }),
       signInWithGoogle: () => Promise.resolve({ error: null }),
@@ -36,6 +46,7 @@ describe('LoginComponent', () => {
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
+        { provide: AuthConfigService, useValue: mockAuthConfigService },
         { provide: SupabaseService, useValue: mockSupabaseService },
         { provide: Router, useValue: mockRouter },
         {
@@ -78,7 +89,7 @@ describe('LoginComponent', () => {
   });
 
   it('should compute emailPlaceholder matching configured allowed domains', () => {
-    expect(component.emailPlaceholder()).toBe(getEmailPlaceholder(environment.allowedEmailDomains));
+    expect(component.emailPlaceholder()).toBe('jean.dupont@ca-titres.fr');
   });
 
   it('should prevent signInWithGoogle if showGoogleAuth is false', async () => {

@@ -7,6 +7,7 @@ export const DB_TABLES = {
   USER_PREFERENCES: `${DB_PREFIX}user_preferences`,
   USER_PROFILES: `${DB_PREFIX}user_profiles`,
   AUDIT_LOGS: 'audit_logs',
+  ALLOWED_RULES: 'allowed_rules',
 } as const;
 
 export const DB_RPC = {

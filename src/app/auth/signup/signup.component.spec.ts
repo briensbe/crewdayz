@@ -1,9 +1,12 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { SignupComponent } from './signup.component';
 import { SupabaseService } from '../../services/supabase.service';
+import { AuthConfigService } from '../../services/auth-config.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { validateSignupEmail, isEmailAllowed } from '../../../utils/email-validator';
 
 describe('SignupComponent', () => {
   let fixture: ComponentFixture<SignupComponent>;
@@ -14,6 +17,13 @@ describe('SignupComponent', () => {
     verifySignupOtp: any;
     resendConfirmationEmail: any;
   };
+  let mockAuthConfigService: {
+    allowedDomains: any;
+    allowedEmails: any;
+    emailPlaceholder: any;
+    validateEmail: any;
+    isEmailAllowed: any;
+  };
   let mockRouter: {
     navigate: any;
   };
@@ -23,6 +33,24 @@ describe('SignupComponent', () => {
   beforeEach(async () => {
     sessionStorage.clear();
     environment.allowedEmailDomains = [];
+
+    mockAuthConfigService = {
+      allowedDomains: signal<string[]>([]),
+      allowedEmails: signal<string[]>([]),
+      emailPlaceholder: signal<string>('jean.dupont@entreprise.com'),
+      validateEmail: (email: string) =>
+        validateSignupEmail(
+          email,
+          mockAuthConfigService.allowedDomains(),
+          mockAuthConfigService.allowedEmails()
+        ),
+      isEmailAllowed: (email: string) =>
+        isEmailAllowed(
+          email,
+          mockAuthConfigService.allowedDomains(),
+          mockAuthConfigService.allowedEmails()
+        ),
+    };
 
     mockSupabaseService = {
       signUpWithEmail: () => Promise.resolve({ error: null }),
@@ -38,6 +66,7 @@ describe('SignupComponent', () => {
     await TestBed.configureTestingModule({
       imports: [SignupComponent],
       providers: [
+        { provide: AuthConfigService, useValue: mockAuthConfigService },
         { provide: SupabaseService, useValue: mockSupabaseService },
         { provide: Router, useValue: mockRouter },
         {
@@ -96,7 +125,7 @@ describe('SignupComponent', () => {
   });
 
   it('should block signup if email domain is not allowed', async () => {
-    environment.allowedEmailDomains = ['soprasteria.com'];
+    mockAuthConfigService.allowedDomains.set(['soprasteria.com']);
     let signUpCalled = false;
     mockSupabaseService.signUpWithEmail = () => {
       signUpCalled = true;
@@ -111,11 +140,11 @@ describe('SignupComponent', () => {
     await component.signUp();
 
     expect(signUpCalled).toBe(false);
-    expect(component.errorMessage()).toBe('Seules les adresses e-mail du domaine @soprasteria.com sont autorisées.');
+    expect(component.errorMessage()).toBe('Veuillez utiliser votre adresse professionnelle autorisée.');
   });
 
   it('should allow signup and call service if email domain is allowed', async () => {
-    environment.allowedEmailDomains = ['soprasteria.com'];
+    mockAuthConfigService.allowedDomains.set(['soprasteria.com']);
     let payloadSent: any = null;
     mockSupabaseService.signUpWithEmail = (payload: any) => {
       payloadSent = payload;
@@ -134,6 +163,27 @@ describe('SignupComponent', () => {
     expect(component.errorMessage()).toBeNull();
     expect(component.step()).toBe('verify-otp');
     expect(component.successMessage()).toContain('Compte créé');
+  });
+
+  it('should allow signup if email is an allowed individual exception', async () => {
+    mockAuthConfigService.allowedDomains.set(['ca-titres.fr']);
+    mockAuthConfigService.allowedEmails.set(['admin.perso@gmail.com']);
+    let payloadSent: any = null;
+    mockSupabaseService.signUpWithEmail = (payload: any) => {
+      payloadSent = payload;
+      return Promise.resolve({ error: null });
+    };
+
+    component.name.set('Admin Perso');
+    component.email.set('ADMIN.PERSO@GMAIL.COM');
+    component.password.set('password123');
+    component.confirmPassword.set('password123');
+
+    await component.signUp();
+
+    expect(payloadSent).toBeTruthy();
+    expect(component.errorMessage()).toBeNull();
+    expect(component.step()).toBe('verify-otp');
   });
 
   it('should handle error returned from supabaseService.signUpWithEmail', async () => {

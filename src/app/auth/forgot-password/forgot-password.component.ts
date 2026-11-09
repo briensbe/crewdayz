@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Mail, ChevronLeft } from 'lucide-angular';
 import { environment } from '../../../environments/environment';
-import { getEmailPlaceholder } from '../../../utils/email-validator';
+import { AuthConfigService } from '../../services/auth-config.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -15,12 +15,14 @@ import { getEmailPlaceholder } from '../../../utils/email-validator';
   styleUrl: './forgot-password.component.css',
 })
 export class ForgotPasswordComponent {
+  private readonly authConfigService = inject(AuthConfigService);
+
   email = signal('');
   message = signal<string | null>(null);
   isError = signal(false);
   loading = signal(false);
 
-  emailPlaceholder = computed(() => getEmailPlaceholder(environment.allowedEmailDomains));
+  emailPlaceholder = computed(() => this.authConfigService.emailPlaceholder());
 
   // Expose icons for template
   readonly Mail = Mail;

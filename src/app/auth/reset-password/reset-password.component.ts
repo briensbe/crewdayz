@@ -18,7 +18,8 @@ import {
   Edit2,
 } from 'lucide-angular';
 import { environment } from '../../../environments/environment';
-import { getEmailPlaceholder, maskEmail } from '../../../utils/email-validator';
+import { maskEmail } from '../../../utils/email-validator';
+import { AuthConfigService } from '../../services/auth-config.service';
 
 export type ResetStep = 'verify-otp' | 'new-password' | 'success';
 
@@ -30,6 +31,8 @@ export type ResetStep = 'verify-otp' | 'new-password' | 'success';
   styleUrl: './reset-password.component.css',
 })
 export class ResetPasswordComponent implements OnInit {
+  protected readonly authConfigService = inject(AuthConfigService);
+
   step = signal<ResetStep>('verify-otp');
   email = signal('');
   isEditingEmail = signal(false);
@@ -43,7 +46,7 @@ export class ResetPasswordComponent implements OnInit {
   loading = signal(false);
   resending = signal(false);
 
-  emailPlaceholder = computed(() => getEmailPlaceholder(environment.allowedEmailDomains));
+  emailPlaceholder = computed(() => this.authConfigService.emailPlaceholder());
   maskedEmail = computed(() => maskEmail(this.email()));
 
   // Expose icons for template

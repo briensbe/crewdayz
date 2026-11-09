@@ -3,6 +3,7 @@ import {
   normalizeDomain,
   extractEmailDomain,
   isEmailDomainAllowed,
+  isEmailAllowed,
   validateSignupEmail,
   getEmailPlaceholder,
 } from './email-validator';
@@ -58,6 +59,30 @@ describe('EmailValidator Utility', () => {
     });
   });
 
+  describe('isEmailAllowed', () => {
+    it('should allow any email in permissive mode (empty domains and empty emails)', () => {
+      expect(isEmailAllowed('anyone@anywhere.com', [], [])).toBe(true);
+      expect(isEmailAllowed('anyone@anywhere.com', undefined, undefined)).toBe(true);
+    });
+
+    it('should allow an individual VIP email exception even if domain is not allowed', () => {
+      const allowedDomains = ['ca-titres.fr'];
+      const allowedEmails = ['admin.perso@gmail.com', 'consultant@externe.com'];
+
+      expect(isEmailAllowed('admin.perso@gmail.com', allowedDomains, allowedEmails)).toBe(true);
+      expect(isEmailAllowed('ADMIN.PERSO@GMAIL.COM', allowedDomains, allowedEmails)).toBe(true);
+      expect(isEmailAllowed('other@gmail.com', allowedDomains, allowedEmails)).toBe(false);
+    });
+
+    it('should allow emails matching allowed domains when exceptions are also configured', () => {
+      const allowedDomains = ['ca-titres.fr'];
+      const allowedEmails = ['admin.perso@gmail.com'];
+
+      expect(isEmailAllowed('collab@ca-titres.fr', allowedDomains, allowedEmails)).toBe(true);
+      expect(isEmailAllowed('hacker@evil.com', allowedDomains, allowedEmails)).toBe(false);
+    });
+  });
+
   describe('validateSignupEmail', () => {
     it('should return invalid for empty email', () => {
       const result = validateSignupEmail('', ['soprasteria.com']);
@@ -77,18 +102,16 @@ describe('EmailValidator Utility', () => {
       expect(result.errorMessage).toBeUndefined();
     });
 
-    it('should return explicit single domain error when domain is rejected', () => {
+    it('should return standardized error when domain is rejected', () => {
       const result = validateSignupEmail('user@gmail.com', ['soprasteria.com']);
       expect(result.isValid).toBe(false);
-      expect(result.errorMessage).toBe('Seules les adresses e-mail du domaine @soprasteria.com sont autorisées.');
+      expect(result.errorMessage).toBe('Veuillez utiliser votre adresse professionnelle autorisée.');
     });
 
-    it('should return explicit multi-domain error when domain is rejected', () => {
+    it('should return standardized error when multi-domain is rejected', () => {
       const result = validateSignupEmail('user@gmail.com', ['soprasteria.com', 'orange.com']);
       expect(result.isValid).toBe(false);
-      expect(result.errorMessage).toBe(
-        'Seules les adresses e-mail des domaines suivants sont autorisées : @soprasteria.com, @orange.com.'
-      );
+      expect(result.errorMessage).toBe('Veuillez utiliser votre adresse professionnelle autorisée.');
     });
   });
 
