@@ -43,6 +43,22 @@ CREATE POLICY "Allow select on integration events for authenticated users"
 GRANT SELECT ON TABLE public.roadmap_integration_events TO anon;
 GRANT ALL ON TABLE public.roadmap_integration_events TO authenticated;
 GRANT ALL ON TABLE public.roadmap_integration_events TO service_role;
+
+-- Activation de Supabase Realtime (Publication & Replica Identity)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' 
+          AND schemaname = 'public' 
+          AND tablename = 'roadmap_integration_events'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.roadmap_integration_events;
+    END IF;
+END;
+$$;
+
+ALTER TABLE public.roadmap_integration_events REPLICA IDENTITY FULL;
 ```
 
 ---
@@ -89,7 +105,7 @@ SELECT vault.create_secret(
 ```
 
 ### 2. Exécution du script émetteur SQL :
-📄 **Fichier source** : [setup_crewdayz_webhook_emitter.sql](file:///c:/Users/brien/Documents/Devs/angular/crewdayz/supabase/scripts/setup_crewdayz_webhook_emitter.sql)
+📄 **Fichier source** : [setup_crewdayz_webhook_emitter.sql](../supabase/scripts/setup_crewdayz_webhook_emitter.sql)
 
 Exécutez l'intégralité du fichier `setup_crewdayz_webhook_emitter.sql`. Ce script va :
 - Activer l'extension HTTP `pg_net`.
