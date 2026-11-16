@@ -154,6 +154,49 @@ lucide-icon {
   min-width: 240px;
 }
 
+.absence-date-item {
+  min-width: 170px;
+}
+
+.input-with-clear {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 38px;
+}
+
+.input-with-clear input[type="date"] {
+  width: 100%;
+  height: 100%;
+  padding: 0.45rem 2rem 0.45rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.clear-field-btn {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: var(--radius-full);
+  transition: all 0.15s;
+}
+
+.clear-field-btn:hover {
+  color: var(--text-main);
+  background-color: var(--border);
+}
+
 .date-range-inputs {
   display: flex;
   align-items: center;

@@ -61,6 +61,24 @@
         </select>
       </div>
 
+      <!-- Absence Date Filter -->
+      <div class="filter-item absence-date-item">
+        <label for="absence-date-filter"><lucide-icon [img]="Calendar" size="14"></lucide-icon> Date de l'absence</label>
+        <div class="input-with-clear">
+          <input
+            id="absence-date-filter"
+            type="date"
+            [ngModel]="absenceDate()"
+            (ngModelChange)="absenceDate.set($event)"
+          />
+          @if (absenceDate()) {
+            <button class="clear-field-btn" (click)="absenceDate.set('')" aria-label="Effacer la date d'absence">
+              <lucide-icon [img]="X" size="14"></lucide-icon>
+            </button>
+          }
+        </div>
+      </div>
+
       <!-- Date Filter -->
       <div class="filter-item">
         <label for="date-preset"><lucide-icon [img]="Calendar" size="14"></lucide-icon> Période</label>

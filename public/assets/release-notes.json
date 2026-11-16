@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026.11.16",
+    "date": "2026-11-16",
+    "news": [
+      {
+        "title": "Historique d'audit : Filtre sur la date d'absence",
+        "items": [
+          "Ajout d'un filtre dédié « Date de l'absence » permettant d'isoler directement les modifications, ajouts ou suppressions liés à une date précise du calendrier d'absence."
+        ]
+      }
+    ]
+  },
+  {
     "version": "2026.11.09",
     "date": "2026-11-09",
     "news": [

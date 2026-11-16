@@ -71,6 +71,7 @@ export class AuditViewComponent implements OnInit {
   selectedAction = signal('');
   selectedAuthor = signal('');
   selectedEmployeeId = signal('');
+  absenceDate = signal('');
   datePreset = signal<'all' | 'today' | '7d' | '30d' | 'custom'>('all');
   customStartDate = signal('');
   customEndDate = signal('');
@@ -180,6 +181,7 @@ export class AuditViewComponent implements OnInit {
       !!this.selectedAction() ||
       !!this.selectedAuthor() ||
       !!this.selectedEmployeeId() ||
+      !!this.absenceDate() ||
       this.datePreset() !== 'all' ||
       !!this.customStartDate() ||
       !!this.customEndDate()
@@ -193,6 +195,7 @@ export class AuditViewComponent implements OnInit {
     const action = this.selectedAction();
     const author = this.selectedAuthor();
     const empId = this.selectedEmployeeId();
+    const absDate = this.absenceDate();
     const preset = this.datePreset();
     const customStart = this.customStartDate();
     const customEnd = this.customEndDate();
@@ -218,6 +221,13 @@ export class AuditViewComponent implements OnInit {
       if (empId) {
         const relatedId = this.getRelatedEmployeeId(log);
         if (relatedId !== empId) return false;
+      }
+
+      // Absence Date Filter
+      if (absDate) {
+        if (log.table_name !== DB_TABLES.ABSENCES) return false;
+        const targetAbsDate = (log.new_data?.date || log.old_data?.date || '').substring(0, 10);
+        if (targetAbsDate !== absDate) return false;
       }
 
       // Date Filter
@@ -341,6 +351,7 @@ export class AuditViewComponent implements OnInit {
     this.selectedAction.set('');
     this.selectedAuthor.set('');
     this.selectedEmployeeId.set('');
+    this.absenceDate.set('');
     this.datePreset.set('all');
     this.customStartDate.set('');
     this.customEndDate.set('');
