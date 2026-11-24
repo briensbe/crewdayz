@@ -248,7 +248,9 @@
   position: absolute;
   top: 44px;
   left: 0;
-  right: 0;
+  min-width: max(100%, 200px);
+  width: max-content;
+  max-width: 300px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -256,6 +258,7 @@
   z-index: 1000;
   max-height: 380px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -266,6 +269,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  white-space: nowrap;
   background: var(--background);
   font-size: 11px;
   font-weight: 600;
@@ -319,12 +324,15 @@
   cursor: pointer;
   width: 16px;
   height: 16px;
+  flex-shrink: 0;
   accent-color: var(--primary);
   border-radius: 4px;
 }
 
 .dropdown-item .item-label {
   font-size: 13px;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .dropdown-divider {
@@ -363,6 +371,7 @@
 .filter-checkbox-label input[type='checkbox'] {
   width: 16px;
   height: 16px;
+  flex-shrink: 0;
   accent-color: var(--primary);
   cursor: pointer;
 }
