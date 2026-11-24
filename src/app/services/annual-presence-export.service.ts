@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import ExcelJS from 'exceljs';
 import { Employee, Absence, CONTRACT_DEFAULT_BALANCES } from '../models/types';
+import { NameDisplayFormat } from '../models/preferences.model';
 import { AbsenceService } from './absence.service';
 import { ToastService } from './toast.service';
 import { isFrenchPublicHoliday, getFrenchPublicHolidayName } from '../../utils/holidays';
@@ -334,13 +335,25 @@ export class AnnualPresenceExportService {
   }
 
   /**
+   * Format an employee's full name according to the user's display preference
+   */
+  public formatEmployeeName(emp: Employee, nameDisplayFormat: NameDisplayFormat = 'last_first'): string {
+    const lastName = (emp.last_name || '').toUpperCase();
+    const firstName = emp.first_name || '';
+    return nameDisplayFormat === 'first_last'
+      ? `${firstName} ${lastName}`.trim()
+      : `${lastName} ${firstName}`.trim();
+  }
+
+  /**
    * Build the Annual Summary worksheet ("Synthèse [Year]")
    */
   public buildAnnualSummarySheet(
     employees: Employee[],
     absMap: Map<string, Map<string, Absence[]>>,
     year: number,
-    workbook?: ExcelJS.Workbook
+    workbook?: ExcelJS.Workbook,
+    nameDisplayFormat: NameDisplayFormat = 'last_first'
   ): ExcelJS.Worksheet {
     const wb = workbook ?? new ExcelJS.Workbook();
     const ws = wb.addWorksheet(`Synthèse ${year}`);
@@ -380,7 +393,7 @@ export class AnnualPresenceExportService {
     summaryRows.forEach((r) => {
       const emp = r.employee;
       const row: any[] = [
-        `${(emp.last_name || '').toUpperCase()} ${emp.first_name || ''}`,
+        this.formatEmployeeName(emp, nameDisplayFormat),
         emp.service || '-',
         emp.team || '-',
         emp.work_site || '-',
@@ -461,7 +474,8 @@ export class AnnualPresenceExportService {
     absMap: Map<string, Map<string, Absence[]>>,
     year: number,
     month: number, // 0-11
-    workbook?: ExcelJS.Workbook
+    workbook?: ExcelJS.Workbook,
+    nameDisplayFormat: NameDisplayFormat = 'last_first'
   ): ExcelJS.Worksheet {
     const wb = workbook ?? new ExcelJS.Workbook();
     const monthNumStr = String(month + 1).padStart(2, '0');
@@ -512,7 +526,7 @@ export class AnnualPresenceExportService {
       let empAbsenceDays = 0;
 
       const rowData: any[] = [
-        `${(emp.last_name || '').toUpperCase()} ${emp.first_name || ''}`,
+        this.formatEmployeeName(emp, nameDisplayFormat),
         emp.service || '-',
         emp.team || '-',
         emp.work_site || '-',
@@ -687,7 +701,8 @@ export class AnnualPresenceExportService {
   public async exportAnnualSummary(
     employees: Employee[],
     year: number,
-    mode: 'all' | 'filtered'
+    mode: 'all' | 'filtered',
+    nameDisplayFormat: NameDisplayFormat = 'last_first'
   ): Promise<void> {
     try {
       await this.ensureYearAbsencesLoaded(year);
@@ -695,7 +710,7 @@ export class AnnualPresenceExportService {
       const absMap = this.buildAbsencesMap(absences);
 
       const wb = new ExcelJS.Workbook();
-      this.buildAnnualSummarySheet(employees, absMap, year, wb);
+      this.buildAnnualSummarySheet(employees, absMap, year, wb, nameDisplayFormat);
 
       const fileName = `Export_Annuel_${year}_${mode === 'filtered' ? 'filtre' : 'tous'}.xlsx`;
       await saveWorkbook(wb, fileName);
@@ -713,7 +728,8 @@ export class AnnualPresenceExportService {
   public async exportDetailedAnnualPresence(
     employees: Employee[],
     year: number,
-    mode: 'all' | 'filtered'
+    mode: 'all' | 'filtered',
+    nameDisplayFormat: NameDisplayFormat = 'last_first'
   ): Promise<void> {
     try {
       this.toastService.info('Génération de l\'export annuel détaillé en cours...');
@@ -725,11 +741,11 @@ export class AnnualPresenceExportService {
       const wb = new ExcelJS.Workbook();
 
       // 1. First sheet: Synthèse [Year]
-      this.buildAnnualSummarySheet(employees, absMap, year, wb);
+      this.buildAnnualSummarySheet(employees, absMap, year, wb, nameDisplayFormat);
 
       // 2. Sheets 2 to 13: 01 - Janvier to 12 - Décembre
       for (let m = 0; m < 12; m++) {
-        this.buildDetailedMonthSheet(employees, absMap, year, m, wb);
+        this.buildDetailedMonthSheet(employees, absMap, year, m, wb, nameDisplayFormat);
       }
 
       const fileName = `Export_Annuel_Detaille_${year}_${mode === 'filtered' ? 'filtre' : 'tous'}.xlsx`;

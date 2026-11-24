@@ -468,13 +468,13 @@ export class AnnualViewComponent implements OnInit {
   async exportSummary(mode: 'all' | 'filtered') {
     this.showExportDropdown.set(false);
     const emps = this.getEmployeesForExport(mode);
-    await this.exportService.exportAnnualSummary(emps, this.year(), mode);
+    await this.exportService.exportAnnualSummary(emps, this.year(), mode, this.nameDisplayFormat());
   }
 
   async exportDetailed(mode: 'all' | 'filtered') {
     this.showExportDropdown.set(false);
     const emps = this.getEmployeesForExport(mode);
-    await this.exportService.exportDetailedAnnualPresence(emps, this.year(), mode);
+    await this.exportService.exportDetailedAnnualPresence(emps, this.year(), mode, this.nameDisplayFormat());
   }
 
   exportExcel(mode: 'all' | 'filtered') {

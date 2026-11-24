@@ -164,4 +164,23 @@ describe('AnnualPresenceExportService', () => {
     expect(rttCell.fill).toBeDefined();
     expect((rttCell.fill as any)?.fgColor?.argb).toBe('FFFEF3C7'); // Soft amber
   });
+
+  it('should respect nameDisplayFormat in both annual summary and detailed monthly sheets', () => {
+    const absMap = service.buildAbsencesMap(mockAbsences);
+
+    const summaryLastFirst = worksheetTo2DArray(
+      service.buildAnnualSummarySheet([mockEmployee1], absMap, 2026, undefined, 'last_first')
+    );
+    expect(summaryLastFirst[1][0]).toBe('MARTIN Alice');
+
+    const summaryFirstLast = worksheetTo2DArray(
+      service.buildAnnualSummarySheet([mockEmployee1], absMap, 2026, undefined, 'first_last')
+    );
+    expect(summaryFirstLast[1][0]).toBe('Alice MARTIN');
+
+    const detailFirstLast = worksheetTo2DArray(
+      service.buildDetailedMonthSheet([mockEmployee1], absMap, 2026, 0, undefined, 'first_last')
+    );
+    expect(detailFirstLast[1][0]).toBe('Alice MARTIN');
+  });
 });

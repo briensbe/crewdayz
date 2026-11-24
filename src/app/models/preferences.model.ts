@@ -2,8 +2,10 @@ import { ThemePreference } from '../services/theme.service';
 
 export type ScreenId = 'monthly' | 'annual' | 'employeeList';
 
+export type NameDisplayFormat = 'last_first' | 'first_last';
+
 export interface ScreenPreferences {
-  nameDisplayFormat?: 'last_first' | 'first_last';
+  nameDisplayFormat?: NameDisplayFormat;
   showExtraColumns?: boolean;
   sortField?: string;
   sortDirection?: 'asc' | 'desc';
